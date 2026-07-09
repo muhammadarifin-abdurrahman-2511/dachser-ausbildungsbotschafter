@@ -1,0 +1,1155 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Interaktive Praesentation: Mein Weg zum Fachlageristen bei DACHSER SE Neumuenster.">
+</head>
+<body>
+<title>Mein Weg zum Fachlageristen bei DACHSER</title>
+<style>
+  :root{
+    --bg:#EFF3FA;
+    --bg-alt:#DCE5F3;
+    --card:#FFFFFF;
+    --ink:#0B1A38;
+    --ink-soft:#45527012;
+    --ink-soft:#455270;
+    --ink-faint:#8792A8;
+    --line:#C6D2E6;
+    --accent:#0A2E73;      /* DACHSER Blau */
+    --accent-ink:#FFFFFF;
+    --yellow:#FFCC00;      /* DACHSER Gelb */
+    --yellow-ink:#0B1A38;
+    --steel:#26509E;
+    --steel-soft:#D3DEF2;
+    --miss:#C43A2E;
+    --ok:#2F8050;
+    --shadow: 0 18px 40px -20px rgba(11,26,56,0.35);
+    --font-display: ui-monospace, "Cascadia Mono", "Roboto Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#08111F;
+      --bg-alt:#0F1B2E;
+      --card:#132239;
+      --ink:#E9F0FB;
+      --ink-soft:#A7B6CE;
+      --ink-faint:#6B7A94;
+      --line:#243550;
+      --accent:#4C86E8;
+      --accent-ink:#06101F;
+      --yellow:#FFD21A;
+      --yellow-ink:#0B1A38;
+      --steel:#5C93EC;
+      --steel-soft:#1B2C46;
+      --miss:#E06455;
+      --ok:#5FB27C;
+      --shadow: 0 18px 44px -18px rgba(0,0,0,0.65);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#08111F; --bg-alt:#0F1B2E; --card:#132239; --ink:#E9F0FB; --ink-soft:#A7B6CE; --ink-faint:#6B7A94;
+    --line:#243550; --accent:#4C86E8; --accent-ink:#06101F; --yellow:#FFD21A; --yellow-ink:#0B1A38;
+    --steel:#5C93EC; --steel-soft:#1B2C46; --miss:#E06455; --ok:#5FB27C; --shadow: 0 18px 44px -18px rgba(0,0,0,0.65);
+  }
+  :root[data-theme="light"]{
+    --bg:#EFF3FA; --bg-alt:#DCE5F3; --card:#FFFFFF; --ink:#0B1A38; --ink-soft:#455270; --ink-faint:#8792A8;
+    --line:#C6D2E6; --accent:#0A2E73; --accent-ink:#FFFFFF; --yellow:#FFCC00; --yellow-ink:#0B1A38;
+    --steel:#26509E; --steel-soft:#D3DEF2; --miss:#C43A2E; --ok:#2F8050; --shadow: 0 18px 40px -20px rgba(11,26,56,0.35);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{margin:0;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--font-body);}
+  ::selection{background:var(--yellow);color:var(--yellow-ink);}
+  button{font-family:inherit;}
+  :focus-visible{outline:3px solid var(--yellow);outline-offset:3px;border-radius:4px;}
+
+  .deck{
+    position:relative;
+    height:100dvh;
+    width:100%;
+    background-color:var(--bg);
+    background-image:
+      radial-gradient(120% 90% at 12% 0%, color-mix(in srgb, var(--accent) 12%, transparent) 0%, transparent 55%),
+      radial-gradient(120% 90% at 92% 100%, color-mix(in srgb, var(--yellow) 14%, transparent) 0%, transparent 55%),
+      repeating-linear-gradient(0deg, transparent 0 43px, color-mix(in srgb, var(--accent) 3%, transparent) 43px 44px),
+      repeating-linear-gradient(90deg, transparent 0 43px, color-mix(in srgb, var(--accent) 3%, transparent) 43px 44px);
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+
+  /* Animierte Weltkarte / Logistik-Netzwerk im Hintergrund */
+  .deck-bg{
+    position:absolute;inset:0;width:100%;height:100%;
+    z-index:0;pointer-events:none;
+    opacity:.5;transition:opacity .7s ease;
+  }
+  .deck.bg-strong .deck-bg{opacity:.9;}
+  .deck > .hazard,
+  .deck > .deck-topbar,
+  .deck > .progress-track,
+  .deck > .slides,
+  .deck > .deck-footer{position:relative;z-index:2;}
+  .slide-stamp,.kbd-hint{z-index:3;}
+
+  /* Pro Folie ein eigenes, dezentes Hintergrund-Motiv */
+  .slide::before{
+    content:"";position:absolute;inset:0;
+    background-image:var(--motif,none);
+    background-repeat:no-repeat;
+    background-position:right -34px bottom -34px;
+    background-size:min(44%,400px) auto;
+    opacity:.06;pointer-events:none;z-index:0;
+  }
+  @media (prefers-color-scheme: dark){.slide::before{opacity:.10;}}
+  :root[data-theme="dark"] .slide::before{opacity:.10;}
+  :root[data-theme="light"] .slide::before{opacity:.06;}
+  .slide > .slide-inner{position:relative;z-index:1;}
+
+  /* Warnband: blau-gelb, wie Ladungssicherung */
+  .hazard{
+    height:8px;
+    flex-shrink:0;
+    background:repeating-linear-gradient(-45deg, var(--yellow) 0 15px, var(--accent) 15px 30px);
+  }
+
+  .deck-topbar{
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:.7rem clamp(1rem,3vw,2.2rem) .5rem;
+    gap:1rem;
+  }
+  .brand-side{display:flex;align-items:center;gap:.7rem;min-width:0;}
+  .logo-slot-sm{
+    position:relative;
+    flex:0 0 auto;
+    width:118px;height:38px;
+    border:1.5px solid var(--line);
+    border-radius:6px;
+    background:var(--card);
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-display);
+    font-size:.58rem;letter-spacing:.1em;
+    color:var(--ink-faint);
+    text-transform:uppercase;
+    overflow:hidden;
+  }
+  .logo-slot-sm img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:var(--card);}
+  .brand-lockup{
+    font-family:var(--font-display);
+    font-weight:700;
+    letter-spacing:.05em;
+    font-size:.74rem;
+    color:var(--ink);
+    white-space:nowrap;
+    overflow:hidden;text-overflow:ellipsis;
+  }
+  .brand-lockup span{color:var(--ink-faint);font-weight:500;}
+  .topbar-actions{display:flex;gap:.5rem;flex:0 0 auto;}
+  .icon-btn{
+    width:2.3rem;height:2.3rem;
+    border-radius:6px;
+    border:1.5px solid var(--line);
+    background:var(--card);
+    color:var(--ink);
+    font-size:1.05rem;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:transform .15s ease, border-color .15s ease;
+  }
+  .icon-btn:hover{border-color:var(--accent);transform:translateY(-1px);}
+
+  .progress-track{
+    flex-shrink:0;
+    height:4px;
+    background:var(--line);
+    margin:0 clamp(1rem,3vw,2.2rem);
+    border-radius:2px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    background:linear-gradient(90deg, var(--accent), var(--steel));
+    width:0%;
+    transition:width .4s cubic-bezier(.4,0,.2,1);
+  }
+
+  .slides{position:relative;flex:1 1 auto;min-height:0;}
+
+  .slide{
+    position:absolute;inset:0;
+    display:flex;align-items:center;justify-content:center;
+    padding:clamp(1.2rem,4vh,3rem) clamp(1.2rem,4vw,3rem);
+    overflow-y:auto;
+    opacity:0;pointer-events:none;
+    transform:translateX(36px);
+    transition:opacity .38s ease, transform .38s cubic-bezier(.4,0,.2,1);
+  }
+  .slide.is-before{transform:translateX(-36px);}
+  .slide.is-active{opacity:1;pointer-events:auto;transform:translateX(0);}
+  @media (prefers-reduced-motion: reduce){
+    .slide{transition:opacity .25s ease;transform:none !important;}
+  }
+
+  .slide-inner{width:min(980px,100%);margin:auto;}
+
+  .eyebrow{
+    font-family:var(--font-display);
+    text-transform:uppercase;letter-spacing:.14em;
+    font-size:.72rem;color:var(--accent);font-weight:700;
+    margin:0 0 .9rem;display:flex;align-items:center;gap:.5rem;
+  }
+  .eyebrow::before{content:"";width:22px;height:3px;background:var(--yellow);display:inline-block;}
+
+  h1.headline{
+    font-family:var(--font-display);
+    text-transform:uppercase;font-weight:700;letter-spacing:.01em;line-height:1.06;
+    font-size:clamp(1.7rem,4.6vw,3.1rem);
+    margin:0 0 1rem;text-wrap:balance;color:var(--ink);
+  }
+  /* Signature: Gelb-Marker-Highlight auf Blau/Ink */
+  h1.headline .accent{
+    color:var(--ink);
+    background:linear-gradient(transparent 58%, var(--yellow) 58%, var(--yellow) 94%, transparent 94%);
+    padding:0 .12em;
+    box-decoration-break:clone;-webkit-box-decoration-break:clone;
+  }
+
+  p.lede{font-size:clamp(1rem,1.6vw,1.2rem);line-height:1.6;color:var(--ink-soft);max-width:62ch;margin:0 0 1.4rem;}
+
+  /* ---- Foto- & Logo-Platzhalter ---- */
+  .photo-slot{
+    position:relative;
+    border:2.5px dashed var(--accent);
+    border-radius:12px;
+    background-color:var(--bg-alt);
+    background-image:repeating-linear-gradient(-45deg, transparent 0 11px, color-mix(in srgb, var(--accent) 7%, transparent) 11px 12px);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;
+    color:var(--ink-faint);text-align:center;padding:1rem;overflow:hidden;
+    min-height:150px;
+  }
+  .photo-slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:9px;}
+  .photo-slot.contain img{object-fit:contain;padding:.5rem;}
+  .photo-slot .cam{font-size:1.8rem;line-height:1;}
+  .photo-slot .ps-label{font-family:var(--font-display);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--accent);}
+  .photo-slot .ps-hint{font-size:.74rem;line-height:1.35;max-width:22ch;}
+  .photo-slot .corner-tab{
+    position:absolute;top:0;left:0;
+    background:var(--yellow);color:var(--yellow-ink);
+    font-family:var(--font-display);font-size:.56rem;font-weight:700;letter-spacing:.08em;
+    padding:.15rem .5rem;border-radius:0 0 8px 0;text-transform:uppercase;
+  }
+
+  /* COVER */
+  .cover .slide-inner{text-align:left;}
+  .cover-top{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .logo-slot-lg{
+    width:230px;height:82px;
+    border:2.5px dashed var(--accent);border-radius:10px;
+    background:var(--card);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.15rem;
+    position:relative;overflow:hidden;
+  }
+  .logo-slot-lg img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:.5rem;background:var(--card);}
+  .logo-slot-lg .ps-label{font-family:var(--font-display);font-size:.66rem;letter-spacing:.1em;color:var(--accent);font-weight:700;text-transform:uppercase;}
+  .logo-slot-lg .ps-hint{font-size:.62rem;color:var(--ink-faint);}
+  .cover h1{font-size:clamp(2.1rem,6.4vw,4.4rem);}
+  .cover .role{
+    font-family:var(--font-display);color:var(--steel);font-weight:700;letter-spacing:.03em;
+    font-size:clamp(1rem,2vw,1.35rem);margin-top:.6rem;
+  }
+  /* Deko: Logistik-Route */
+  .route{display:flex;align-items:center;gap:.2rem;margin-top:1.8rem;color:var(--accent);font-size:1.1rem;}
+  .route .dot{width:11px;height:11px;border-radius:50%;background:var(--accent);flex:0 0 auto;}
+  .route .dot.end{background:var(--yellow);border:2px solid var(--accent);}
+  .route .line{flex:1 1 auto;height:0;border-top:2.5px dashed var(--line);min-width:30px;}
+  .route .truck{font-size:1.4rem;flex:0 0 auto;}
+
+  /* Reise Indonesien -> Deutschland */
+  .jr-wrap{display:flex;align-items:flex-end;gap:1rem;margin:1.6rem 0 .4rem;flex-wrap:wrap;}
+  .jr-node{display:flex;flex-direction:column;align-items:center;gap:.5rem;flex:0 0 auto;}
+  .jr-pin{width:16px;height:16px;border-radius:50%;box-shadow:0 0 0 5px color-mix(in srgb,var(--accent) 15%,transparent);}
+  .jr-pin.from{background:var(--accent);}
+  .jr-pin.to{background:var(--yellow);box-shadow:0 0 0 5px color-mix(in srgb,var(--yellow) 30%,transparent);}
+  .jr-label{font-family:var(--font-display);font-size:.82rem;font-weight:700;color:var(--ink);letter-spacing:.02em;text-align:center;}
+  .jr-sub{font-size:.68rem;color:var(--ink-faint);font-family:var(--font-display);}
+  .jr-line{position:relative;flex:1 1 140px;min-width:120px;height:20px;align-self:center;}
+  .jr-line::before{content:"";position:absolute;top:50%;left:0;right:0;height:0;border-top:2px dashed var(--steel);opacity:.6;}
+  .jr-plane{position:absolute;top:50%;left:0;transform:translate(-50%,-50%);font-size:1.25rem;animation:fly 7s linear infinite;}
+  @keyframes fly{0%{left:2%}100%{left:98%}}
+  @media (prefers-reduced-motion: reduce){.jr-plane{animation:none;left:50%;}}
+  .jr-dist{align-self:center;font-family:var(--font-display);font-size:.76rem;font-weight:700;color:var(--ink);background:color-mix(in srgb,var(--yellow) 30%,var(--card));border:1px solid var(--yellow);padding:.25rem .7rem;border-radius:20px;white-space:nowrap;}
+  .support-card{
+    margin-top:1.4rem;padding:1.2rem 1.4rem;border-radius:12px;
+    background:var(--card);border:1px solid var(--line);border-left:5px solid var(--yellow);
+    box-shadow:var(--shadow);max-width:64ch;
+  }
+  .support-card .sc-label{font-family:var(--font-display);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:700;display:block;margin-bottom:.5rem;}
+  .support-card p{margin:0;line-height:1.6;color:var(--ink);font-size:1.02rem;}
+  .takeaway{margin-top:1.2rem;font-size:1.05rem;font-weight:600;color:var(--ink);border-left:3px solid var(--accent);padding-left:.9rem;}
+  .cover-footer{margin-top:1.6rem;display:flex;flex-wrap:wrap;gap:1rem 2rem;align-items:center;}
+  .cover-meta{
+    font-family:var(--font-display);font-size:.92rem;font-weight:700;
+    color:var(--ink);letter-spacing:.02em;
+    border-left:4px solid var(--yellow);padding:.35rem 0 .35rem .8rem;
+  }
+  .fillbox{
+    border:1.5px dashed var(--accent);border-radius:8px;padding:.55rem .85rem;
+    font-size:.92rem;color:var(--ink-soft);
+    background:color-mix(in srgb, var(--accent) 7%, transparent);position:relative;
+  }
+  .fillbox .tag{
+    position:absolute;top:-.6rem;left:.6rem;
+    background:var(--yellow);color:var(--yellow-ink);
+    font-family:var(--font-display);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;
+    padding:.1rem .45rem;border-radius:4px;font-weight:700;
+  }
+
+  /* Icebreaker */
+  .choice-row{display:flex;gap:.9rem;flex-wrap:wrap;margin:1.4rem 0;}
+  .choice-btn{
+    padding:.85rem 1.5rem;border-radius:10px;border:2px solid var(--line);
+    background:var(--card);color:var(--ink);font-size:1rem;font-weight:600;cursor:pointer;
+    transition:border-color .15s ease, transform .12s ease, background .15s ease;
+  }
+  .choice-btn:hover{border-color:var(--accent);transform:translateY(-2px);}
+  .choice-btn.chosen{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
+  .reveal-panel{
+    margin-top:1rem;padding:1.1rem 1.3rem;background:var(--bg-alt);
+    border-left:4px solid var(--yellow);border-radius:8px;display:none;max-width:62ch;
+  }
+  .reveal-panel.show{display:block;}
+  .reveal-panel p{margin:0 0 .6rem;line-height:1.55;color:var(--ink-soft);}
+  .reveal-panel p:last-child{margin-bottom:0;}
+  .step2{display:none;}
+  .step2.show{display:block;}
+
+  /* Personal fields */
+  .field-stack{display:flex;flex-direction:column;gap:.8rem;margin-top:1.2rem;max-width:64ch;}
+  .field-row{display:flex;gap:.9rem;align-items:baseline;padding-bottom:.6rem;border-bottom:1px dotted var(--line);}
+  .field-label{font-family:var(--font-display);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);white-space:nowrap;min-width:9.5rem;}
+  .field-value{color:var(--ink-soft);}
+  .field-value.placeholder{font-style:italic;color:var(--ink-faint);}
+
+  .quote-card{
+    margin-top:1.6rem;padding:1.3rem 1.5rem;background:var(--card);border-radius:12px;
+    border:1.5px dashed var(--accent);border-left:5px solid var(--yellow);box-shadow:var(--shadow);max-width:58ch;
+  }
+  .quote-card p{margin:0;font-size:1.1rem;font-style:italic;color:var(--ink);}
+
+  /* Cover-with-photo two column */
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:1.6rem;margin-top:1.4rem;align-items:stretch;}
+  @media (max-width:760px){.split{grid-template-columns:1fr;}}
+
+  /* Stat cards */
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-top:1.4rem;}
+  .stat-card{background:var(--card);border:1px solid var(--line);border-top:3px solid var(--yellow);border-radius:10px;padding:1rem 1.1rem;position:relative;}
+  .stat-num{font-family:var(--font-display);font-variant-numeric:tabular-nums;font-size:1.9rem;font-weight:700;color:var(--accent);line-height:1;}
+  .stat-cap{margin-top:.4rem;font-size:.86rem;color:var(--ink-soft);line-height:1.4;}
+  .check-badge{position:absolute;top:.6rem;right:.6rem;font-family:var(--font-display);font-size:.56rem;letter-spacing:.05em;color:var(--accent);text-transform:uppercase;border:1px solid var(--yellow);background:color-mix(in srgb,var(--yellow) 22%,transparent);border-radius:4px;padding:.1rem .3rem;}
+  .note-strip{margin-top:1.2rem;font-size:.82rem;color:var(--ink-faint);font-family:var(--font-display);}
+
+  /* Task flip cards */
+  .task-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-top:1.4rem;perspective:1000px;}
+  .task-card{height:150px;cursor:pointer;position:relative;}
+  .task-card-inner{position:relative;width:100%;height:100%;transition:transform .5s cubic-bezier(.4,0,.2,1);transform-style:preserve-3d;}
+  .task-card.flipped .task-card-inner{transform:rotateY(180deg);}
+  @media (prefers-reduced-motion: reduce){.task-card-inner{transition:none;}}
+  .task-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:10px;padding:1rem;display:flex;flex-direction:column;justify-content:space-between;}
+  .task-front{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--yellow);}
+  .task-back{background:var(--accent);color:#fff;transform:rotateY(180deg);font-size:.88rem;line-height:1.45;justify-content:center;}
+  .task-num{font-family:var(--font-display);font-size:.72rem;color:var(--steel);letter-spacing:.06em;}
+  .task-label{font-weight:700;font-size:1.05rem;}
+  .task-hint{font-size:.74rem;color:var(--ink-faint);}
+
+  /* Game */
+  .game-wrap{display:grid;grid-template-columns:minmax(220px,280px) 1fr;gap:1.6rem;margin-top:1.2rem;}
+  @media (max-width:760px){.game-wrap{grid-template-columns:1fr;}}
+  .pick-list{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:1rem 1.1rem;align-self:start;}
+  .pick-list h3{margin:0 0 .7rem;font-family:var(--font-display);font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);}
+  .pick-item{display:flex;gap:.5rem;align-items:center;padding:.4rem 0;border-bottom:1px dotted var(--line);font-size:.92rem;}
+  .pick-item:last-child{border-bottom:none;}
+  .pick-item .code{font-family:var(--font-display);color:var(--steel);font-weight:700;min-width:2.6rem;}
+  .pick-item.done{opacity:.4;text-decoration:line-through;}
+  .pick-item.current .code{color:var(--accent);}
+  .pick-item.current{background:color-mix(in srgb,var(--yellow) 20%,transparent);border-radius:5px;padding-left:.4rem;padding-right:.4rem;}
+  .shelf{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.7rem;align-content:start;}
+  .shelf-box{border:2px solid var(--line);border-radius:8px;background:var(--card);padding:.7rem .6rem;text-align:left;cursor:pointer;transition:transform .12s ease, border-color .12s ease, background .2s ease;}
+  .shelf-box:hover{transform:translateY(-2px);border-color:var(--steel);}
+  .shelf-box .code{display:block;font-family:var(--font-display);font-weight:700;color:var(--ink);font-size:.86rem;}
+  .shelf-box .label{display:block;font-size:.76rem;color:var(--ink-soft);margin-top:.15rem;}
+  .shelf-box.correct{background:color-mix(in srgb, var(--ok) 22%, var(--card));border-color:var(--ok);cursor:default;pointer-events:none;}
+  .shelf-box.wrong{animation:shake .3s ease;border-color:var(--miss);background:color-mix(in srgb, var(--miss) 18%, var(--card));}
+  @media (prefers-reduced-motion: reduce){.shelf-box.wrong{animation:none;}}
+  @keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-5px);}75%{transform:translateX(5px);}}
+  .game-status{margin-top:1rem;display:flex;gap:1.4rem;flex-wrap:wrap;font-family:var(--font-display);font-size:.82rem;color:var(--ink-soft);}
+  .game-status b{color:var(--ink);font-variant-numeric:tabular-nums;}
+  .game-done{margin-top:1rem;padding:1rem 1.2rem;background:var(--bg-alt);border-left:4px solid var(--ok);border-radius:8px;display:none;}
+  .game-done.show{display:block;}
+  .game-done p{margin:0 0 .6rem;color:var(--ink-soft);line-height:1.5;}
+  .reset-btn{margin-top:.4rem;padding:.55rem 1.1rem;border-radius:8px;border:1.5px solid var(--accent);background:transparent;color:var(--accent);font-weight:700;cursor:pointer;font-size:.85rem;}
+  .reset-btn:hover{background:var(--accent);color:var(--accent-ink);}
+
+  /* Gallery */
+  .gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem;margin-top:1.4rem;}
+  @media (max-width:760px){.gallery{grid-template-columns:1fr;}}
+  .gallery .photo-slot{min-height:210px;}
+
+  /* Career path */
+  .path-row{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem;margin-top:1.6rem;}
+  .path-step{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:.9rem 1.1rem;min-width:170px;flex:1 1 170px;}
+  .path-step .step-eyebrow{font-family:var(--font-display);font-size:.62rem;color:var(--steel);letter-spacing:.06em;text-transform:uppercase;font-weight:700;}
+  .path-step .step-title{font-weight:700;margin-top:.2rem;}
+  .path-arrow{font-family:var(--font-display);color:var(--yellow);font-size:1.5rem;flex:0 0 auto;padding:0 .2rem;-webkit-text-stroke:.5px var(--accent);}
+  @media (max-width:700px){.path-arrow{transform:rotate(90deg);}}
+
+  /* checklist */
+  .checklist{list-style:none;margin:1.4rem 0 0;padding:0;display:flex;flex-direction:column;gap:.8rem;max-width:58ch;}
+  .checklist li{display:flex;gap:.8rem;align-items:flex-start;font-size:1.05rem;line-height:1.5;color:var(--ink);}
+  .checklist li::before{content:"✓";flex:0 0 auto;width:1.6rem;height:1.6rem;border-radius:50%;background:var(--yellow);color:var(--yellow-ink);display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;margin-top:.1rem;}
+
+  /* Q&A slide */
+  .qa-slide{text-align:center;}
+  .qa-slide h1{font-size:clamp(3rem,10vw,7rem);}
+
+  /* contact */
+  .contact-card{margin-top:1.4rem;background:var(--card);border:1px solid var(--line);border-top:4px solid var(--yellow);border-radius:12px;padding:1.4rem 1.6rem;max-width:34rem;box-shadow:var(--shadow);}
+  .contact-row{display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px dotted var(--line);font-size:.95rem;gap:1rem;}
+  .contact-row:last-child{border-bottom:none;}
+  .contact-row span:first-child{color:var(--ink-faint);font-family:var(--font-display);font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;}
+
+  /* Footer nav */
+  .deck-footer{flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:1.2rem;padding:.8rem 1rem 1.1rem;}
+  .nav-btn{width:2.6rem;height:2.6rem;border-radius:50%;border:2px solid var(--line);background:var(--card);color:var(--ink);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .15s ease, background .15s ease, transform .12s ease;}
+  .nav-btn:hover{border-color:var(--accent);transform:translateY(-1px);}
+  .nav-btn:disabled{opacity:.3;cursor:default;transform:none;}
+  .nav-dots{display:flex;gap:.4rem;}
+  .nav-dot{width:.5rem;height:.5rem;border-radius:50%;background:var(--line);border:none;cursor:pointer;padding:0;transition:background .2s ease, width .2s ease;}
+  .nav-dot.active{background:var(--accent);width:1.4rem;border-radius:4px;}
+
+  .slide-stamp{position:absolute;bottom:1.1rem;right:clamp(1rem,3vw,2.2rem);font-family:var(--font-display);font-size:.72rem;color:var(--ink-faint);border:2px solid var(--ink-faint);border-radius:6px;padding:.15rem .5rem;transform:rotate(-4deg);opacity:.7;letter-spacing:.05em;pointer-events:none;}
+
+  .kbd-hint{position:absolute;top:.9rem;left:50%;transform:translateX(-50%);font-family:var(--font-display);font-size:.68rem;color:var(--ink-faint);background:var(--card);border:1px solid var(--line);border-radius:20px;padding:.3rem .8rem;opacity:0;transition:opacity .4s ease;pointer-events:none;white-space:nowrap;}
+  .kbd-hint.show{opacity:.9;}
+
+  @media (max-width:600px){
+    .field-row{flex-direction:column;gap:.15rem;}
+    .field-label{min-width:auto;}
+    .logo-slot-sm{display:none;}
+  }
+</style>
+
+<div class="deck" id="deck" data-theme-root>
+  <canvas class="deck-bg" id="deckBg" aria-hidden="true"></canvas>
+  <div class="hazard" aria-hidden="true"></div>
+  <div class="deck-topbar">
+    <div class="brand-side">
+      <div class="logo-slot-sm" title="DACHSER"><img src="images/dachser-logo.jpeg" alt="DACHSER Logo" onerror="this.remove()">LOGO</div>
+      <div class="brand-lockup">FACHLAGERIST <span>· AUSBILDUNGSBOTSCHAFTER</span></div>
+    </div>
+    <div class="topbar-actions">
+      <button class="icon-btn" id="fullscreenBtn" aria-label="Vollbildmodus umschalten" title="Vollbild (Taste F)">⛶</button>
+    </div>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+  <div class="slides" id="slides">
+
+    <!-- 0 COVER -->
+    <section class="slide cover" data-index="0" data-motif="globe">
+      <div class="slide-inner">
+        <div class="cover-top">
+          <div class="logo-slot-lg">
+            <img src="images/dachser-logo.jpeg" alt="DACHSER Logo" onerror="this.remove()">
+            <span class="ps-label">DACHSER-Logo</span>
+            <span class="ps-hint">hier einfügen</span>
+          </div>
+        </div>
+        <h1 class="headline">MEIN WEG ZUM <span class="accent">FACHLAGERISTEN</span> BEI DACHSER</h1>
+        <div class="role">Ausbildung · Lager &amp; Logistik</div>
+        <div class="route" aria-hidden="true">
+          <span class="dot"></span><span class="line"></span><span class="truck">🚚</span><span class="line"></span><span class="dot end"></span>
+        </div>
+        <div class="cover-footer">
+          <div class="cover-meta">Muhammad Arifin Abdurrahman · 24 Jahre · 2. Lehrjahr · DACHSER SE Neumünster</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1 ICEBREAKER -->
+    <section class="slide" data-index="1" data-motif="globe">
+      <div class="slide-inner">
+        <p class="eyebrow">Zum Einstieg</p>
+        <h1 class="headline">Kennt ihr <span class="accent">DACHSER</span> schon?</h1>
+        <div id="step1">
+          <p class="lede">Kurze Frage, bevor ich anfange:</p>
+          <p style="font-weight:600;font-size:1.05rem;">Wer von euch hat schon mal einen Lkw mit der Aufschrift „DACHSER“ gesehen?</p>
+          <div class="choice-row">
+            <button class="choice-btn" data-choice="ja">Ja, klar!</button>
+            <button class="choice-btn" data-choice="nein">Noch nie bewusst</button>
+          </div>
+        </div>
+        <div class="reveal-panel" id="panel1">
+          <p>Kein Wunder, egal ob ja oder nein — DACHSER-Fahrzeuge sind in über 40 Ländern unterwegs, oft ohne dass man sie bewusst wahrnimmt.</p>
+        </div>
+        <div class="step2" id="step2">
+          <p style="font-weight:600;font-size:1.05rem;margin-top:1.2rem;">Schätzfrage: Wie viele Sendungen laufen wohl an einem einzigen Tag durch ein größeres DACHSER-Lager?</p>
+          <div class="choice-row">
+            <button class="choice-btn" data-guess="a">Ein paar Hundert</button>
+            <button class="choice-btn" data-guess="b">Ein paar Tausend</button>
+            <button class="choice-btn" data-guess="c">Zehntausende</button>
+          </div>
+          <div class="reveal-panel" id="panel2">
+            <p>In größeren Lagern sind es tatsächlich mehrere Tausend Sendungen — am Ende des Tages muss trotzdem jede einzelne am richtigen Ort landen. Genau darum geht es in meinem Beruf.</p>
+            <p style="font-size:.8rem;"><em>[Tipp: Frag in deinem Betrieb nach der genauen Zahl für deinen Standort und ersetze sie hier.]</em></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 WER BIN ICH -->
+    <section class="slide" data-index="2" data-motif="person">
+      <div class="slide-inner">
+        <p class="eyebrow">Wer steht hier vorne?</p>
+        <h1 class="headline">Wer bin ich?</h1>
+        <div class="split">
+          <div>
+            <div class="field-stack" style="margin-top:.2rem;">
+              <div class="field-row"><span class="field-label">Name</span><span class="field-value">Muhammad Arifin Abdurrahman</span></div>
+              <div class="field-row"><span class="field-label">Alter</span><span class="field-value">24 Jahre</span></div>
+              <div class="field-row"><span class="field-label">Ausbildung</span><span class="field-value">Fachlagerist · 2. Lehrjahr</span></div>
+              <div class="field-row"><span class="field-label">Standort</span><span class="field-value">DACHSER SE, Neumünster</span></div>
+              <div class="field-row"><span class="field-label">Davor</span><span class="field-value placeholder">[Schule / Praktikum / Job — kurz ergänzen]</span></div>
+            </div>
+            <div class="quote-card"><p>„[Ein Satz, der dich beschreibt.]“</p></div>
+          </div>
+          <div class="photo-slot contain">
+            <img src="images/profile-cutout.png" alt="Muhammad Arifin Abdurrahman" onerror="this.remove()">
+            <span class="corner-tab">Foto</span>
+            <span class="cam">📷</span>
+            <span class="ps-label">Foto von dir</span>
+            <span class="ps-hint">z. B. in Arbeitskleidung im Lager</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 WAS IST DACHSER -->
+    <section class="slide" data-index="3" data-motif="truck">
+      <div class="slide-inner">
+        <p class="eyebrow">Der Arbeitgeber</p>
+        <h1 class="headline">Was ist <span class="accent">DACHSER</span> eigentlich?</h1>
+        <div class="split" style="align-items:center;">
+          <div>
+            <p class="lede" style="margin-bottom:1rem;">DACHSER transportiert und lagert Waren für Kund*innen aus Industrie und Handel — vom Joghurt bis zur Maschinenschraube. Ohne Logistik wären die Regale im Supermarkt schnell leer.</p>
+            <div class="stat-grid" style="grid-template-columns:1fr 1fr;">
+              <div class="stat-card"><span class="check-badge">prüfen</span><div class="stat-num">1930</div><div class="stat-cap">gegründet — bis heute Familien&shy;unternehmen</div></div>
+              <div class="stat-card"><span class="check-badge">prüfen</span><div class="stat-num">40+</div><div class="stat-cap">Länder mit eigenen Standorten</div></div>
+            </div>
+          </div>
+          <div class="photo-slot">
+            <img src="images/dachser-lkw.jpg" alt="DACHSER Lkw" onerror="this.remove()">
+            <span class="corner-tab">Foto</span>
+            <span class="cam">🚚</span>
+            <span class="ps-label">DACHSER-Lkw</span>
+            <span class="ps-hint">dein Foto von einem Lkw / dem Standort</span>
+          </div>
+        </div>
+        <p class="note-strip">Fun Fact: Am blau-gelben Auftritt erkennt man DACHSER schon von Weitem.</p>
+      </div>
+    </section>
+
+    <!-- 4 AUFGABEN -->
+    <section class="slide" data-index="4" data-motif="boxes">
+      <div class="slide-inner">
+        <p class="eyebrow">Mein Ausbildungsberuf</p>
+        <h1 class="headline">Was macht ein/e Fachlagerist/in?</h1>
+        <p class="lede" style="margin-bottom:.6rem;">Klickt auf eine Karte, um mehr zu erfahren.</p>
+        <div class="task-grid" id="taskGrid">
+          <div class="task-card"><div class="task-card-inner">
+            <div class="task-face task-front"><span class="task-num">01</span><span class="task-label">Wareneingang</span><span class="task-hint">Klicken →</span></div>
+            <div class="task-face task-back">Lkw be- und entladen und die Lieferung auf Vollständigkeit prüfen.</div>
+          </div></div>
+          <div class="task-card"><div class="task-card-inner">
+            <div class="task-face task-front"><span class="task-num">02</span><span class="task-label">Kontrolle</span><span class="task-hint">Klicken →</span></div>
+            <div class="task-face task-back">Stimmt die Ware mit dem Lieferschein überein? Menge und Zustand checken.</div>
+          </div></div>
+          <div class="task-card"><div class="task-card-inner">
+            <div class="task-face task-front"><span class="task-num">03</span><span class="task-label">Einlagerung</span><span class="task-hint">Klicken →</span></div>
+            <div class="task-face task-back">Ware sicher und sortiert ins Regal bringen — mit Stapler oder Hubwagen.</div>
+          </div></div>
+          <div class="task-card"><div class="task-card-inner">
+            <div class="task-face task-front"><span class="task-num">04</span><span class="task-label">Kommissionierung</span><span class="task-hint">Klicken →</span></div>
+            <div class="task-face task-back">Die richtigen Artikel für eine Bestellung im Lager zusammenstellen.</div>
+          </div></div>
+          <div class="task-card"><div class="task-card-inner">
+            <div class="task-face task-front"><span class="task-num">05</span><span class="task-label">Verpackung</span><span class="task-hint">Klicken →</span></div>
+            <div class="task-face task-back">Ware sicher und transportgerecht verpacken, damit nichts kaputtgeht.</div>
+          </div></div>
+          <div class="task-card"><div class="task-card-inner">
+            <div class="task-face task-front"><span class="task-num">06</span><span class="task-label">Warenausgang</span><span class="task-hint">Klicken →</span></div>
+            <div class="task-face task-back">Ladung für den Lkw vorbereiten, verladen und Ladung sichern.</div>
+          </div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 GAME -->
+    <section class="slide" data-index="5" data-motif="shelf">
+      <div class="slide-inner">
+        <p class="eyebrow">Selbst ausprobieren</p>
+        <h1 class="headline">Kommissionier-Challenge</h1>
+        <p class="lede">Das mache ich fast jeden Tag: die richtigen Artikel für eine Bestellung aus dem Regal holen. Schafft ihr die Liste fehlerfrei?</p>
+        <div class="game-wrap">
+          <div class="pick-list">
+            <h3>Kommissionierliste</h3>
+            <div id="pickListEl"></div>
+          </div>
+          <div>
+            <div class="shelf" id="shelfEl"></div>
+            <div class="game-status">
+              <span>Zeit: <b id="gameTime">0.0s</b></span>
+              <span>Fehlversuche: <b id="gameMiss">0</b></span>
+            </div>
+            <div class="game-done" id="gameDone">
+              <p>Geschafft! In der Praxis zeigt euch ein Scanner den genauen Lagerplatz — trotzdem muss man das Lager im Kopf haben, um schnell zu sein.</p>
+              <button class="reset-btn" id="resetGame">Nochmal spielen</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 GALERIE -->
+    <section class="slide" data-index="6" data-motif="camera">
+      <div class="slide-inner">
+        <p class="eyebrow">Einblicke</p>
+        <h1 class="headline">Mein Arbeitsplatz bei <span class="accent">DACHSER</span></h1>
+        <p class="lede">Ein paar echte Eindrücke aus meinem Alltag — Fotos sagen mehr als tausend Worte.</p>
+        <div class="gallery">
+          <div class="photo-slot"><span class="corner-tab">Foto 1</span><span class="cam">📷</span><span class="ps-label">Das Lager</span><span class="ps-hint">Regale, Hallen, Übersicht</span></div>
+          <div class="photo-slot"><span class="corner-tab">Foto 2</span><span class="cam">🚜</span><span class="ps-label">Technik</span><span class="ps-hint">Stapler, Hubwagen, Scanner</span></div>
+          <div class="photo-slot"><span class="corner-tab">Foto 3</span><span class="cam">📦</span><span class="ps-label">Ich bei der Arbeit</span><span class="ps-hint">z. B. beim Kommissionieren</span></div>
+        </div>
+        <p class="note-strip">Wichtig: Fotos nur mit Erlaubnis deines Betriebs verwenden.</p>
+      </div>
+    </section>
+
+    <!-- 7 WARUM -->
+    <section class="slide" data-index="7" data-motif="spark">
+      <div class="slide-inner">
+        <p class="eyebrow">Meine Geschichte</p>
+        <h1 class="headline">Warum Fachlagerist? Warum DACHSER?</h1>
+        <div class="field-stack">
+          <div class="field-row"><span class="field-label">Vorher</span><span class="field-value placeholder">[Was hast du vor der Ausbildung gemacht?]</span></div>
+          <div class="field-row"><span class="field-label">Der Auslöser</span><span class="field-value placeholder">[Praktikum, Empfehlung, Zufall — wie kam der Kontakt zustande?]</span></div>
+          <div class="field-row"><span class="field-label">Warum DACHSER</span><span class="field-value placeholder">[Was hat dich am Unternehmen überzeugt?]</span></div>
+        </div>
+        <div class="quote-card"><p>„[Ein Satz, der deine Motivation auf den Punkt bringt.]“</p></div>
+      </div>
+    </section>
+
+    <!-- 7b MEIN WEG -->
+    <section class="slide" data-index="7b" data-motif="globe">
+      <div class="slide-inner">
+        <p class="eyebrow">Mein Weg</p>
+        <h1 class="headline">Von <span class="accent">Indonesien</span> nach Deutschland</h1>
+        <div class="jr-wrap" aria-hidden="true">
+          <div class="jr-node">
+            <span class="jr-pin from"></span>
+            <span class="jr-label">Indonesien</span>
+            <span class="jr-sub">meine Heimat</span>
+          </div>
+          <div class="jr-line"><span class="jr-plane">✈️</span></div>
+          <div class="jr-dist">≈ 11.000 km</div>
+          <div class="jr-line"><span class="jr-plane" style="animation-delay:-3.5s;">✈️</span></div>
+          <div class="jr-node">
+            <span class="jr-pin to"></span>
+            <span class="jr-label">Deutschland</span>
+            <span class="jr-sub">meine Ausbildung</span>
+          </div>
+        </div>
+        <div class="split" style="align-items:stretch;margin-top:1rem;">
+          <div>
+            <p class="lede" style="margin-bottom:.4rem;">Ich komme aus Indonesien — rund 11.000 Kilometer von hier. Meine Familie ist weit weg, und ich lebe und lerne hier ganz auf mich allein gestellt.</p>
+            <div class="support-card" style="margin-top:1rem;">
+              <span class="sc-label">Was mir Sicherheit gibt</span>
+              <p>Bei DACHSER fühle ich mich trotzdem nicht allein: Meine Ausbilder und Vorgesetzten sind geduldig, offen und unterstützen mich jeden Tag. So kann ich in Ruhe ankommen und meine Ausbildung Schritt für Schritt meistern.</p>
+            </div>
+            <p class="takeaway">Egal, wo du herkommst — mit dem richtigen Team an deiner Seite ist vieles möglich.</p>
+          </div>
+          <div class="photo-slot">
+            <img src="images/mein-weg.jpg" alt="Muhammad Arifin Abdurrahman" onerror="this.remove()">
+            <span class="corner-tab">Foto</span>
+            <span class="cam">📷</span>
+            <span class="ps-label">Foto von dir</span>
+            <span class="ps-hint">z. B. ein persönliches Foto</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 FAKTEN -->
+    <section class="slide" data-index="8" data-motif="chart">
+      <div class="slide-inner">
+        <p class="eyebrow">Fakten-Check</p>
+        <h1 class="headline">Zahlen zu meiner Ausbildung</h1>
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-num">2</div><div class="stat-cap">Jahre Ausbildungsdauer (Regelzeit)</div></div>
+          <div class="stat-card"><span class="check-badge">ausfüllen</span><div class="stat-num">[€]</div><div class="stat-cap">Ausbildungsvergütung 1./2. Jahr</div></div>
+          <div class="stat-card"><span class="check-badge">ausfüllen</span><div class="stat-num">[X]</div><div class="stat-cap">Urlaubstage pro Jahr</div></div>
+          <div class="stat-card"><span class="check-badge">ausfüllen</span><div class="stat-num">[?]</div><div class="stat-cap">Berufsschule: Block- oder wöchentl. Unterricht</div></div>
+        </div>
+        <p class="note-strip">Quelle: dein Ausbildungsvertrag — Zahlen vor der Präsentation aktuell halten.</p>
+      </div>
+    </section>
+
+    <!-- 9 VORAUSSETZUNGEN -->
+    <section class="slide" data-index="9" data-motif="checklist">
+      <div class="slide-inner">
+        <p class="eyebrow">Der Weg rein</p>
+        <h1 class="headline">Voraussetzungen &amp; Bewerbung</h1>
+        <div class="game-wrap" style="grid-template-columns:1fr 1fr;">
+          <div>
+            <h3 style="font-family:var(--font-display);font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin:0 0 .6rem;">Was du mitbringen solltest</h3>
+            <ul class="checklist" style="max-width:none;margin-top:.4rem;">
+              <li>Körperliche Fitness — viel Stehen, Laufen, Heben</li>
+              <li>Sorgfalt &amp; Genauigkeit</li>
+              <li>Teamfähigkeit</li>
+              <li>Interesse an Technik — Stapler, Scanner, Lagersysteme</li>
+              <li>In der Regel: Haupt- oder Realschulabschluss</li>
+            </ul>
+          </div>
+          <div>
+            <h3 style="font-family:var(--font-display);font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin:0 0 .6rem;">Mein Bewerbungsweg</h3>
+            <div class="fillbox"><span class="tag">Ausfüllen</span>[Wie hast du dich beworben — online, nach einem Praktikum, über eine Messe? Wie lief das Vorstellungsgespräch oder der Eignungstest ab?]</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 KARRIERE -->
+    <section class="slide" data-index="10" data-motif="path">
+      <div class="slide-inner">
+        <p class="eyebrow">Und danach?</p>
+        <h1 class="headline">Wie geht's nach der Ausbildung weiter?</h1>
+        <div class="path-row">
+          <div class="path-step"><div class="step-eyebrow">Start</div><div class="step-title">Fachlagerist/in (2 J.)</div></div>
+          <div class="path-arrow">→</div>
+          <div class="path-step"><div class="step-eyebrow">Aufbau</div><div class="step-title">Fachkraft für Lagerlogistik</div></div>
+          <div class="path-arrow">→</div>
+          <div class="path-step"><div class="step-eyebrow">Weiterbildung</div><div class="step-title">Logistikmeister/in oder Fachwirt/in</div></div>
+          <div class="path-arrow">→</div>
+          <div class="path-step"><div class="step-eyebrow">Perspektive</div><div class="step-title">Team- oder Schichtleitung</div></div>
+        </div>
+        <p class="lede" style="margin-top:1.6rem;">Lagerlogistik wird überall gebraucht — vom kleinen Onlinehändler bis zum globalen Unternehmen wie DACHSER. Wer will, kann sich immer weiter hocharbeiten.</p>
+      </div>
+    </section>
+
+    <!-- 11 ZUSAMMENFASSUNG -->
+    <section class="slide" data-index="11" data-motif="badge">
+      <div class="slide-inner">
+        <p class="eyebrow">Auf den Punkt gebracht</p>
+        <h1 class="headline">Diese Ausbildung ist für dich, wenn du…</h1>
+        <ul class="checklist">
+          <li>gerne anpackst und dich bewegst, statt den ganzen Tag zu sitzen</li>
+          <li>Ordnung und Struktur magst</li>
+          <li>gerne im Team arbeitest</li>
+          <li>Verantwortung übernehmen willst — ein Fehler im Lager wirkt sich schnell auf den ganzen Versand aus</li>
+          <li>Interesse an Technik hast — Stapler, Scanner, Lagerverwaltungssysteme</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 12 FRAGEN -->
+    <section class="slide qa-slide" data-index="12" data-motif="question">
+      <div class="slide-inner">
+        <p class="eyebrow" style="justify-content:center;">Jetzt seid ihr dran</p>
+        <h1 class="headline"><span class="accent">FRAGEN?</span></h1>
+        <p class="lede" style="margin:0 auto;">Ich freue mich auf eure Fragen — es gibt keine dummen!</p>
+      </div>
+    </section>
+
+    <!-- 13 KONTAKT -->
+    <section class="slide" data-index="13" data-motif="pin">
+      <div class="slide-inner">
+        <p class="eyebrow">Danke</p>
+        <h1 class="headline">Danke für eure Aufmerksamkeit!</h1>
+        <div class="split" style="align-items:center;">
+          <div class="contact-card" style="margin-top:0;">
+            <div class="contact-row"><span>Name</span><span class="field-value">Muhammad Arifin Abdurrahman</span></div>
+            <div class="contact-row"><span>Unternehmen</span><span>DACHSER SE</span></div>
+            <div class="contact-row"><span>Standort</span><span>Neumünster</span></div>
+            <div class="contact-row"><span>Kontakt</span><span class="field-value placeholder">[E-Mail oder über Schule/IHK]</span></div>
+          </div>
+          <div class="logo-slot-lg" style="width:100%;height:120px;">
+            <img src="images/dachser-logo.jpeg" alt="DACHSER Logo" onerror="this.remove()">
+            <span class="ps-label">DACHSER-Logo</span>
+            <span class="ps-hint">hier einfügen</span>
+          </div>
+        </div>
+        <p class="note-strip" style="margin-top:1.2rem;">Mehr zur Ausbildung: dachser.com/karriere</p>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="deck-footer">
+    <button class="nav-btn" id="prevBtn" aria-label="Vorherige Folie">←</button>
+    <div class="nav-dots" id="navDots"></div>
+    <button class="nav-btn" id="nextBtn" aria-label="Nächste Folie">→</button>
+  </div>
+
+  <div class="slide-stamp" id="slideStamp">01 / 15</div>
+  <div class="kbd-hint" id="kbdHint">← → zum Navigieren · F für Vollbild</div>
+</div>
+
+<script>
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var total = slides.length;
+  var current = 0;
+  var dotsEl = document.getElementById('navDots');
+  var prevBtn = document.getElementById('prevBtn');
+  var nextBtn = document.getElementById('nextBtn');
+  var progressFill = document.getElementById('progressFill');
+  var stamp = document.getElementById('slideStamp');
+  var fullscreenBtn = document.getElementById('fullscreenBtn');
+  var kbdHint = document.getElementById('kbdHint');
+  var deck = document.getElementById('deck');
+
+  slides.forEach(function(s, i){
+    var dot = document.createElement('button');
+    dot.className = 'nav-dot';
+    dot.setAttribute('aria-label', 'Zu Folie ' + (i+1));
+    dot.addEventListener('click', function(){ goTo(i); });
+    dotsEl.appendChild(dot);
+  });
+  var dots = Array.prototype.slice.call(dotsEl.children);
+
+  function render(){
+    slides.forEach(function(s, i){
+      s.classList.remove('is-active','is-before');
+      if(i < current) s.classList.add('is-before');
+      else if(i === current) s.classList.add('is-active');
+    });
+    dots.forEach(function(d, i){ d.classList.toggle('active', i === current); });
+    progressFill.style.width = ((current+1)/total*100) + '%';
+    stamp.textContent = String(current+1).padStart(2,'0') + ' / ' + total;
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === total - 1;
+    var globalSlides = {0:1,1:1,3:1,6:1,8:1,11:1,14:1};
+    deck.classList.toggle('bg-strong', !!globalSlides[current]);
+  }
+
+  function goTo(i){ current = Math.max(0, Math.min(total-1, i)); render(); }
+
+  prevBtn.addEventListener('click', function(){ goTo(current-1); });
+  nextBtn.addEventListener('click', function(){ goTo(current+1); });
+
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' '){ e.preventDefault(); goTo(current+1); }
+    else if(e.key === 'ArrowLeft' || e.key === 'ArrowUp'){ e.preventDefault(); goTo(current-1); }
+    else if(e.key === 'Home'){ goTo(0); }
+    else if(e.key === 'End'){ goTo(total-1); }
+    else if(e.key === 'f' || e.key === 'F'){ toggleFullscreen(); }
+  });
+
+  function toggleFullscreen(){
+    if(!document.fullscreenElement){ deck.requestFullscreen && deck.requestFullscreen(); }
+    else { document.exitFullscreen && document.exitFullscreen(); }
+  }
+  fullscreenBtn.addEventListener('click', toggleFullscreen);
+
+  render();
+  setTimeout(function(){ kbdHint.classList.add('show'); }, 500);
+  setTimeout(function(){ kbdHint.classList.remove('show'); }, 4500);
+
+  /* Icebreaker */
+  var panel1 = document.getElementById('panel1');
+  var step2 = document.getElementById('step2');
+  var panel2 = document.getElementById('panel2');
+  document.querySelectorAll('[data-choice]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('[data-choice]').forEach(function(b){ b.classList.remove('chosen'); });
+      btn.classList.add('chosen'); panel1.classList.add('show'); step2.classList.add('show');
+    });
+  });
+  document.querySelectorAll('[data-guess]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('[data-guess]').forEach(function(b){ b.classList.remove('chosen'); });
+      btn.classList.add('chosen'); panel2.classList.add('show');
+    });
+  });
+
+  /* Flip cards */
+  document.querySelectorAll('.task-card').forEach(function(card){
+    card.addEventListener('click', function(){ card.classList.toggle('flipped'); });
+  });
+
+  /* Kommissionier game */
+  var pickListData = [
+    {id:'a12', code:'A-12', label:'Blaue Kiste'},
+    {id:'b04', code:'B-04', label:'Karton klein'},
+    {id:'c07', code:'C-07', label:'Palette Getränke'},
+    {id:'d19', code:'D-19', label:'Ersatzteil-Box'},
+    {id:'e02', code:'E-02', label:'Paket rot'}
+  ];
+  var distractors = [
+    {id:'x1', code:'A-03', label:'Karton groß'},
+    {id:'x2', code:'B-11', label:'Kiste grau'},
+    {id:'x3', code:'C-15', label:'Palette leer'},
+    {id:'x4', code:'D-08', label:'Werkzeugkasten'},
+    {id:'x5', code:'E-20', label:'Paket gelb'}
+  ];
+  var pickListEl = document.getElementById('pickListEl');
+  var shelfEl = document.getElementById('shelfEl');
+  var gameTimeEl = document.getElementById('gameTime');
+  var gameMissEl = document.getElementById('gameMiss');
+  var gameDoneEl = document.getElementById('gameDone');
+  var resetBtn = document.getElementById('resetGame');
+  var gameIdx, misses, startTime, timerHandle;
+
+  function shuffle(arr){
+    var a = arr.slice();
+    for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; }
+    return a;
+  }
+  function renderPickList(){
+    pickListEl.innerHTML = '';
+    pickListData.forEach(function(item, i){
+      var row = document.createElement('div');
+      row.className = 'pick-item' + (i < gameIdx ? ' done' : '') + (i === gameIdx ? ' current' : '');
+      row.innerHTML = '<span class="code">' + item.code + '</span><span>' + item.label + '</span>';
+      pickListEl.appendChild(row);
+    });
+  }
+  function renderShelf(){
+    var items = shuffle(pickListData.concat(distractors));
+    shelfEl.innerHTML = '';
+    items.forEach(function(item){
+      var box = document.createElement('button');
+      box.className = 'shelf-box';
+      box.dataset.id = item.id;
+      box.innerHTML = '<span class="code">' + item.code + '</span><span class="label">' + item.label + '</span>';
+      box.addEventListener('click', function(){ onShelfClick(box, item); });
+      shelfEl.appendChild(box);
+    });
+  }
+  function onShelfClick(box, item){
+    if(startTime === null){ startTime = Date.now(); timerHandle = setInterval(updateTimer, 100); }
+    if(item.id === pickListData[gameIdx].id){
+      box.classList.add('correct'); gameIdx++; renderPickList();
+      if(gameIdx === pickListData.length){ clearInterval(timerHandle); gameDoneEl.classList.add('show'); }
+    } else {
+      box.classList.add('wrong'); misses++; gameMissEl.textContent = misses;
+      setTimeout(function(){ box.classList.remove('wrong'); }, 350);
+    }
+  }
+  function updateTimer(){ var t=(Date.now()-startTime)/1000; gameTimeEl.textContent = t.toFixed(1)+'s'; }
+  function resetGame(){
+    gameIdx=0; misses=0; startTime=null;
+    if(timerHandle) clearInterval(timerHandle);
+    gameTimeEl.textContent='0.0s'; gameMissEl.textContent='0'; gameDoneEl.classList.remove('show');
+    renderPickList(); renderShelf();
+  }
+  resetBtn.addEventListener('click', resetGame);
+  resetGame();
+
+  /* ---- Pro-Folie-Motive als SVG-Wasserzeichen ---- */
+  var svgHead = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="#5C7AB0" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">';
+  var motifBody = {
+    globe:'<circle cx="50" cy="50" r="34"/><ellipse cx="50" cy="50" rx="14" ry="34"/><path d="M17 39 H83 M17 61 H83"/>',
+    person:'<circle cx="50" cy="33" r="16"/><path d="M22 80 a28 28 0 0 1 56 0"/>',
+    truck:'<path d="M8 30 h44 v34 h-44 z"/><path d="M52 41 h20 l12 13 v9 h-32 z"/><circle cx="24" cy="72" r="7"/><circle cx="70" cy="72" r="7"/>',
+    boxes:'<path d="M16 44 h26 v26 h-26 z"/><path d="M50 44 h26 v26 h-26 z"/><path d="M33 14 h26 v26 h-26 z"/><path d="M16 44 h26 M50 44 h26 M33 14 h26"/>',
+    shelf:'<path d="M14 22 h72 M14 50 h72 M14 78 h72 M14 22 v56 M86 22 v56"/><path d="M24 30 h18 v14 h-18 z M58 58 h18 v14 h-18 z"/>',
+    camera:'<path d="M12 36 h16 l6 -8 h20 l6 8 h16 v40 h-64 z"/><circle cx="48" cy="58" r="14"/>',
+    spark:'<path d="M50 16 V84 M16 50 H84 M27 27 L73 73 M73 27 L27 73"/>',
+    chart:'<path d="M14 82 H86"/><path stroke-width="8" d="M26 82 V60 M44 82 V40 M62 82 V50 M80 82 V26"/>',
+    checklist:'<path d="M22 30 h44 M22 50 h44 M22 70 h26"/><path d="M72 62 l7 8 l14 -18"/>',
+    path:'<path stroke-dasharray="1 9" d="M14 84 C 44 84 42 44 70 42 S 88 22 92 14"/><circle cx="14" cy="84" r="5"/><circle cx="90" cy="16" r="6"/>',
+    badge:'<circle cx="50" cy="40" r="24"/><path d="M37 60 l-8 26 l21 -12 l21 12 l-8 -26"/>',
+    question:'<path d="M37 37 a15 15 0 1 1 22 13 c-7 5 -9 8 -9 15"/><circle cx="50" cy="80" r="3.5" fill="#5C7AB0" stroke="none"/>',
+    pin:'<path d="M50 88 C 30 60 26 47 26 39 a24 24 0 0 1 48 0 c0 8 -4 21 -24 49 z"/><circle cx="50" cy="39" r="9"/>'
+  };
+  slides.forEach(function(s){
+    var key = s.getAttribute('data-motif');
+    if(key && motifBody[key]){
+      var uri = 'url("data:image/svg+xml,' + encodeURIComponent(svgHead + motifBody[key] + '</svg>') + '")';
+      s.style.setProperty('--motif', uri);
+    }
+  });
+
+  /* ---- Animiertes Weltkarten-Netzwerk (Canvas) ---- */
+  var canvas = document.getElementById('deckBg');
+  var ctx = canvas.getContext('2d');
+  var W = 0, H = 0, dpr = 1;
+  var mapCanvas, mctx;
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Hubs grob wie Kontinente auf einer Weltkarte (normalisiert 0..1)
+  var hubs = [
+    {x:.15,y:.36,rx:.085,ry:.11,n:70}, // Nordamerika
+    {x:.27,y:.66,rx:.05,ry:.12,n:46},  // Südamerika
+    {x:.49,y:.30,rx:.055,ry:.07,n:52}, // Europa
+    {x:.53,y:.57,rx:.07,ry:.13,n:60},  // Afrika
+    {x:.605,y:.40,rx:.03,ry:.04,n:18}, // Naher Osten
+    {x:.68,y:.47,rx:.04,ry:.055,n:34}, // Indien
+    {x:.80,y:.34,rx:.07,ry:.075,n:62}, // Ostasien
+    {x:.835,y:.56,rx:.045,ry:.05,n:30},// Südostasien
+    {x:.89,y:.73,rx:.05,ry:.05,n:30}   // Australien
+  ];
+  var routes = [[0,2],[2,4],[4,5],[5,7],[7,6],[6,8],[7,8],[0,1],[1,3],[3,2],[2,6],[0,6],[5,3]];
+
+  var colors = {dot:'#0A2E73', arc:'#26509E', pulse:'#FFCC00'};
+  function readColors(){
+    var cs = getComputedStyle(document.documentElement);
+    colors.dot = (cs.getPropertyValue('--accent')||'#0A2E73').trim();
+    colors.arc = (cs.getPropertyValue('--steel')||'#26509E').trim();
+    colors.pulse = (cs.getPropertyValue('--yellow')||'#FFCC00').trim();
+  }
+
+  function gauss(){ return (Math.random()+Math.random()+Math.random()-1.5)/1.5; }
+
+  function hubPix(h){ return {x:h.x*W, y:h.y*H}; }
+
+  function buildMap(){
+    mapCanvas = document.createElement('canvas');
+    mapCanvas.width = Math.max(1, Math.floor(W*dpr));
+    mapCanvas.height = Math.max(1, Math.floor(H*dpr));
+    mctx = mapCanvas.getContext('2d');
+    mctx.scale(dpr, dpr);
+    // Punktraster-Kontinente
+    var dotSize = Math.max(1.4, W/900*1.7);
+    mctx.fillStyle = colors.dot;
+    hubs.forEach(function(h){
+      for(var i=0;i<h.n;i++){
+        var x = (h.x + gauss()*h.rx) * W;
+        var y = (h.y + gauss()*h.ry) * H;
+        mctx.globalAlpha = 0.16 + Math.random()*0.28;
+        mctx.fillRect(x, y, dotSize, dotSize);
+      }
+    });
+    // Routen (statische, gebogene Linien zwischen den Hubs)
+    mctx.globalAlpha = 1;
+    routes.forEach(function(r){
+      var a = hubPix(hubs[r[0]]), b = hubPix(hubs[r[1]]);
+      var mx = (a.x+b.x)/2, my = (a.y+b.y)/2;
+      var dx = b.x-a.x, dy = b.y-a.y;
+      var len = Math.sqrt(dx*dx+dy*dy) || 1;
+      var cx = mx + (-dy/len)*len*0.16;
+      var cy = my + (dx/len)*len*0.16 - len*0.12;
+      r._c = {x:cx, y:cy}; r._a = a; r._b = b;
+      mctx.strokeStyle = colors.arc;
+      mctx.globalAlpha = 0.16;
+      mctx.lineWidth = 1.1;
+      mctx.beginPath();
+      mctx.moveTo(a.x, a.y);
+      mctx.quadraticCurveTo(cx, cy, b.x, b.y);
+      mctx.stroke();
+    });
+    mctx.globalAlpha = 1;
+  }
+
+  function bezier(a, c, b, t){
+    var mt = 1-t;
+    return {
+      x: mt*mt*a.x + 2*mt*t*c.x + t*t*b.x,
+      y: mt*mt*a.y + 2*mt*t*c.y + t*t*b.y
+    };
+  }
+
+  var pulses = [];
+  function seedPulses(){
+    pulses = [];
+    routes.forEach(function(r, i){
+      pulses.push({r:r, t:Math.random(), speed:0.05 + Math.random()*0.06});
+      if(i % 2 === 0) pulses.push({r:r, t:Math.random(), speed:0.05 + Math.random()*0.06});
+    });
+  }
+
+  function resize(){
+    var rect = deck.getBoundingClientRect();
+    W = rect.width; H = rect.height;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.floor(W*dpr);
+    canvas.height = Math.floor(H*dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    readColors();
+    buildMap();
+    if(!pulses.length) seedPulses();
+  }
+
+  var last = 0;
+  function frame(ts){
+    var dt = last ? Math.min((ts-last)/1000, 0.05) : 0.016;
+    last = ts;
+    ctx.clearRect(0, 0, W, H);
+    if(mapCanvas) ctx.drawImage(mapCanvas, 0, 0, W, H);
+    ctx.save();
+    ctx.fillStyle = colors.pulse;
+    ctx.shadowColor = colors.pulse;
+    ctx.shadowBlur = 8;
+    pulses.forEach(function(p){
+      p.t += p.speed*dt;
+      if(p.t > 1) p.t -= 1;
+      var r = p.r;
+      if(!r._a) return;
+      var pos = bezier(r._a, r._c, r._b, p.t);
+      ctx.globalAlpha = 0.85;
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, 2.2, 0, Math.PI*2);
+      ctx.fill();
+    });
+    ctx.restore();
+    rafId = requestAnimationFrame(frame);
+  }
+
+  var rafId = null;
+  function start(){
+    resize();
+    if(reduce){
+      // Statisch: einmal zeichnen mit Puls in Routenmitte
+      ctx.clearRect(0,0,W,H);
+      if(mapCanvas) ctx.drawImage(mapCanvas,0,0,W,H);
+      ctx.save();
+      ctx.fillStyle = colors.pulse;
+      routes.forEach(function(r){
+        if(!r._a) return;
+        var pos = bezier(r._a, r._c, r._b, 0.5);
+        ctx.globalAlpha = 0.8;
+        ctx.beginPath(); ctx.arc(pos.x,pos.y,2.2,0,Math.PI*2); ctx.fill();
+      });
+      ctx.restore();
+    } else {
+      if(rafId) cancelAnimationFrame(rafId);
+      last = 0;
+      rafId = requestAnimationFrame(frame);
+    }
+  }
+
+  var rt;
+  window.addEventListener('resize', function(){
+    clearTimeout(rt);
+    rt = setTimeout(start, 200);
+  });
+  document.addEventListener('fullscreenchange', function(){ setTimeout(start, 120); });
+
+  // Auf Theme-Wechsel Farben neu lesen
+  var mq = window.matchMedia('(prefers-color-scheme: dark)');
+  if(mq.addEventListener) mq.addEventListener('change', function(){ readColors(); buildMap(); });
+  new MutationObserver(function(){ readColors(); buildMap(); })
+    .observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
+
+  start();
+})();
+</script>
+</body>
+</html>
