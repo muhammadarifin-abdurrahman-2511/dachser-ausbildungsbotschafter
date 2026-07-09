@@ -164,6 +164,10 @@
     transition:transform .15s ease, border-color .15s ease;
   }
   .icon-btn:hover{border-color:var(--accent);transform:translateY(-1px);}
+  .icon-btn.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
+  @keyframes sndpulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 55%,transparent);}50%{box-shadow:0 0 0 5px color-mix(in srgb,var(--accent) 0%,transparent);}}
+  .icon-btn.on{animation:sndpulse 2.4s ease-in-out infinite;}
+  @media (prefers-reduced-motion: reduce){.icon-btn.on{animation:none;}}
 
   .progress-track{
     flex-shrink:0;
@@ -454,6 +458,7 @@
       <div class="brand-lockup">FACHLAGERIST <span>· AUSBILDUNGSBOTSCHAFTER</span></div>
     </div>
     <div class="topbar-actions">
+      <button class="icon-btn" id="soundBtn" aria-label="Hintergrundsound an/aus" aria-pressed="false" title="Sound an/aus (Taste M)">🔈</button>
       <button class="icon-btn" id="fullscreenBtn" aria-label="Vollbildmodus umschalten" title="Vollbild (Taste F)">⛶</button>
     </div>
   </div>
@@ -823,6 +828,106 @@
   var fullscreenBtn = document.getElementById('fullscreenBtn');
   var kbdHint = document.getElementById('kbdHint');
   var deck = document.getElementById('deck');
+  var soundBtn = document.getElementById('soundBtn');
+
+  /* ---- Sound-Engine (PS5-artiger Boot + Ambient + Slide-Whoosh), rein synthetisiert ---- */
+  var AudioFX = (function(){
+    var ctx=null, master=null, ambient=null, noiseBuf=null, enabled=false;
+    function ensure(){
+      if(ctx) return;
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC) return;
+      ctx = new AC();
+      master = ctx.createGain(); master.gain.value=0.85; master.connect(ctx.destination);
+      // 1s Rauschpuffer fuer Whoosh
+      noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
+      var d = noiseBuf.getChannelData(0);
+      for(var i=0;i<d.length;i++){ d[i] = Math.random()*2-1; }
+    }
+    function t(){ return ctx.currentTime; }
+    function boot(){
+      if(!ctx) return;
+      var s=t();
+      var g=ctx.createGain();
+      g.gain.setValueAtTime(0.0001,s);
+      g.gain.exponentialRampToValueAtTime(0.22, s+1.4);
+      g.gain.exponentialRampToValueAtTime(0.0001, s+3.8);
+      var filt=ctx.createBiquadFilter(); filt.type='lowpass'; filt.Q.value=0.8;
+      filt.frequency.setValueAtTime(180,s);
+      filt.frequency.exponentialRampToValueAtTime(4200, s+2.0);
+      g.connect(filt); filt.connect(master);
+      [146.83,220,277.18,329.63].forEach(function(f){ // Dmaj7-artiger, warmer Akkord
+        var o=ctx.createOscillator(); o.type='sine'; o.frequency.value=f;
+        var o2=ctx.createOscillator(); o2.type='sine'; o2.frequency.value=f*1.004;
+        o.connect(g); o2.connect(g);
+        o.start(s); o2.start(s); o.stop(s+4.0); o2.stop(s+4.0);
+      });
+      var sh=ctx.createGain();
+      sh.gain.setValueAtTime(0.0001,s);
+      sh.gain.exponentialRampToValueAtTime(0.05, s+1.6);
+      sh.gain.exponentialRampToValueAtTime(0.0001, s+4.0);
+      sh.connect(master);
+      [1318.5,1760.0].forEach(function(f){
+        var o=ctx.createOscillator(); o.type='sine'; o.frequency.value=f;
+        var lfo=ctx.createOscillator(); lfo.frequency.value=5.5;
+        var lg=ctx.createGain(); lg.gain.value=4; lfo.connect(lg); lg.connect(o.frequency);
+        o.connect(sh); o.start(s); lfo.start(s); o.stop(s+4.0); lfo.stop(s+4.0);
+      });
+    }
+    function startAmbient(){
+      if(!ctx || ambient) return;
+      var s=t();
+      var g=ctx.createGain(); g.gain.value=0.0001;
+      g.gain.setTargetAtTime(0.045, s, 2.5);
+      var filt=ctx.createBiquadFilter(); filt.type='lowpass'; filt.frequency.value=520; filt.Q.value=3;
+      filt.connect(g); g.connect(master);
+      var lfo=ctx.createOscillator(); lfo.frequency.value=0.06;
+      var lg=ctx.createGain(); lg.gain.value=260; lfo.connect(lg); lg.connect(filt.frequency); lfo.start(s);
+      var oscs=[73.42,110,146.83].map(function(f){
+        var o=ctx.createOscillator(); o.type='sawtooth'; o.frequency.value=f;
+        var og=ctx.createGain(); og.gain.value=0.28; o.connect(og); og.connect(filt); o.start(s); return o;
+      });
+      ambient={g:g,oscs:oscs,lfo:lfo};
+    }
+    function stopAmbient(){
+      if(!ambient) return;
+      var s=t(); var a=ambient; ambient=null;
+      a.g.gain.setTargetAtTime(0.0001, s, 0.6);
+      setTimeout(function(){ try{ a.oscs.forEach(function(o){o.stop();}); a.lfo.stop(); }catch(e){} }, 1400);
+    }
+    function whoosh(){
+      if(!enabled || !ctx || !noiseBuf) return;
+      var s=t(), dur=0.34;
+      var src=ctx.createBufferSource(); src.buffer=noiseBuf;
+      var bp=ctx.createBiquadFilter(); bp.type='bandpass'; bp.Q.value=1.1;
+      bp.frequency.setValueAtTime(450,s);
+      bp.frequency.exponentialRampToValueAtTime(2600, s+dur);
+      var g=ctx.createGain();
+      g.gain.setValueAtTime(0.0001,s);
+      g.gain.exponentialRampToValueAtTime(0.06, s+0.05);
+      g.gain.exponentialRampToValueAtTime(0.0001, s+dur);
+      src.connect(bp); bp.connect(g); g.connect(master);
+      src.start(s); src.stop(s+dur+0.05);
+    }
+    function toggle(){
+      ensure();
+      if(!ctx) return false;
+      if(ctx.state==='suspended') ctx.resume();
+      enabled = !enabled;
+      if(enabled){ boot(); setTimeout(startAmbient, 900); }
+      else { stopAmbient(); }
+      return enabled;
+    }
+    return {toggle:toggle, whoosh:whoosh, isOn:function(){return enabled;}};
+  })();
+
+  function updateSoundBtn(){
+    var on = AudioFX.isOn();
+    soundBtn.classList.toggle('on', on);
+    soundBtn.textContent = on ? '🔊' : '🔈';
+    soundBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  }
+  soundBtn.addEventListener('click', function(){ AudioFX.toggle(); updateSoundBtn(); });
 
   slides.forEach(function(s, i){
     var dot = document.createElement('button');
@@ -848,7 +953,11 @@
     deck.classList.toggle('bg-strong', !!globalSlides[current]);
   }
 
-  function goTo(i){ current = Math.max(0, Math.min(total-1, i)); render(); }
+  function goTo(i){
+    var target = Math.max(0, Math.min(total-1, i));
+    if(target !== current){ current = target; AudioFX.whoosh(); }
+    render();
+  }
 
   prevBtn.addEventListener('click', function(){ goTo(current-1); });
   nextBtn.addEventListener('click', function(){ goTo(current+1); });
@@ -859,6 +968,7 @@
     else if(e.key === 'Home'){ goTo(0); }
     else if(e.key === 'End'){ goTo(total-1); }
     else if(e.key === 'f' || e.key === 'F'){ toggleFullscreen(); }
+    else if(e.key === 'm' || e.key === 'M'){ AudioFX.toggle(); updateSoundBtn(); }
   });
 
   function toggleFullscreen(){
