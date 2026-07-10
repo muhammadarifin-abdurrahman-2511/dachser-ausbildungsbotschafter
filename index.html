@@ -375,30 +375,242 @@
   /* Game */
   .game-wrap{display:grid;grid-template-columns:minmax(220px,280px) 1fr;gap:1.6rem;margin-top:1.2rem;}
   @media (max-width:760px){.game-wrap{grid-template-columns:1fr;}}
-  .pick-list{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:1rem 1.1rem;align-self:start;}
-  .pick-list h3{margin:0 0 .7rem;font-family:var(--font-display);font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);}
-  .pick-item{display:flex;gap:.5rem;align-items:center;padding:.4rem 0;border-bottom:1px dotted var(--line);font-size:.92rem;}
-  .pick-item:last-child{border-bottom:none;}
-  .pick-item .code{font-family:var(--font-display);color:var(--steel);font-weight:700;min-width:2.6rem;}
-  .pick-item.done{opacity:.4;text-decoration:line-through;}
-  .pick-item.current .code{color:var(--accent);}
-  .pick-item.current{background:color-mix(in srgb,var(--yellow) 20%,transparent);border-radius:5px;padding-left:.4rem;padding-right:.4rem;}
-  .shelf{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.7rem;align-content:start;}
-  .shelf-box{border:2px solid var(--line);border-radius:8px;background:var(--card);padding:.7rem .6rem;text-align:left;cursor:pointer;transition:transform .12s ease, border-color .12s ease, background .2s ease;}
-  .shelf-box:hover{transform:translateY(-2px);border-color:var(--steel);}
-  .shelf-box .code{display:block;font-family:var(--font-display);font-weight:700;color:var(--ink);font-size:.86rem;}
-  .shelf-box .label{display:block;font-size:.76rem;color:var(--ink-soft);margin-top:.15rem;}
-  .shelf-box.correct{background:color-mix(in srgb, var(--ok) 22%, var(--card));border-color:var(--ok);cursor:default;pointer-events:none;}
-  .shelf-box.wrong{animation:shake .3s ease;border-color:var(--miss);background:color-mix(in srgb, var(--miss) 18%, var(--card));}
-  @media (prefers-reduced-motion: reduce){.shelf-box.wrong{animation:none;}}
-  @keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-5px);}75%{transform:translateX(5px);}}
-  .game-status{margin-top:1rem;display:flex;gap:1.4rem;flex-wrap:wrap;font-family:var(--font-display);font-size:.82rem;color:var(--ink-soft);}
-  .game-status b{color:var(--ink);font-variant-numeric:tabular-nums;}
-  .game-done{margin-top:1rem;padding:1rem 1.2rem;background:var(--bg-alt);border-left:4px solid var(--ok);border-radius:8px;display:none;}
-  .game-done.show{display:block;}
-  .game-done p{margin:0 0 .6rem;color:var(--ink-soft);line-height:1.5;}
-  .reset-btn{margin-top:.4rem;padding:.55rem 1.1rem;border-radius:8px;border:1.5px solid var(--accent);background:transparent;color:var(--accent);font-weight:700;cursor:pointer;font-size:.85rem;}
-  .reset-btn:hover{background:var(--accent);color:var(--accent-ink);}
+  /* ===== Verlade-Simulator (Extra-Farbtokens) ===== */
+  :root{--bad:#C43A2E;--w-light:#3E7BD0;--w-medium:#D08A18;--w-heavy:#C0502A;
+    --sky1:#8FBDE8;--sky2:#DCEBFA;--grass:#9DB89A;--roadc:#6A7380;--sunc:#FFD84D;}
+  @media (prefers-color-scheme: dark){
+    :root{--bad:#E06455;--w-light:#5C93EC;--w-medium:#E8B33E;--w-heavy:#E0704E;
+      --sky1:#101E38;--sky2:#25406B;--grass:#22342C;--roadc:#3A4350;--sunc:#E8E4C9;}
+  }
+  :root[data-theme="dark"]{--bad:#E06455;--w-light:#5C93EC;--w-medium:#E8B33E;--w-heavy:#E0704E;
+    --sky1:#101E38;--sky2:#25406B;--grass:#22342C;--roadc:#3A4350;--sunc:#E8E4C9;}
+  :root[data-theme="light"]{--bad:#C43A2E;--w-light:#3E7BD0;--w-medium:#D08A18;--w-heavy:#C0502A;
+    --sky1:#8FBDE8;--sky2:#DCEBFA;--grass:#9DB89A;--roadc:#6A7380;--sunc:#FFD84D;}
+
+  .vsim-game{display:grid;grid-template-columns:1fr 284px;gap:1.2rem;align-items:start;margin-top:1rem;}
+  @media (max-width:840px){.vsim-game{grid-template-columns:1fr;}}
+  .vsim .stage-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:.9rem;box-shadow:var(--shadow);position:relative;overflow:hidden;}
+  .vsim .stage{position:relative;height:clamp(320px,44vh,430px);overflow:hidden;border-radius:10px;}
+  .vsim .load-view{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;
+    background:linear-gradient(var(--bg-alt), color-mix(in srgb,var(--bg-alt) 60%,var(--bg)));opacity:1;transition:opacity .5s ease;}
+  .vsim .stage.driving .load-view{opacity:0;pointer-events:none;}
+  .vsim .ramp{position:absolute;left:0;right:0;bottom:0;height:32px;background:color-mix(in srgb,var(--ink) 22%,var(--bg-alt));}
+  .vsim .ramp::before{content:"";position:absolute;top:0;left:0;right:0;height:7px;
+    background:repeating-linear-gradient(-45deg,var(--yellow) 0 12px,#20242B 12px 24px);opacity:.85;}
+  .vsim .truck-rear{position:relative;width:min(400px,72%);margin-bottom:28px;}
+  .vsim .cab-roof{position:relative;margin:0 auto;width:66%;height:20px;background:color-mix(in srgb,var(--accent) 82%,#fff 8%);
+    border-radius:10px 10px 0 0;box-shadow:inset 0 -5px 0 rgba(0,0,0,.18);}
+  .vsim .mirror{position:absolute;top:6px;width:24px;height:8px;background:color-mix(in srgb,var(--ink) 60%,var(--bg-alt));border-radius:3px;}
+  .vsim .mirror.l{left:-22px;} .vsim .mirror.r{right:-22px;}
+  .vsim .mirror::after{content:"";position:absolute;top:-5px;width:8px;height:15px;background:inherit;border-radius:2px;}
+  .vsim .mirror.l::after{right:-2px;} .vsim .mirror.r::after{left:-2px;}
+  .vsim .container-frame{position:relative;background:linear-gradient(#B9C2CE,#98A2B0);border-radius:6px;padding:9px 11px 7px;
+    box-shadow:inset 0 0 0 2px rgba(0,0,0,.14), 0 10px 24px -12px rgba(0,0,0,.4);}
+  .vsim .marker-lights{position:absolute;top:-6px;left:0;right:0;display:flex;justify-content:space-between;padding:0 22%;}
+  .vsim .marker-lights i{width:13px;height:6px;border-radius:3px;background:#F2A33C;box-shadow:0 0 6px #F2A33C88;}
+  .vsim .hinges{position:absolute;top:15px;bottom:15px;width:6px;display:flex;flex-direction:column;justify-content:space-around;}
+  .vsim .hinges.l{left:3px;} .vsim .hinges.r{right:3px;}
+  .vsim .hinges i{height:15px;background:#7B8494;border-radius:2px;box-shadow:inset 0 1px 0 #fff5;}
+  .vsim .opening{position:relative;aspect-ratio:6/4;border-radius:3px;overflow:hidden;background:#20242B;}
+  .vsim .interior{position:absolute;inset:0;z-index:0;}
+  .vsim .int-back{position:absolute;left:21%;right:21%;top:16%;bottom:24%;
+    background:repeating-linear-gradient(90deg,#39404D 0 7px,#2E3440 7px 14px);box-shadow:inset 0 0 24px rgba(0,0,0,.55);}
+  .vsim .int-floor{position:absolute;left:0;right:0;bottom:0;height:24%;clip-path:polygon(0 100%,100% 100%,79% 0,21% 0);
+    background:repeating-linear-gradient(90deg,#8A6A44 0 26px,#7A5C3A 26px 28px),linear-gradient(#93714B,#6E5334);}
+  .vsim .int-ceil{position:absolute;left:0;right:0;top:0;height:16%;clip-path:polygon(0 0,100% 0,79% 100%,21% 100%);
+    background:linear-gradient(#4A5160,#333945);}
+  .vsim .int-ceil::after{content:"";position:absolute;left:34%;right:34%;top:38%;height:3px;background:#DFE8F2;opacity:.5;border-radius:2px;}
+  .vsim .int-wall{position:absolute;top:0;bottom:0;width:21%;}
+  .vsim .int-wall.l{left:0;clip-path:polygon(0 0,100% 16%,100% 76%,0 100%);
+    background:repeating-linear-gradient(0deg,color-mix(in srgb,var(--yellow) 82%,#000 10%) 0 14px,color-mix(in srgb,var(--yellow) 66%,#000 22%) 14px 16px);}
+  .vsim .int-wall.r{right:0;clip-path:polygon(100% 0,0 16%,0 76%,100% 100%);
+    background:repeating-linear-gradient(0deg,color-mix(in srgb,var(--yellow) 70%,#000 18%) 0 14px,color-mix(in srgb,var(--yellow) 54%,#000 30%) 14px 16px);}
+  .vsim .int-glow{position:absolute;inset:0;background:radial-gradient(60% 50% at 50% 42%, rgba(255,244,200,.14), transparent 70%);}
+  .vsim .parcel{position:absolute;z-index:2;--pc:#B08A5A;}
+  .vsim .p-face{position:absolute;inset:0;border-radius:2px;background:var(--pc);
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.18), inset 0 -6px 10px -6px rgba(0,0,0,.3);}
+  .vsim .p-top{position:absolute;left:3px;right:-3px;top:-6px;height:6px;transform:skewX(-45deg);
+    background:color-mix(in srgb,var(--pc) 70%,#fff 30%);border-radius:1px;}
+  .vsim .p-side{position:absolute;top:-3px;bottom:3px;right:-6px;width:6px;transform:skewY(-45deg);
+    background:color-mix(in srgb,var(--pc) 70%,#000 30%);border-radius:1px;}
+  .vsim .kg-chip{position:absolute;z-index:3;top:3px;left:3px;font-family:var(--font-display);font-weight:700;
+    font-size:.55rem;line-height:1;color:#fff;background:var(--wc,#333);border-radius:8px;padding:2px 5px;box-shadow:0 1px 2px rgba(0,0,0,.4);}
+  .vsim .p-label{position:absolute;z-index:3;left:0;right:0;bottom:0;font-family:var(--font-display);font-size:.5rem;
+    color:#FFFFFFDD;background:rgba(0,0,0,.32);padding:1px 2px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .vsim .parcel[data-type="karton"] .p-face{
+    background:linear-gradient(90deg, transparent 0 43%, #D9C49A66 43% 57%, transparent 57%),linear-gradient(#C29A62,#A87F4C);}
+  .vsim .parcel[data-type="kiste"] .p-face{
+    background:repeating-linear-gradient(0deg,#A5713F 0 9px,#8A5D33 9px 11px);
+    box-shadow:inset 0 0 0 3px #6E4826, inset 0 0 0 4px #00000022;}
+  .vsim .parcel[data-type="fass"] .p-face{border-radius:26% 26% 22% 22% / 12% 12% 8% 8%;
+    background:linear-gradient(0deg, transparent 0 30%, #FFFFFF2E 31% 34%, transparent 35% 62%, #FFFFFF2E 63% 66%, transparent 67%),
+      linear-gradient(90deg,#245A96,#4E8CCC 35%,#5F9DDC 50%,#4E8CCC 65%,#1E4C80);}
+  .vsim .parcel[data-type="fass"] .p-top{left:12%;right:12%;top:-5px;height:6px;transform:none;border-radius:50%;
+    background:linear-gradient(#7FB3E4,#3A6FA8);}
+  .vsim .parcel[data-type="fass"] .p-side{display:none;}
+  .vsim .parcel[data-type="palette"] .p-face{
+    background:linear-gradient(0deg,#7A5C3A 0 22%, transparent 22%),
+      repeating-linear-gradient(90deg, transparent 0 14%, #00000038 14% 17%, transparent 17% 33%),
+      linear-gradient(0deg, transparent 0 22%, #3E7BD0 22% 92%, #2E62AC 92%);}
+  .vsim .parcel[data-type="maschine"] .p-face{
+    background:radial-gradient(4px 4px at 12% 40%, #E8EDF4 40%, transparent 42%),
+      radial-gradient(4px 4px at 88% 40%, #E8EDF4 40%, transparent 42%),
+      repeating-linear-gradient(-45deg, #F2C230 0 8px, #23272E 8px 16px) 0 100%/100% 16% no-repeat,
+      linear-gradient(0deg,#7A5C3A 0 20%, transparent 20%),linear-gradient(160deg,#9AA6B5,#5D6874 70%);}
+  .vsim .parcel.ghost{opacity:.5;pointer-events:none;z-index:3;}
+  .vsim .parcel.ghost .p-face{box-shadow:inset 0 0 0 2px #fff;}
+  .vsim .parcel.ghost.invalid .p-face{background:var(--bad)!important;}
+  .vsim .col-hits{position:absolute;inset:0;display:flex;z-index:4;}
+  .vsim .col-btn{flex:1;background:transparent;border:none;cursor:pointer;}
+  .vsim .col-btn:hover{background:color-mix(in srgb,#fff 14%,transparent);}
+  .vsim .stage.locked .col-btn{cursor:default;}
+  .vsim .stage.locked .col-btn:hover{background:transparent;}
+  .vsim .doors{position:absolute;inset:0;z-index:5;pointer-events:none;display:flex;}
+  .vsim .door{flex:1;background:linear-gradient(#CFD6DF,#AEB7C2);position:relative;
+    transition:transform .7s cubic-bezier(.6,.05,.4,1);box-shadow:inset 0 0 0 2px rgba(0,0,0,.15);}
+  .vsim .door::before{content:"";position:absolute;top:8%;bottom:8%;width:5px;background:#7B8494;border-radius:3px;box-shadow:0 0 0 1px #0002;}
+  .vsim .door.l::before{right:14%;}
+  .vsim .door.r::before{left:14%;}
+  .vsim .door.l{transform:translateX(-102%);border-right:1px solid #0003;}
+  .vsim .door.r{transform:translateX(102%);border-left:1px solid #0003;}
+  .vsim .doors.closed .door{transform:translateX(0);}
+  .vsim .bumper{position:relative;margin-top:6px;height:21px;background:linear-gradient(#525A66,#3C434E);border-radius:4px;
+    display:flex;align-items:center;justify-content:center;}
+  .vsim .bumper::before,.vsim .bumper::after{content:"";position:absolute;top:4px;width:32px;height:12px;border-radius:3px;}
+  .vsim .bumper::before{left:8px;background:repeating-linear-gradient(-45deg,#D33 0 6px,#FFF 6px 12px);}
+  .vsim .bumper::after{right:8px;background:repeating-linear-gradient(-45deg,#D33 0 6px,#FFF 6px 12px);}
+  .vsim .plate{font-family:var(--font-display);font-weight:700;font-size:.7rem;background:#fff;color:#1A1A1A;
+    border:2px solid #1A1A1A;border-radius:3px;padding:1px 8px;letter-spacing:.06em;}
+  .vsim .flap{position:absolute;bottom:-13px;width:48px;height:15px;background:#23272E;border-radius:0 0 4px 4px;}
+  .vsim .flap.l{left:26px;} .vsim .flap.r{right:26px;}
+  .vsim .rear-wheel{position:absolute;bottom:-19px;width:32px;height:32px;border-radius:50%;background:#15151B;
+    box-shadow:inset 0 0 0 5px #34343E, inset 0 0 0 9px #15151B;}
+  .vsim .rear-wheel.l{left:-13px;} .vsim .rear-wheel.r{right:-13px;}
+  .vsim .drive-view{position:absolute;inset:0;opacity:0;pointer-events:none;transition:opacity .5s ease;}
+  .vsim .stage.driving .drive-view{opacity:1;pointer-events:auto;}
+  .vsim .sky{position:absolute;left:0;right:0;top:0;height:42%;background:linear-gradient(var(--sky1),var(--sky2));}
+  .vsim .sun{position:absolute;top:18%;right:12%;width:40px;height:40px;border-radius:50%;background:var(--sunc);
+    box-shadow:0 0 32px color-mix(in srgb,var(--sunc) 70%,transparent);}
+  .vsim .cloud{position:absolute;height:13px;border-radius:10px;background:#FFFFFFCC;opacity:.8;}
+  .vsim .cloud::before{content:"";position:absolute;top:-7px;left:22%;width:45%;height:13px;border-radius:10px;background:inherit;}
+  .vsim .cloud.c1{top:22%;left:14%;width:64px;animation:vsimDrift 34s linear infinite;}
+  .vsim .cloud.c2{top:10%;left:55%;width:48px;animation:vsimDrift 46s linear infinite reverse;}
+  @keyframes vsimDrift{50%{transform:translateX(40px);}}
+  @media (prefers-color-scheme: dark){.vsim .cloud{opacity:.25;}}
+  :root[data-theme="dark"] .vsim .cloud{opacity:.25;}
+  :root[data-theme="light"] .vsim .cloud{opacity:.8;}
+  .vsim .treeline{position:absolute;left:0;right:0;top:38%;height:5%;
+    background:radial-gradient(14px 12px at 10% 100%, var(--grass) 60%, transparent 62%) 0 0/60px 100% repeat-x,
+    linear-gradient(color-mix(in srgb,var(--grass) 80%,#000 10%), var(--grass));}
+  .vsim .depot{position:absolute;top:29.5%;left:7%;width:90px;height:9%;background:linear-gradient(#B9C2CE,#98A2B0);
+    border-radius:3px;box-shadow:inset 0 -4px 0 #0002;display:flex;align-items:center;justify-content:center;}
+  .vsim .depot::before{content:"";position:absolute;top:-9px;left:-3%;right:-3%;height:10px;background:var(--accent);border-radius:2px;}
+  .vsim .depot span{font-family:var(--font-display);font-weight:700;font-size:.54rem;letter-spacing:.1em;color:var(--accent);}
+  .vsim .ground{position:absolute;left:0;right:0;top:42%;bottom:0;background:linear-gradient(color-mix(in srgb,var(--grass) 88%,#fff 6%), color-mix(in srgb,var(--grass) 70%,#000 12%));}
+  .vsim .road{position:absolute;top:42%;bottom:0;left:0;right:0;clip-path:polygon(44% 0,56% 0,96% 100%,4% 100%);
+    background:linear-gradient(color-mix(in srgb,var(--roadc) 80%,#fff 6%), var(--roadc));}
+  .vsim .road-lines{position:absolute;left:49.1%;width:1.8%;top:0;bottom:0;
+    background:repeating-linear-gradient(0deg,#F5F0DC 0 18px, transparent 18px 46px);
+    animation:vsimRoll 1.6s linear infinite;animation-play-state:paused;opacity:.9;}
+  .vsim .drive-view.rolling .road-lines{animation-play-state:running;}
+  .vsim .drive-view.fastroll .road-lines{animation-duration:.55s;animation-play-state:running;}
+  @keyframes vsimRoll{to{background-position-y:-46px;}}
+  .vsim .mini-wrap{position:absolute;left:50%;bottom:7%;transform:translateX(-50%);transform-origin:50% 100%;z-index:3;}
+  .vsim .mini-lean{transform-origin:50% 100%;}
+  .vsim .mini-truck{position:relative;width:112px;}
+  .vsim .mt-cabroof{position:relative;margin:0 auto;width:62%;height:8px;background:color-mix(in srgb,var(--accent) 82%,#fff 8%);border-radius:5px 5px 0 0;}
+  .vsim .mt-cabroof::before,.vsim .mt-cabroof::after{content:"";position:absolute;top:2px;width:9px;height:3px;background:#333B47;border-radius:2px;}
+  .vsim .mt-cabroof::before{left:-9px;} .vsim .mt-cabroof::after{right:-9px;}
+  .vsim .mt-box{position:relative;height:88px;background:linear-gradient(#CFD6DF,#AEB7C2);border-radius:4px;
+    box-shadow:inset 0 0 0 2px rgba(0,0,0,.14);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;}
+  .vsim .mt-box::before{content:"";position:absolute;top:8%;bottom:8%;left:50%;width:2px;background:#0003;}
+  .vsim .mt-box .lock1,.vsim .mt-box .lock2{position:absolute;top:10%;bottom:10%;width:3px;background:#7B8494;border-radius:2px;}
+  .vsim .lock1{left:16%;} .vsim .lock2{right:16%;}
+  .vsim .mt-logo{font-family:var(--font-display);font-weight:700;font-size:.58rem;letter-spacing:.06em;color:var(--accent);background:#fff;padding:2px 6px;border-radius:2px;z-index:1;}
+  .vsim .mt-sub{font-family:var(--font-display);font-size:.38rem;color:#39404D;letter-spacing:.04em;z-index:1;}
+  .vsim .mt-bumper{position:relative;height:11px;background:linear-gradient(#525A66,#3C434E);border-radius:0 0 3px 3px;display:flex;align-items:center;justify-content:center;}
+  .vsim .mt-bumper::before,.vsim .mt-bumper::after{content:"";position:absolute;top:2px;width:13px;height:6px;border-radius:2px;background:#C33;box-shadow:0 0 5px #C33A;}
+  .vsim .mt-bumper::before{left:3px;} .vsim .mt-bumper::after{right:3px;}
+  .vsim .mt-plate{font-family:var(--font-display);font-size:.42rem;font-weight:700;background:#fff;color:#1A1A1A;border:1px solid #1A1A1A;border-radius:2px;padding:0 4px;letter-spacing:.05em;}
+  .vsim .mt-wheel{position:absolute;bottom:-8px;width:15px;height:15px;border-radius:50%;background:#15151B;box-shadow:inset 0 0 0 3px #34343E,inset 0 0 0 5px #15151B;}
+  .vsim .mt-wheel.l{left:2px;} .vsim .mt-wheel.r{right:2px;}
+  .vsim .mini-wrap.sag{animation:vsimSag 1.6s ease forwards;}
+  @keyframes vsimSag{
+    0%{transform:translateX(-50%) translateY(0);}
+    30%{transform:translateX(-50%) translateY(3px);}
+    55%{transform:translateX(-50%) translateY(2px) rotate(-1deg);}
+    100%{transform:translateX(-50%) translateY(8px) rotate(1.5deg);}
+  }
+  .vsim .fx{position:absolute;inset:0;z-index:4;pointer-events:none;overflow:hidden;}
+  .vsim .fly-box{position:absolute;width:15px;height:13px;border-radius:2px;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.25);animation:vsimBoxFly 1.15s cubic-bezier(.3,.4,.6,1) forwards;}
+  @keyframes vsimBoxFly{
+    0%{transform:translate(0,0) rotate(0);opacity:1;}
+    70%{opacity:1;}
+    100%{transform:translate(var(--tx),var(--ty)) rotate(var(--rot));opacity:.75;}
+  }
+  .vsim .dust{position:absolute;width:24px;height:24px;border-radius:50%;
+    background:radial-gradient(color-mix(in srgb,var(--roadc) 60%,#fff 25%), transparent 70%);
+    animation:vsimDustUp 1s ease-out forwards;}
+  @keyframes vsimDustUp{0%{transform:scale(.3);opacity:.9;}100%{transform:translate(var(--dx),-32px) scale(2.1);opacity:0;}}
+  .vsim .smokep{position:absolute;width:13px;height:13px;border-radius:50%;background:#5B6470CC;animation:vsimSmokeUp 1.2s ease-out forwards;}
+  @keyframes vsimSmokeUp{to{transform:translate(-15px,-42px) scale(2.4);opacity:0;}}
+  .vsim .drive-view.shake{animation:vsimShake .5s ease;}
+  @keyframes vsimShake{0%,100%{transform:translate(0,0);}20%{transform:translate(-6px,3px);}40%{transform:translate(5px,-3px);}60%{transform:translate(-4px,2px);}80%{transform:translate(3px,-2px);}}
+  @media (prefers-reduced-motion: reduce){
+    .vsim .cloud,.vsim .road-lines{animation:none!important;}
+    .vsim .door{transition-duration:.15s;}
+    .vsim .drive-view.shake{animation:none;}
+  }
+  .vsim .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:.95rem;box-shadow:var(--shadow);}
+  .vsim .panel + .panel{margin-top:.9rem;}
+  .vsim .panel h3{font-family:var(--font-display);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:0 0 .7rem;display:flex;justify-content:space-between;gap:.5rem;}
+  .vsim .queue{display:flex;flex-wrap:wrap;gap:.5rem;}
+  .vsim .qitem{position:relative;border:2px solid var(--line);border-radius:8px;background:var(--bg-alt);cursor:pointer;padding:7px 6px 5px;
+    transition:transform .12s ease, box-shadow .12s ease;}
+  .vsim .qitem:hover{transform:translateY(-2px);}
+  .vsim .qitem.selected{border-color:var(--ink);box-shadow:0 0 0 3px var(--yellow);}
+  .vsim .qitem.used{opacity:.25;pointer-events:none;filter:grayscale(.7);}
+  .vsim .qitem .parcel{position:relative;display:block;}
+  .vsim .qitem .p-label{display:none;}
+  .vsim .qname{display:block;text-align:center;font-family:var(--font-display);font-size:.5rem;color:var(--ink-soft);margin-top:4px;white-space:nowrap;}
+  .vsim .meter{margin-bottom:.9rem;} .vsim .meter:last-child{margin-bottom:0;}
+  .vsim .meter-label{display:flex;justify-content:space-between;font-size:.76rem;color:var(--ink-soft);margin-bottom:.3rem;}
+  .vsim .meter-label b{font-family:var(--font-display);color:var(--ink);font-variant-numeric:tabular-nums;}
+  .vsim .balance-track{position:relative;height:15px;border-radius:8px;background:var(--bg-alt);overflow:hidden;box-shadow:inset 0 0 0 1px var(--line);}
+  .vsim .safe-zone{position:absolute;top:0;bottom:0;background:color-mix(in srgb,var(--ok) 30%,transparent);}
+  .vsim .needle{position:absolute;top:-3px;width:4px;height:21px;background:var(--accent);border-radius:2px;transform:translateX(-50%);transition:left .2s ease,background .2s ease;}
+  .vsim .needle.unsafe{background:var(--bad);}
+  .vsim .scale-ends{display:flex;justify-content:space-between;font-size:.58rem;color:var(--ink-faint);font-family:var(--font-display);margin-top:.2rem;text-transform:uppercase;}
+  .vsim .weight-track{position:relative;height:15px;border-radius:8px;background:var(--bg-alt);overflow:hidden;box-shadow:inset 0 0 0 1px var(--line);}
+  .vsim .weight-fill{position:absolute;left:0;top:0;bottom:0;background:var(--steel);width:0%;transition:width .2s ease,background .2s ease;}
+  .vsim .weight-fill.over{background:var(--bad);}
+  .vsim .wmark{position:absolute;top:0;bottom:0;width:2px;background:var(--ink);opacity:.5;}
+  .vsim .wmark .mlab{position:absolute;top:100%;left:50%;transform:translateX(-50%);font-size:.52rem;color:var(--ink-faint);font-family:var(--font-display);margin-top:1px;}
+  .vsim .actions{display:flex;flex-direction:column;gap:.55rem;margin-top:1rem;}
+  .vsim .btn{font-family:var(--font-display);font-weight:700;text-transform:uppercase;letter-spacing:.04em;font-size:.76rem;
+    border-radius:9px;padding:.65rem 1rem;cursor:pointer;border:2px solid var(--accent);background:var(--accent);color:var(--accent-ink);}
+  .vsim .btn:hover{filter:brightness(1.08);}
+  .vsim .btn:disabled{opacity:.4;cursor:default;filter:none;}
+  .vsim .btn.ghost-btn{background:transparent;color:var(--accent);}
+  .vsim .hint{font-size:.72rem;color:var(--ink-faint);margin-top:.55rem;line-height:1.4;}
+  .vsim .legend{display:flex;gap:.65rem;flex-wrap:wrap;font-size:.68rem;color:var(--ink-soft);margin-top:.6rem;}
+  .vsim .legend span{display:flex;align-items:center;gap:.3rem;}
+  .vsim .swatch{width:11px;height:11px;border-radius:3px;}
+  .vsim .toast{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);background:var(--ink);color:var(--bg);
+    font-family:var(--font-display);font-size:.72rem;padding:.4rem .85rem;border-radius:20px;opacity:0;transition:opacity .25s ease;pointer-events:none;z-index:8;white-space:nowrap;}
+  .vsim .toast.show{opacity:.95;}
+  .vsim .result{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:1rem;
+    background:color-mix(in srgb,var(--bg) 80%,transparent);backdrop-filter:blur(2px);
+    opacity:0;pointer-events:none;transition:opacity .35s ease;z-index:10;}
+  .vsim .result.show{opacity:1;pointer-events:auto;}
+  .vsim .result-card{background:var(--card);border:1px solid var(--line);border-top:5px solid var(--accent);border-radius:14px;
+    padding:1.2rem 1.35rem;max-width:25rem;text-align:center;box-shadow:var(--shadow);}
+  .vsim .result-card.ok{border-top-color:var(--ok);}
+  .vsim .result-card.bad{border-top-color:var(--bad);}
+  .vsim .result-emoji{font-size:2.2rem;}
+  .vsim .result-card h2{font-family:var(--font-display);text-transform:uppercase;font-size:1.1rem;margin:.4rem 0 .3rem;}
+  .vsim .result-card p{color:var(--ink-soft);line-height:1.5;margin:0 0 1rem;font-size:.9rem;}
 
   /* Gallery */
   .gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem;margin-top:1.4rem;}
@@ -605,26 +817,102 @@
       </div>
     </section>
 
-    <!-- 5 GAME -->
+    <!-- 5 VERLADE-SIMULATOR -->
     <section class="slide" data-index="5" data-motif="shelf">
       <div class="slide-inner">
         <p class="eyebrow">Selbst ausprobieren</p>
-        <h1 class="headline">Kommissionier-Challenge</h1>
-        <p class="lede">Das mache ich fast jeden Tag: die richtigen Artikel für eine Bestellung aus dem Regal holen. Schafft ihr die Liste fehlerfrei?</p>
-        <div class="game-wrap">
-          <div class="pick-list">
-            <h3>Kommissionierliste</h3>
-            <div id="pickListEl"></div>
-          </div>
-          <div>
-            <div class="shelf" id="shelfEl"></div>
-            <div class="game-status">
-              <span>Zeit: <b id="gameTime">0.0s</b></span>
-              <span>Fehlversuche: <b id="gameMiss">0</b></span>
+        <h1 class="headline">Verlade-<span class="accent">Simulator</span></h1>
+        <p class="lede" style="margin-bottom:.2rem;">Du stehst an der Rampe und belädst den LKW von hinten. Achte auf die <b>Gewichtsverteilung links/rechts</b> — sonst kippt der Anhänger auf der Straße um. Und: nicht überladen!</p>
+        <div class="vsim">
+          <div class="vsim-game">
+            <div class="stage-card">
+              <div class="stage" id="vsStage">
+                <div class="load-view">
+                  <div class="ramp"></div>
+                  <div class="truck-rear">
+                    <div class="cab-roof"><span class="mirror l"></span><span class="mirror r"></span></div>
+                    <div class="container-frame">
+                      <div class="marker-lights"><i></i><i></i><i></i></div>
+                      <div class="hinges l"><i></i><i></i><i></i></div>
+                      <div class="hinges r"><i></i><i></i><i></i></div>
+                      <div class="opening" id="vsOpening">
+                        <div class="interior">
+                          <div class="int-ceil"></div>
+                          <div class="int-wall l"></div>
+                          <div class="int-wall r"></div>
+                          <div class="int-floor"></div>
+                          <div class="int-back"></div>
+                          <div class="int-glow"></div>
+                        </div>
+                        <div class="col-hits" id="vsColHits"></div>
+                        <div class="doors" id="vsDoors"><div class="door l"></div><div class="door r"></div></div>
+                      </div>
+                      <div class="bumper"><span class="plate">NMS · MA 24</span></div>
+                      <span class="flap l"></span><span class="flap r"></span>
+                      <span class="rear-wheel l"></span><span class="rear-wheel r"></span>
+                    </div>
+                  </div>
+                </div>
+                <div class="drive-view" id="vsDriveView">
+                  <div class="sky"><div class="sun"></div><div class="cloud c1"></div><div class="cloud c2"></div></div>
+                  <div class="depot"><span>DACHSER</span></div>
+                  <div class="treeline"></div>
+                  <div class="ground"></div>
+                  <div class="road"><div class="road-lines"></div></div>
+                  <div class="mini-wrap" id="vsMiniWrap">
+                    <div class="mini-lean" id="vsMiniLean">
+                      <div class="mini-truck">
+                        <div class="mt-cabroof"></div>
+                        <div class="mt-box">
+                          <span class="lock1"></span><span class="lock2"></span>
+                          <span class="mt-logo">DACHSER</span>
+                          <span class="mt-sub">Intelligent Logistics</span>
+                        </div>
+                        <div class="mt-bumper"><span class="mt-plate">NMS·MA 24</span></div>
+                        <span class="mt-wheel l"></span><span class="mt-wheel r"></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="fx" id="vsFx"></div>
+                </div>
+                <div class="toast" id="vsToast"></div>
+                <div class="result" id="vsResult">
+                  <div class="result-card" id="vsResultCard">
+                    <div class="result-emoji" id="vsResultEmoji">🚚</div>
+                    <h2 id="vsResultTitle">—</h2>
+                    <p id="vsResultText">—</p>
+                    <button class="btn" id="vsAgainBtn">Nochmal versuchen</button>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="game-done" id="gameDone">
-              <p>Geschafft! In der Praxis zeigt euch ein Scanner den genauen Lagerplatz — trotzdem muss man das Lager im Kopf haben, um schnell zu sein.</p>
-              <button class="reset-btn" id="resetGame">Nochmal spielen</button>
+            <div>
+              <div class="panel">
+                <h3>Pakete <span id="vsQueueCount"></span></h3>
+                <div class="queue" id="vsQueue"></div>
+                <div class="legend">
+                  <span><i class="swatch" style="background:var(--w-light)"></i>leicht</span>
+                  <span><i class="swatch" style="background:var(--w-medium)"></i>mittel</span>
+                  <span><i class="swatch" style="background:var(--w-heavy)"></i>schwer</span>
+                </div>
+                <p class="hint">Paket anklicken → dann in den Laderaum klicken. Es stapelt sich von unten.</p>
+              </div>
+              <div class="panel">
+                <h3>Status</h3>
+                <div class="meter">
+                  <div class="meter-label"><span>Balance</span><b id="vsBalTxt">leer</b></div>
+                  <div class="balance-track"><div class="safe-zone" id="vsSafeZone"></div><div class="needle" id="vsNeedle" style="left:50%"></div></div>
+                  <div class="scale-ends"><span>◀ links schwer</span><span>rechts schwer ▶</span></div>
+                </div>
+                <div class="meter">
+                  <div class="meter-label"><span>Gewicht</span><b><span id="vsWTxt">0</span> / <span id="vsWMax"></span> kg</b></div>
+                  <div class="weight-track"><div class="weight-fill" id="vsWFill"></div><div class="wmark" id="vsWMinMark"><span class="mlab">min</span></div></div>
+                </div>
+                <div class="actions">
+                  <button class="btn" id="vsGoBtn">🚚 Türen zu &amp; losfahren!</button>
+                  <button class="btn ghost-btn" id="vsUndoBtn">↶ Letztes zurück</button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1003,74 +1291,298 @@
     card.addEventListener('click', function(){ card.classList.toggle('flipped'); });
   });
 
-  /* Kommissionier game */
-  var pickListData = [
-    {id:'a12', code:'A-12', label:'Blaue Kiste'},
-    {id:'b04', code:'B-04', label:'Karton klein'},
-    {id:'c07', code:'C-07', label:'Palette Getränke'},
-    {id:'d19', code:'D-19', label:'Ersatzteil-Box'},
-    {id:'e02', code:'E-02', label:'Paket rot'}
-  ];
-  var distractors = [
-    {id:'x1', code:'A-03', label:'Karton groß'},
-    {id:'x2', code:'B-11', label:'Kiste grau'},
-    {id:'x3', code:'C-15', label:'Palette leer'},
-    {id:'x4', code:'D-08', label:'Werkzeugkasten'},
-    {id:'x5', code:'E-20', label:'Paket gelb'}
-  ];
-  var pickListEl = document.getElementById('pickListEl');
-  var shelfEl = document.getElementById('shelfEl');
-  var gameTimeEl = document.getElementById('gameTime');
-  var gameMissEl = document.getElementById('gameMiss');
-  var gameDoneEl = document.getElementById('gameDone');
-  var resetBtn = document.getElementById('resetGame');
-  var gameIdx, misses, startTime, timerHandle;
+  /* ===== Verlade-Simulator ===== */
+  (function(){
+    var COLS=6, ROWS=4, MAX_KG=300, MIN_KG=170, SAFE=0.8;
+    var defs=[
+      {type:'maschine', w:2,h:1,kg:70,label:'Maschinenteil'},
+      {type:'palette',  w:2,h:1,kg:60,label:'Getränkepal.'},
+      {type:'palette',  w:2,h:1,kg:55,label:'Palette'},
+      {type:'kiste',    w:1,h:2,kg:45,label:'Holzkiste'},
+      {type:'kiste',    w:1,h:2,kg:40,label:'Holzkiste'},
+      {type:'fass',     w:1,h:1,kg:35,label:'Fass'},
+      {type:'fass',     w:1,h:1,kg:30,label:'Fass'},
+      {type:'karton',   w:1,h:1,kg:25,label:'Karton'},
+      {type:'karton',   w:1,h:1,kg:20,label:'Karton'},
+      {type:'karton',   w:1,h:1,kg:15,label:'Karton'}
+    ];
+    var pc={karton:'#B08A5A', kiste:'#96683A', fass:'#3F76B8', palette:'#3E7BD0', maschine:'#7E8896'};
 
-  function shuffle(arr){
-    var a = arr.slice();
-    for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; }
-    return a;
-  }
-  function renderPickList(){
-    pickListEl.innerHTML = '';
-    pickListData.forEach(function(item, i){
-      var row = document.createElement('div');
-      row.className = 'pick-item' + (i < gameIdx ? ' done' : '') + (i === gameIdx ? ' current' : '');
-      row.innerHTML = '<span class="code">' + item.code + '</span><span>' + item.label + '</span>';
-      pickListEl.appendChild(row);
-    });
-  }
-  function renderShelf(){
-    var items = shuffle(pickListData.concat(distractors));
-    shelfEl.innerHTML = '';
-    items.forEach(function(item){
-      var box = document.createElement('button');
-      box.className = 'shelf-box';
-      box.dataset.id = item.id;
-      box.innerHTML = '<span class="code">' + item.code + '</span><span class="label">' + item.label + '</span>';
-      box.addEventListener('click', function(){ onShelfClick(box, item); });
-      shelfEl.appendChild(box);
-    });
-  }
-  function onShelfClick(box, item){
-    if(startTime === null){ startTime = Date.now(); timerHandle = setInterval(updateTimer, 100); }
-    if(item.id === pickListData[gameIdx].id){
-      box.classList.add('correct'); gameIdx++; renderPickList();
-      if(gameIdx === pickListData.length){ clearInterval(timerHandle); gameDoneEl.classList.add('show'); }
-    } else {
-      box.classList.add('wrong'); misses++; gameMissEl.textContent = misses;
-      setTimeout(function(){ box.classList.remove('wrong'); }, 350);
+    var vStage=document.getElementById('vsStage');
+    var vOpening=document.getElementById('vsOpening');
+    var vColHits=document.getElementById('vsColHits');
+    var vDoors=document.getElementById('vsDoors');
+    var vQueueEl=document.getElementById('vsQueue');
+    var vQueueCount=document.getElementById('vsQueueCount');
+    var vToast=document.getElementById('vsToast');
+    var vNeedle=document.getElementById('vsNeedle');
+    var vSafeZone=document.getElementById('vsSafeZone');
+    var vBalTxt=document.getElementById('vsBalTxt');
+    var vWTxt=document.getElementById('vsWTxt');
+    var vWFill=document.getElementById('vsWFill');
+    var vWMinMark=document.getElementById('vsWMinMark');
+    var vDriveView=document.getElementById('vsDriveView');
+    var vMiniWrap=document.getElementById('vsMiniWrap');
+    var vMiniLean=document.getElementById('vsMiniLean');
+    var vFx=document.getElementById('vsFx');
+    var vResult=document.getElementById('vsResult');
+    var vResultCard=document.getElementById('vsResultCard');
+    var vResultEmoji=document.getElementById('vsResultEmoji');
+    var vResultTitle=document.getElementById('vsResultTitle');
+    var vResultText=document.getElementById('vsResultText');
+    var vGoBtn=document.getElementById('vsGoBtn');
+    var vUndoBtn=document.getElementById('vsUndoBtn');
+
+    document.getElementById('vsWMax').textContent=MAX_KG;
+
+    var vQueue, vPlaced, vColHeight, vSelected, vLocked, vGhost, vToastTimer, vTimers=[];
+
+    function wc(kg){ return kg<=25?'var(--w-light)':(kg<=50?'var(--w-medium)':'var(--w-heavy)'); }
+
+    function parcelHTML(p){
+      var el=document.createElement('div');
+      el.className='parcel';
+      el.dataset.type=p.type;
+      el.style.setProperty('--pc', pc[p.type]);
+      el.innerHTML='<i class="p-face"></i><i class="p-top"></i><i class="p-side"></i>'+
+        '<span class="kg-chip" style="--wc:'+wc(p.kg)+'">'+p.kg+' kg</span>'+
+        '<span class="p-label">'+p.label+'</span>';
+      return el;
     }
-  }
-  function updateTimer(){ var t=(Date.now()-startTime)/1000; gameTimeEl.textContent = t.toFixed(1)+'s'; }
-  function resetGame(){
-    gameIdx=0; misses=0; startTime=null;
-    if(timerHandle) clearInterval(timerHandle);
-    gameTimeEl.textContent='0.0s'; gameMissEl.textContent='0'; gameDoneEl.classList.remove('show');
-    renderPickList(); renderShelf();
-  }
-  resetBtn.addEventListener('click', resetGame);
-  resetGame();
+
+    function vInit(){
+      vQueue=defs.map(function(d,i){return Object.assign({id:i,used:false},d);});
+      vPlaced=[]; vColHeight=new Array(COLS).fill(0); vSelected=null; vLocked=false; vGhost=null;
+      vTimers.forEach(clearTimeout); vTimers=[];
+      vStage.classList.remove('driving'); vStage.classList.remove('locked');
+      vDoors.classList.remove('closed');
+      vDriveView.className='drive-view';
+      vMiniWrap.className='mini-wrap'; vMiniWrap.style.cssText='';
+      vMiniLean.className='mini-lean'; vMiniLean.style.cssText='';
+      vFx.innerHTML='';
+      vResult.classList.remove('show');
+      vGoBtn.disabled=false; vUndoBtn.disabled=false;
+      Array.prototype.slice.call(vOpening.querySelectorAll('.parcel')).forEach(function(n){n.remove();});
+      buildCols(); renderVQueue(); updateVMeters();
+      var half=SAFE/(COLS/2)*50;
+      vSafeZone.style.left=(50-half)+'%'; vSafeZone.style.width=(2*half)+'%';
+      vWMinMark.style.left=(MIN_KG/MAX_KG*100)+'%';
+    }
+
+    function buildCols(){
+      vColHits.innerHTML='';
+      for(var c=0;c<COLS;c++){(function(c){
+        var b=document.createElement('button'); b.className='col-btn'; b.title='Spalte '+(c+1);
+        b.addEventListener('click',function(){tryPlace(c);});
+        b.addEventListener('mousemove',function(){showVGhost(c);});
+        b.addEventListener('mouseleave',hideVGhost);
+        vColHits.appendChild(b);
+      })(c);}
+    }
+
+    function renderVQueue(){
+      vQueueEl.innerHTML=''; var remain=0;
+      vQueue.forEach(function(p){
+        if(!p.used) remain++;
+        var q=document.createElement('button');
+        q.className='qitem'+(p.used?' used':'')+(vSelected&&vSelected.id===p.id?' selected':'');
+        var pv=parcelHTML(p);
+        pv.style.position='relative';
+        pv.style.width=(p.w*38-6)+'px'; pv.style.height=(p.h*28-4)+'px';
+        q.appendChild(pv);
+        var nm=document.createElement('span'); nm.className='qname'; nm.textContent=p.label;
+        q.appendChild(nm);
+        q.addEventListener('click',function(){selectVParcel(p);});
+        vQueueEl.appendChild(q);
+      });
+      vQueueCount.textContent='· '+remain+' übrig';
+    }
+
+    function selectVParcel(p){
+      if(vLocked||p.used) return;
+      vSelected=(vSelected&&vSelected.id===p.id)?null:p;
+      renderVQueue(); hideVGhost();
+    }
+
+    function vLanding(c,p){
+      c=Math.max(0,Math.min(COLS-p.w,c));
+      var bottom=0;
+      for(var i=0;i<p.w;i++){bottom=Math.max(bottom,vColHeight[c+i]);}
+      return {col:c,bottom:bottom,ok:(bottom+p.h)<=ROWS};
+    }
+
+    function positionVParcel(el,rec){
+      el.style.left=(rec.col/COLS*100)+'%';
+      el.style.width=(rec.w/COLS*100)+'%';
+      el.style.top=((ROWS-(rec.bottom+rec.h))/ROWS*100)+'%';
+      el.style.height=(rec.h/ROWS*100)+'%';
+    }
+
+    function tryPlace(c){
+      if(vLocked) return;
+      if(!vSelected){showVToast('Erst ein Paket auswählen!');return;}
+      var L=vLanding(c,vSelected);
+      if(!L.ok){showVToast('Zu hoch gestapelt — passt nicht!');return;}
+      var p=vSelected;
+      for(var i=0;i<p.w;i++){vColHeight[L.col+i]=L.bottom+p.h;}
+      var rec={id:p.id,type:p.type,w:p.w,h:p.h,kg:p.kg,label:p.label,col:L.col,bottom:L.bottom};
+      vPlaced.push(rec); p.used=true;
+      var el=parcelHTML(p); el.dataset.pid=p.id;
+      positionVParcel(el,rec);
+      vOpening.insertBefore(el,vColHits);
+      vSelected=null; hideVGhost(); renderVQueue(); updateVMeters();
+    }
+
+    function showVGhost(c){
+      if(vLocked||!vSelected) return;
+      var L=vLanding(c,vSelected);
+      if(!vGhost||vGhost.dataset.type!==vSelected.type){
+        if(vGhost) vGhost.remove();
+        vGhost=parcelHTML(vSelected); vGhost.classList.add('ghost');
+        vOpening.insertBefore(vGhost,vColHits);
+      }
+      vGhost.classList.toggle('invalid',!L.ok);
+      positionVParcel(vGhost,{col:L.col,w:vSelected.w,h:vSelected.h,bottom:L.ok?L.bottom:ROWS-vSelected.h});
+      vGhost.style.display='block';
+    }
+    function hideVGhost(){if(vGhost)vGhost.style.display='none';}
+
+    function computeCoG(){
+      var total=0,mom=0,center=COLS/2;
+      vPlaced.forEach(function(r){total+=r.kg;mom+=r.kg*((r.col+r.w/2)-center);});
+      return {total:total,offset:total?mom/total:0};
+    }
+
+    function updateVMeters(){
+      var cg=computeCoG(), maxOff=COLS/2;
+      var pct=Math.max(2,Math.min(98,50+(cg.offset/maxOff)*50));
+      vNeedle.style.left=pct+'%';
+      var unsafe=Math.abs(cg.offset)>SAFE;
+      vNeedle.classList.toggle('unsafe',unsafe&&cg.total>0);
+      vBalTxt.textContent=cg.total===0?'leer':(unsafe?(cg.offset>0?'rechts schwer!':'links schwer!'):'ausbalanciert ✓');
+      vBalTxt.style.color=cg.total===0?'var(--ink)':(unsafe?'var(--bad)':'var(--ok)');
+      vWTxt.textContent=cg.total;
+      vWFill.style.width=Math.min(100,cg.total/MAX_KG*100)+'%';
+      vWFill.classList.toggle('over',cg.total>MAX_KG);
+    }
+
+    function showVToast(m){
+      vToast.textContent=m;vToast.classList.add('show');
+      clearTimeout(vToastTimer);vToastTimer=setTimeout(function(){vToast.classList.remove('show');},1700);
+    }
+
+    function vUndo(){
+      if(vLocked) return;
+      var rec=vPlaced.pop();
+      if(!rec){showVToast('Nichts zum Zurücknehmen.');return;}
+      vColHeight=new Array(COLS).fill(0);
+      vPlaced.forEach(function(r){for(var i=0;i<r.w;i++){vColHeight[r.col+i]=Math.max(vColHeight[r.col+i],r.bottom+r.h);}});
+      var el=vOpening.querySelector('.parcel[data-pid="'+rec.id+'"]');
+      if(el)el.remove();
+      var q=vQueue.find(function(x){return x.id===rec.id;}); if(q)q.used=false;
+      renderVQueue();updateVMeters();
+    }
+
+    function vLater(fn,ms){vTimers.push(setTimeout(fn,ms));}
+
+    function vGo(){
+      if(vLocked) return;
+      var cg=computeCoG();
+      if(cg.total===0){showVToast('Der LKW ist noch leer!');return;}
+      vLocked=true; vStage.classList.add('locked');
+      vGoBtn.disabled=true; vUndoBtn.disabled=true;
+      vSelected=null; hideVGhost(); renderVQueue();
+
+      var over=cg.total>MAX_KG, unbal=Math.abs(cg.offset)>SAFE, dir=cg.offset>=0?1:-1;
+
+      vDoors.classList.add('closed');
+      AudioFX.whoosh();
+      vLater(function(){
+        vStage.classList.add('driving');
+        vLater(function(){ branch(); },600);
+      },800);
+
+      function branch(){
+        if(over){
+          vDriveView.classList.add('rolling');
+          vMiniWrap.classList.add('sag');
+          var r=vMiniWrap.getBoundingClientRect(), s=vDriveView.getBoundingClientRect();
+          var bx=r.left-s.left+r.width/2, by=r.top-s.top+r.height;
+          for(var i=0;i<6;i++){(function(i){vLater(function(){vSmoke(bx+(i%2?18:-18),by-6);}, 200+i*180);})(i);}
+          vLater(function(){
+            vDriveView.classList.remove('rolling');
+            vEnd(false,'💥','Achsbruch — überladen!','Mit '+cg.total+' kg lag die Ladung über der Grenze von '+MAX_KG+' kg. Im echten Lager gilt: Zuladung und Achslasten immer checken, bevor es losgeht.');
+          },2100);
+        } else if(unbal){
+          vDriveView.classList.add('rolling');
+          vMiniWrap.style.transition='transform 1.7s cubic-bezier(.4,.1,.6,.9)';
+          vMiniWrap.style.transform='translateX(-50%) translateY(-'+(vStage.clientHeight*0.16)+'px) scale(.78)';
+          vMiniLean.style.transition='transform 1.7s ease-in';
+          vMiniLean.style.transform='rotate('+(dir*14)+'deg)';
+          vLater(function(){
+            vMiniLean.style.transition='transform .8s cubic-bezier(.55,-.1,.8,1)';
+            vMiniLean.style.transformOrigin=(dir>0?'88%':'12%')+' 100%';
+            vMiniLean.style.transform='rotate('+(dir*84)+'deg) translateY(4px)';
+            vDriveView.classList.add('shake');
+            vCrashFX(dir);
+            vLater(function(){
+              vDriveView.classList.remove('rolling');
+              vEnd(false,'💥','Umgekippt!','Die Ladung war '+(dir>0?'rechts':'links')+' zu schwer. Beim Verladen gilt: Gewicht gleichmäßig verteilen, schwere Güter mittig und nach unten — sonst kippt der LKW in der Kurve.');
+            },1200);
+          },1750);
+        } else {
+          vDriveView.classList.add('fastroll');
+          vMiniWrap.style.transition='transform 3.6s cubic-bezier(.5,.05,.6,.95)';
+          vMiniWrap.style.transform='translateX(-50%) translateY(-'+(vStage.clientHeight*0.5)+'px) scale(.09)';
+          vLater(function(){
+            vDriveView.classList.remove('fastroll');
+            if(cg.total<MIN_KG){
+              vEnd(true,'🙂','Sichere Fahrt — aber halb leer','Sauber ausbalanciert! Allerdings nur '+cg.total+' kg geladen. Eine Tour rechnet sich erst richtig ab ca. '+MIN_KG+' kg — im echten Betrieb zählt auch die Auslastung.');
+            } else {
+              vEnd(true,'✅','Sichere Fahrt!','Perfekt: '+cg.total+' kg, sauber links/rechts verteilt. Genau so sieht professionelle Ladungssicherung aus — gute Fahrt! 🚚');
+            }
+          },3700);
+        }
+      }
+    }
+
+    function vCrashFX(dir){
+      var r=vMiniWrap.getBoundingClientRect(), s=vDriveView.getBoundingClientRect();
+      var bx=r.left-s.left+r.width/2, by=r.top-s.top+r.height*0.7;
+      var colors=['#B08A5A','#96683A','#3F76B8','#3E7BD0','#7E8896','#C29A62'];
+      for(var i=0;i<9;i++){
+        var b=document.createElement('i'); b.className='fly-box';
+        b.style.left=bx+'px'; b.style.top=by+'px';
+        b.style.background=colors[i%colors.length];
+        b.style.setProperty('--tx',(dir*(30+Math.random()*110))+'px');
+        b.style.setProperty('--ty',(-10-Math.random()*50+i*6)+'px');
+        b.style.setProperty('--rot',(dir*(90+Math.random()*260))+'deg');
+        vFx.appendChild(b);
+      }
+      for(var d=0;d<5;d++){
+        var du=document.createElement('i'); du.className='dust';
+        du.style.left=(bx+dir*(20+d*16))+'px'; du.style.top=(by+6)+'px';
+        du.style.setProperty('--dx',(dir*(10+d*14))+'px');
+        vFx.appendChild(du);
+      }
+    }
+    function vSmoke(x,y){
+      var s=document.createElement('i'); s.className='smokep';
+      s.style.left=x+'px'; s.style.top=y+'px';
+      vFx.appendChild(s);
+    }
+
+    function vEnd(ok,emoji,title,text){
+      vResultCard.className='result-card '+(ok?'ok':'bad');
+      vResultEmoji.textContent=emoji; vResultTitle.textContent=title; vResultText.textContent=text;
+      vResult.classList.add('show');
+    }
+
+    vGoBtn.addEventListener('click',vGo);
+    vUndoBtn.addEventListener('click',vUndo);
+    document.getElementById('vsAgainBtn').addEventListener('click',vInit);
+    vInit();
+  })();
 
   /* ---- Pro-Folie-Motive als SVG-Wasserzeichen ---- */
   var svgHead = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="#5C7AB0" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">';
