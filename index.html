@@ -129,9 +129,9 @@
   .logo-slot-sm{
     position:relative;
     flex:0 0 auto;
-    width:118px;height:38px;
+    width:61px;height:38px;
     border:1.5px solid var(--line);
-    border-radius:6px;
+    border-radius:9px;
     background:var(--card);
     display:flex;align-items:center;justify-content:center;
     font-family:var(--font-display);
@@ -243,8 +243,10 @@
   .photo-slot.filled .ps-hint{display:none;}
   .logo-slot-sm.filled,
   .logo-slot-lg.filled{border:none;background:none;}
-  .logo-slot-sm.filled img,
+  .logo-slot-sm.filled img{background:none;object-fit:cover;}
   .logo-slot-lg.filled img{background:none;}
+  .cover .logo-slot-lg{width:190px;height:auto;aspect-ratio:238/148;border-radius:16px;}
+  .cover .logo-slot-lg.filled img{object-fit:cover;padding:0;}
   .logo-slot-lg.filled .ps-label,
   .logo-slot-lg.filled .ps-hint{display:none;}
   .photo-slot .cam{font-size:1.8rem;line-height:1;}
@@ -357,6 +359,39 @@
   /* Cover-with-photo two column */
   .split{display:grid;grid-template-columns:1fr 1fr;gap:1.6rem;margin-top:1.4rem;align-items:stretch;}
   @media (max-width:760px){.split{grid-template-columns:1fr;}}
+
+  /* "Wer bin ich" — großes Foto, Text schiebt sich mit Weichzeichner darüber */
+  .wbi{position:relative;align-self:stretch;overflow:hidden;margin-top:0;margin-bottom:0;min-height:clamp(360px,64vh,500px);width:min(1040px,100%);}
+  .wbi-photo{position:absolute;top:0;bottom:-2.5rem;right:-1%;width:58%;z-index:1;
+    opacity:0;transform:scale(1.06);
+    transition:opacity .7s ease .05s, transform 1s cubic-bezier(.2,.7,.2,1) .05s;}
+  .wbi-photo img{width:100%;height:100%;object-fit:contain;object-position:bottom left;
+    transform:scaleX(-1);
+    filter:drop-shadow(0 24px 36px rgba(31,48,64,.22));}
+  .slide.is-active .wbi-photo{opacity:1;transform:none;}
+  .wbi-text{position:relative;z-index:2;width:66%;
+    background:linear-gradient(100deg,
+      color-mix(in srgb, var(--card) 82%, transparent) 0%,
+      color-mix(in srgb, var(--card) 66%, transparent) 52%,
+      color-mix(in srgb, var(--card) 20%, transparent) 100%);
+    -webkit-backdrop-filter:blur(9px) saturate(1.1);backdrop-filter:blur(9px) saturate(1.1);
+    border:1px solid color-mix(in srgb, var(--line) 50%, transparent);
+    border-radius:20px;padding:1.15rem 1.5rem;box-shadow:var(--shadow);
+    opacity:0;transform:translateX(-30px);
+    transition:opacity .55s ease .14s, transform .75s cubic-bezier(.2,.7,.2,1) .14s;}
+  .slide.is-active .wbi-text{opacity:1;transform:none;}
+  .wbi-text .headline{margin-bottom:.7rem;}
+  .wbi-text .eyebrow{margin-bottom:.6rem;}
+  .wbi .field-stack{margin-top:0;gap:.5rem;}
+  .wbi .field-row{padding-bottom:.4rem;}
+  .wbi .quote-card{margin-top:.9rem;padding:.9rem 1.1rem;}
+  .wbi .quote-card p{font-size:1rem;}
+  @media (max-width:760px){
+    .wbi{min-height:0;display:flex;flex-direction:column-reverse;gap:1rem;width:100%;}
+    .wbi-photo{position:relative;width:100%;height:250px;right:0;transform:none;}
+    .wbi-photo img{object-position:bottom center;}
+    .wbi-text{width:100%;backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--card);}
+  }
 
   /* Stat cards */
   .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-top:1.4rem;}
@@ -740,27 +775,21 @@
 
     <!-- 2 WER BIN ICH -->
     <section class="slide" data-index="2" data-motif="person">
-      <div class="slide-inner">
-        <p class="eyebrow">Wer steht hier vorne?</p>
-        <h1 class="headline">Wer bin ich?</h1>
-        <div class="split">
-          <div>
-            <div class="field-stack" style="margin-top:.2rem;">
-              <div class="field-row"><span class="field-label">Name</span><span class="field-value">Muhammad Arifin Abdurrahman</span></div>
-              <div class="field-row"><span class="field-label">Alter</span><span class="field-value">24 Jahre</span></div>
-              <div class="field-row"><span class="field-label">Ausbildung</span><span class="field-value">Fachlagerist · 2. Lehrjahr</span></div>
-              <div class="field-row"><span class="field-label">Standort</span><span class="field-value">DACHSER SE, Neumünster</span></div>
-              <div class="field-row"><span class="field-label">Davor</span><span class="field-value placeholder">[Schule / Praktikum / Job — kurz ergänzen]</span></div>
-            </div>
-            <div class="quote-card"><p>„[Ein Satz, der dich beschreibt.]“</p></div>
+      <div class="slide-inner wbi">
+        <div class="wbi-photo">
+          <img src="images/profile-cutout.png" alt="Muhammad Arifin Abdurrahman" onerror="this.remove()">
+        </div>
+        <div class="wbi-text">
+          <p class="eyebrow">Wer steht hier vorne?</p>
+          <h1 class="headline">Wer bin ich?</h1>
+          <div class="field-stack">
+            <div class="field-row"><span class="field-label">Name</span><span class="field-value">Muhammad Arifin Abdurrahman</span></div>
+            <div class="field-row"><span class="field-label">Alter</span><span class="field-value">24 Jahre</span></div>
+            <div class="field-row"><span class="field-label">Ausbildung</span><span class="field-value">Fachlagerist · 2. Lehrjahr</span></div>
+            <div class="field-row"><span class="field-label">Standort</span><span class="field-value">DACHSER SE, Neumünster</span></div>
+            <div class="field-row"><span class="field-label">Davor</span><span class="field-value placeholder">[Schule / Praktikum / Job — kurz ergänzen]</span></div>
           </div>
-          <div class="photo-slot contain">
-            <img src="images/profile-cutout.png" alt="Muhammad Arifin Abdurrahman" onerror="this.remove()">
-            <span class="corner-tab">Foto</span>
-            <span class="cam">📷</span>
-            <span class="ps-label">Foto von dir</span>
-            <span class="ps-hint">z. B. in Arbeitskleidung im Lager</span>
-          </div>
+          <div class="quote-card"><p>„[Ein Satz, der dich beschreibt.]“</p></div>
         </div>
       </div>
     </section>
@@ -778,7 +807,7 @@
               <div class="stat-card"><span class="check-badge">prüfen</span><div class="stat-num">40+</div><div class="stat-cap">Länder mit eigenen Standorten</div></div>
             </div>
           </div>
-          <div class="photo-slot">
+          <div class="photo-slot contain" style="aspect-ratio:16/9;min-height:0;align-self:center;">
             <img src="images/dachser-lkw.jpg" alt="DACHSER Lkw" onerror="this.remove()">
             <span class="corner-tab">Foto</span>
             <span class="cam">🚚</span>
@@ -1108,7 +1137,7 @@
   </div>
 
   <div class="slide-stamp" id="slideStamp">01 / 15</div>
-  <div class="kbd-hint" id="kbdHint">← → zum Navigieren · F für Vollbild</div>
+  <div class="kbd-hint" id="kbdHint">↕ Scrollen oder ← → blättern · F Vollbild · T Hell/Dunkel</div>
 </div>
 
 <script>
@@ -1286,6 +1315,45 @@
     else if(e.key === 'm' || e.key === 'M'){ AudioFX.toggle(); updateSoundBtn(); }
     else if(e.key === 't' || e.key === 'T'){ toggleTheme(); }
   });
+
+  /* ---- Scrollen zum Blättern (fullpage-artig) ---- */
+  var slidesEl = document.getElementById('slides');
+  var scrollLock = false;
+  function atScrollEdge(el, dir){
+    var scrollable = el.scrollHeight > el.clientHeight + 2;
+    if(!scrollable) return true;
+    if(dir > 0) return (el.scrollTop + el.clientHeight >= el.scrollHeight - 2);
+    return el.scrollTop <= 2;
+  }
+  slidesEl.addEventListener('wheel', function(e){
+    var active = slides[current];
+    if(!active) return;
+    if(Math.abs(e.deltaY) < 6) return;
+    var dir = e.deltaY > 0 ? 1 : -1;
+    if(!atScrollEdge(active, dir)) return;          // erst den Folieninhalt scrollen
+    if((dir > 0 && current >= total-1) || (dir < 0 && current <= 0)) return;
+    e.preventDefault();
+    if(scrollLock) return;
+    scrollLock = true;
+    goTo(current + dir);
+    setTimeout(function(){ scrollLock = false; }, 750);
+  }, {passive:false});
+
+  /* Touch-Wischen (vertikal) für Tablets/Handys */
+  var touchY = null;
+  slidesEl.addEventListener('touchstart', function(e){ touchY = e.touches[0].clientY; }, {passive:true});
+  slidesEl.addEventListener('touchend', function(e){
+    if(touchY === null) return;
+    var dy = touchY - e.changedTouches[0].clientY;
+    var dir = dy > 0 ? 1 : -1;
+    var active = slides[current];
+    if(Math.abs(dy) > 55 && active && atScrollEdge(active, dir) && !scrollLock){
+      if((dir > 0 && current < total-1) || (dir < 0 && current > 0)){
+        scrollLock = true; goTo(current + dir); setTimeout(function(){ scrollLock = false; }, 750);
+      }
+    }
+    touchY = null;
+  }, {passive:true});
 
   function toggleFullscreen(){
     if(!document.fullscreenElement){ deck.requestFullscreen && deck.requestFullscreen(); }
