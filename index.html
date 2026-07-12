@@ -361,7 +361,7 @@
   @media (max-width:760px){.split{grid-template-columns:1fr;}}
 
   /* "Wer bin ich" — großes Foto, Text schiebt sich mit Weichzeichner darüber */
-  .wbi{position:relative;align-self:stretch;overflow:hidden;margin-top:0;margin-bottom:0;min-height:clamp(360px,64vh,500px);width:min(1040px,100%);}
+  .wbi{position:relative;align-self:stretch;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start;margin-top:0;margin-bottom:0;min-height:clamp(360px,64vh,500px);width:min(1040px,100%);}
   .wbi-photo{position:absolute;top:0;bottom:-2.5rem;right:-1%;width:58%;z-index:1;
     opacity:0;transform:scale(1.06);
     transition:opacity .7s ease .05s, transform 1s cubic-bezier(.2,.7,.2,1) .05s;}
@@ -756,7 +756,7 @@
           </div>
         </div>
         <div class="reveal-panel" id="panel1">
-          <p>Kein Wunder, egal ob ja oder nein — DACHSER-Fahrzeuge sind in über 40 Ländern unterwegs, oft ohne dass man sie bewusst wahrnimmt.</p>
+          <p>Kein Wunder, egal ob ja oder nein: DACHSER-Fahrzeuge fahren in über 40 Ländern, meistens ohne dass man sie bewusst wahrnimmt.</p>
         </div>
         <div class="step2" id="step2">
           <p style="font-weight:600;font-size:1.05rem;margin-top:1.2rem;">Schätzfrage: Wie viele Sendungen laufen wohl an einem einzigen Tag durch ein größeres DACHSER-Lager?</p>
@@ -766,7 +766,7 @@
             <button class="choice-btn" data-guess="c">Zehntausende</button>
           </div>
           <div class="reveal-panel" id="panel2">
-            <p>In größeren Lagern sind es tatsächlich mehrere Tausend Sendungen — am Ende des Tages muss trotzdem jede einzelne am richtigen Ort landen. Genau darum geht es in meinem Beruf.</p>
+            <p>In größeren Lagern sind es echt mehrere Tausend Sendungen am Tag. Und trotzdem muss jede einzelne am richtigen Ort landen. Genau darum geht es in meinem Beruf.</p>
             <p style="font-size:.8rem;"><em>[Tipp: Frag in deinem Betrieb nach der genauen Zahl für deinen Standort und ersetze sie hier.]</em></p>
           </div>
         </div>
@@ -787,7 +787,7 @@
             <div class="field-row"><span class="field-label">Alter</span><span class="field-value">24 Jahre</span></div>
             <div class="field-row"><span class="field-label">Ausbildung</span><span class="field-value">Fachlagerist · 2. Lehrjahr</span></div>
             <div class="field-row"><span class="field-label">Standort</span><span class="field-value">DACHSER SE, Neumünster</span></div>
-            <div class="field-row"><span class="field-label">Davor</span><span class="field-value placeholder">[Schule / Praktikum / Job — kurz ergänzen]</span></div>
+            <div class="field-row"><span class="field-label">Davor</span><span class="field-value placeholder">[Schule / Praktikum / Job, kurz ergänzen]</span></div>
           </div>
           <div class="quote-card"><p>„[Ein Satz, der dich beschreibt.]“</p></div>
         </div>
@@ -801,9 +801,9 @@
         <h1 class="headline">Was ist <span class="accent">DACHSER</span> eigentlich?</h1>
         <div class="split" style="align-items:center;">
           <div>
-            <p class="lede" style="margin-bottom:1rem;">DACHSER transportiert und lagert Waren für Kund*innen aus Industrie und Handel — vom Joghurt bis zur Maschinenschraube. Ohne Logistik wären die Regale im Supermarkt schnell leer.</p>
+            <p class="lede" style="margin-bottom:1rem;">DACHSER transportiert und lagert Waren für Firmen aus Industrie und Handel, vom Joghurt bis zur Maschinenschraube. Ohne Logistik wären die Regale im Supermarkt ziemlich schnell leer.</p>
             <div class="stat-grid" style="grid-template-columns:1fr 1fr;">
-              <div class="stat-card"><span class="check-badge">prüfen</span><div class="stat-num">1930</div><div class="stat-cap">gegründet — bis heute Familien&shy;unternehmen</div></div>
+              <div class="stat-card"><span class="check-badge">prüfen</span><div class="stat-num">1930</div><div class="stat-cap">gegründet, bis heute Familien&shy;unternehmen</div></div>
               <div class="stat-card"><span class="check-badge">prüfen</span><div class="stat-num">40+</div><div class="stat-cap">Länder mit eigenen Standorten</div></div>
             </div>
           </div>
@@ -836,7 +836,7 @@
           </div></div>
           <div class="task-card"><div class="task-card-inner">
             <div class="task-face task-front"><span class="task-num">03</span><span class="task-label">Einlagerung</span><span class="task-hint">Klicken →</span></div>
-            <div class="task-face task-back">Ware sicher und sortiert ins Regal bringen — mit Stapler oder Hubwagen.</div>
+            <div class="task-face task-back">Ware sicher und sortiert ins Regal bringen, mit Stapler oder Hubwagen.</div>
           </div></div>
           <div class="task-card"><div class="task-card-inner">
             <div class="task-face task-front"><span class="task-num">04</span><span class="task-label">Kommissionierung</span><span class="task-hint">Klicken →</span></div>
@@ -859,7 +859,7 @@
       <div class="slide-inner">
         <p class="eyebrow">Selbst ausprobieren</p>
         <h1 class="headline">Verlade-<span class="accent">Simulator</span></h1>
-        <p class="lede" style="margin-bottom:.2rem;">Du stehst an der Rampe und belädst den LKW von hinten. Achte auf die <b>Gewichtsverteilung links/rechts</b> — sonst kippt der Anhänger auf der Straße um. Und: nicht überladen!</p>
+        <p class="lede" style="margin-bottom:.2rem;">Du stehst an der Rampe und belädst den LKW von hinten. Achte auf die <b>Gewichtsverteilung links und rechts</b>, sonst kippt der Anhänger auf der Straße um. Und nicht überladen!</p>
         <div class="vsim">
           <div class="vsim-game">
             <div class="stage-card">
@@ -916,8 +916,8 @@
                 <div class="result" id="vsResult">
                   <div class="result-card" id="vsResultCard">
                     <div class="result-emoji" id="vsResultEmoji">🚚</div>
-                    <h2 id="vsResultTitle">—</h2>
-                    <p id="vsResultText">—</p>
+                    <h2 id="vsResultTitle">Ergebnis</h2>
+                    <p id="vsResultText">…</p>
                     <button class="btn" id="vsAgainBtn">Nochmal versuchen</button>
                   </div>
                 </div>
@@ -961,7 +961,7 @@
       <div class="slide-inner">
         <p class="eyebrow">Einblicke</p>
         <h1 class="headline">Mein Arbeitsplatz bei <span class="accent">DACHSER</span></h1>
-        <p class="lede">Ein paar echte Eindrücke aus meinem Alltag — Fotos sagen mehr als tausend Worte.</p>
+        <p class="lede">Ein paar echte Eindrücke aus meinem Alltag. Fotos sagen oft mehr als viele Worte.</p>
         <div class="gallery">
           <div class="photo-slot"><span class="corner-tab">Foto 1</span><span class="cam">📷</span><span class="ps-label">Das Lager</span><span class="ps-hint">Regale, Hallen, Übersicht</span></div>
           <div class="photo-slot"><span class="corner-tab">Foto 2</span><span class="cam">🚜</span><span class="ps-label">Technik</span><span class="ps-hint">Stapler, Hubwagen, Scanner</span></div>
@@ -978,7 +978,7 @@
         <h1 class="headline">Warum Fachlagerist? Warum DACHSER?</h1>
         <div class="field-stack">
           <div class="field-row"><span class="field-label">Vorher</span><span class="field-value placeholder">[Was hast du vor der Ausbildung gemacht?]</span></div>
-          <div class="field-row"><span class="field-label">Der Auslöser</span><span class="field-value placeholder">[Praktikum, Empfehlung, Zufall — wie kam der Kontakt zustande?]</span></div>
+          <div class="field-row"><span class="field-label">Der Auslöser</span><span class="field-value placeholder">[Praktikum, Empfehlung, Zufall: wie kam der Kontakt zustande?]</span></div>
           <div class="field-row"><span class="field-label">Warum DACHSER</span><span class="field-value placeholder">[Was hat dich am Unternehmen überzeugt?]</span></div>
         </div>
         <div class="quote-card"><p>„[Ein Satz, der deine Motivation auf den Punkt bringt.]“</p></div>
@@ -1007,12 +1007,12 @@
         </div>
         <div class="split" style="align-items:stretch;margin-top:1rem;">
           <div>
-            <p class="lede" style="margin-bottom:.4rem;">Ich komme aus Indonesien — rund 11.000 Kilometer von hier. Meine Familie ist weit weg, und ich lebe und lerne hier ganz auf mich allein gestellt.</p>
+            <p class="lede" style="margin-bottom:.4rem;">Ich komme aus Indonesien, rund 11.000 Kilometer von hier. Meine Familie ist weit weg, und ich lebe und lerne hier ganz auf mich allein gestellt.</p>
             <div class="support-card" style="margin-top:1rem;">
               <span class="sc-label">Was mir Sicherheit gibt</span>
               <p>Bei DACHSER fühle ich mich trotzdem nicht allein: Meine Ausbilder und Vorgesetzten sind geduldig, offen und unterstützen mich jeden Tag. So kann ich in Ruhe ankommen und meine Ausbildung Schritt für Schritt meistern.</p>
             </div>
-            <p class="takeaway">Egal, wo du herkommst — mit dem richtigen Team an deiner Seite ist vieles möglich.</p>
+            <p class="takeaway">Egal, wo du herkommst: Mit Leuten, die dich unterstützen, ist viel möglich.</p>
           </div>
           <div class="photo-slot">
             <img src="images/mein-weg.jpg" alt="Muhammad Arifin Abdurrahman" onerror="this.remove()">
@@ -1036,7 +1036,7 @@
           <div class="stat-card"><span class="check-badge">ausfüllen</span><div class="stat-num">[X]</div><div class="stat-cap">Urlaubstage pro Jahr</div></div>
           <div class="stat-card"><span class="check-badge">ausfüllen</span><div class="stat-num">[?]</div><div class="stat-cap">Berufsschule: Block- oder wöchentl. Unterricht</div></div>
         </div>
-        <p class="note-strip">Quelle: dein Ausbildungsvertrag — Zahlen vor der Präsentation aktuell halten.</p>
+        <p class="note-strip">Quelle: dein Ausbildungsvertrag. Zahlen vor der Präsentation nochmal checken.</p>
       </div>
     </section>
 
@@ -1049,16 +1049,16 @@
           <div>
             <h3 style="font-family:var(--font-display);font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin:0 0 .6rem;">Was du mitbringen solltest</h3>
             <ul class="checklist" style="max-width:none;margin-top:.4rem;">
-              <li>Körperliche Fitness — viel Stehen, Laufen, Heben</li>
+              <li>Körperliche Fitness (viel Stehen, Laufen, Heben)</li>
               <li>Sorgfalt &amp; Genauigkeit</li>
               <li>Teamfähigkeit</li>
-              <li>Interesse an Technik — Stapler, Scanner, Lagersysteme</li>
+              <li>Interesse an Technik (Stapler, Scanner, Lagersysteme)</li>
               <li>In der Regel: Haupt- oder Realschulabschluss</li>
             </ul>
           </div>
           <div>
             <h3 style="font-family:var(--font-display);font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin:0 0 .6rem;">Mein Bewerbungsweg</h3>
-            <div class="fillbox"><span class="tag">Ausfüllen</span>[Wie hast du dich beworben — online, nach einem Praktikum, über eine Messe? Wie lief das Vorstellungsgespräch oder der Eignungstest ab?]</div>
+            <div class="fillbox"><span class="tag">Ausfüllen</span>[Wie hast du dich beworben: online, nach einem Praktikum, über eine Messe? Wie lief das Vorstellungsgespräch oder der Eignungstest ab?]</div>
           </div>
         </div>
       </div>
@@ -1078,7 +1078,7 @@
           <div class="path-arrow">→</div>
           <div class="path-step"><div class="step-eyebrow">Perspektive</div><div class="step-title">Team- oder Schichtleitung</div></div>
         </div>
-        <p class="lede" style="margin-top:1.6rem;">Lagerlogistik wird überall gebraucht — vom kleinen Onlinehändler bis zum globalen Unternehmen wie DACHSER. Wer will, kann sich immer weiter hocharbeiten.</p>
+        <p class="lede" style="margin-top:1.6rem;">Lagerlogistik wird überall gebraucht, vom kleinen Onlinehändler bis zu einem großen Unternehmen wie DACHSER. Wer will, kann sich immer weiter hocharbeiten.</p>
       </div>
     </section>
 
@@ -1091,8 +1091,8 @@
           <li>gerne anpackst und dich bewegst, statt den ganzen Tag zu sitzen</li>
           <li>Ordnung und Struktur magst</li>
           <li>gerne im Team arbeitest</li>
-          <li>Verantwortung übernehmen willst — ein Fehler im Lager wirkt sich schnell auf den ganzen Versand aus</li>
-          <li>Interesse an Technik hast — Stapler, Scanner, Lagerverwaltungssysteme</li>
+          <li>Verantwortung übernehmen willst (ein Fehler im Lager wirkt sich schnell auf den ganzen Versand aus)</li>
+          <li>Interesse an Technik hast (Stapler, Scanner, Lagerverwaltungssysteme)</li>
         </ul>
       </div>
     </section>
@@ -1102,7 +1102,7 @@
       <div class="slide-inner">
         <p class="eyebrow" style="justify-content:center;">Jetzt seid ihr dran</p>
         <h1 class="headline"><span class="accent">FRAGEN?</span></h1>
-        <p class="lede" style="margin:0 auto;">Ich freue mich auf eure Fragen — es gibt keine dummen!</p>
+        <p class="lede" style="margin:0 auto;">Ich freue mich auf eure Fragen. Es gibt keine dummen!</p>
       </div>
     </section>
 
@@ -1518,7 +1518,7 @@
       if(vLocked) return;
       if(!vSelected){showVToast('Erst ein Paket auswählen!');return;}
       var L=vLanding(c,vSelected);
-      if(!L.ok){showVToast('Zu hoch gestapelt — passt nicht!');return;}
+      if(!L.ok){showVToast('Zu hoch gestapelt, das passt nicht!');return;}
       var p=vSelected;
       for(var i=0;i<p.w;i++){vColHeight[L.col+i]=L.bottom+p.h;}
       var rec={id:p.id,type:p.type,w:p.w,h:p.h,kg:p.kg,label:p.label,col:L.col,bottom:L.bottom};
@@ -1607,7 +1607,7 @@
           for(var i=0;i<6;i++){(function(i){vLater(function(){vSmoke(bx+(i%2?18:-18),by-6);}, 200+i*180);})(i);}
           vLater(function(){
             vDriveView.classList.remove('rolling');
-            vEnd(false,'💥','Achsbruch — überladen!','Mit '+cg.total+' kg lag die Ladung über der Grenze von '+MAX_KG+' kg. Im echten Lager gilt: Zuladung und Achslasten immer checken, bevor es losgeht.');
+            vEnd(false,'💥','Achsbruch, überladen!','Mit '+cg.total+' kg lag die Ladung über der Grenze von '+MAX_KG+' kg. Im echten Lager gilt: Zuladung und Achslasten immer checken, bevor es losgeht.');
           },2100);
         } else if(unbal){
           vDriveView.classList.add('rolling');
@@ -1623,7 +1623,7 @@
             vCrashFX(dir);
             vLater(function(){
               vDriveView.classList.remove('rolling');
-              vEnd(false,'💥','Umgekippt!','Die Ladung war '+(dir>0?'rechts':'links')+' zu schwer. Beim Verladen gilt: Gewicht gleichmäßig verteilen, schwere Güter mittig und nach unten — sonst kippt der LKW in der Kurve.');
+              vEnd(false,'💥','Umgekippt!','Die Ladung war '+(dir>0?'rechts':'links')+' zu schwer. Beim Verladen gilt: Gewicht gleichmäßig verteilen, schwere Güter mittig und nach unten, sonst kippt der LKW in der Kurve.');
             },1200);
           },1750);
         } else {
@@ -1633,9 +1633,9 @@
           vLater(function(){
             vDriveView.classList.remove('fastroll');
             if(cg.total<MIN_KG){
-              vEnd(true,'🙂','Sichere Fahrt — aber halb leer','Sauber ausbalanciert! Allerdings nur '+cg.total+' kg geladen. Eine Tour rechnet sich erst richtig ab ca. '+MIN_KG+' kg — im echten Betrieb zählt auch die Auslastung.');
+              vEnd(true,'🙂','Sichere Fahrt, aber halb leer','Sauber ausbalanciert! Allerdings nur '+cg.total+' kg geladen. Eine Tour rechnet sich erst richtig ab ca. '+MIN_KG+' kg, im echten Betrieb zählt auch die Auslastung.');
             } else {
-              vEnd(true,'✅','Sichere Fahrt!','Perfekt: '+cg.total+' kg, sauber links/rechts verteilt. Genau so sieht professionelle Ladungssicherung aus — gute Fahrt! 🚚');
+              vEnd(true,'✅','Sichere Fahrt!','Perfekt: '+cg.total+' kg, sauber links und rechts verteilt. Genau so geht sichere Ladung. Gute Fahrt! 🚚');
             }
           },3700);
         }
