@@ -234,6 +234,19 @@
   }
   .photo-slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:9px;}
   .photo-slot.contain img{object-fit:contain;padding:.5rem;}
+  /* Slots mit echtem Bild: gestrichelten Rahmen + Platzhalter entfernen */
+  .photo-slot.filled{border:none;background:none;padding:0;box-shadow:var(--shadow);}
+  .photo-slot.filled.contain{box-shadow:none;}
+  .photo-slot.filled .corner-tab,
+  .photo-slot.filled .cam,
+  .photo-slot.filled .ps-label,
+  .photo-slot.filled .ps-hint{display:none;}
+  .logo-slot-sm.filled,
+  .logo-slot-lg.filled{border:none;background:none;}
+  .logo-slot-sm.filled img,
+  .logo-slot-lg.filled img{background:none;}
+  .logo-slot-lg.filled .ps-label,
+  .logo-slot-lg.filled .ps-hint{display:none;}
   .photo-slot .cam{font-size:1.8rem;line-height:1;}
   .photo-slot .ps-label{font-family:var(--font-display);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--accent);}
   .photo-slot .ps-hint{font-size:.74rem;line-height:1.35;max-width:22ch;}
@@ -660,7 +673,7 @@
   <div class="hazard" aria-hidden="true"></div>
   <div class="deck-topbar">
     <div class="brand-side">
-      <div class="logo-slot-sm" title="DACHSER"><img src="images/dachser-logo.jpeg" alt="DACHSER Logo" onerror="this.remove()">LOGO</div>
+      <div class="logo-slot-sm" title="DACHSER"><img src="images/dachser-logo.png" alt="DACHSER Logo" onerror="this.remove()">LOGO</div>
       <div class="brand-lockup">FACHLAGERIST <span>· AUSBILDUNGSBOTSCHAFTER</span></div>
     </div>
     <div class="topbar-actions">
@@ -678,7 +691,7 @@
       <div class="slide-inner">
         <div class="cover-top">
           <div class="logo-slot-lg">
-            <img src="images/dachser-logo.jpeg" alt="DACHSER Logo" onerror="this.remove()">
+            <img src="images/dachser-logo.png" alt="DACHSER Logo" onerror="this.remove()">
             <span class="ps-label">DACHSER-Logo</span>
             <span class="ps-hint">hier einfügen</span>
           </div>
@@ -1077,7 +1090,7 @@
             <div class="contact-row"><span>Kontakt</span><span class="field-value placeholder">[E-Mail oder über Schule/IHK]</span></div>
           </div>
           <div class="logo-slot-lg" style="width:100%;height:120px;">
-            <img src="images/dachser-logo.jpeg" alt="DACHSER Logo" onerror="this.remove()">
+            <img src="images/dachser-logo.png" alt="DACHSER Logo" onerror="this.remove()">
             <span class="ps-label">DACHSER-Logo</span>
             <span class="ps-hint">hier einfügen</span>
           </div>
@@ -1124,6 +1137,10 @@
     var next = currentTheme()==='dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', next);
     updateThemeIcon();
+  }
+  // Standard: heller, eleganter Look (auch auf Dunkel-Systemen) — per Klick umschaltbar
+  if(!document.documentElement.getAttribute('data-theme')){
+    document.documentElement.setAttribute('data-theme','light');
   }
   themeBtn.addEventListener('click', toggleTheme);
   updateThemeIcon();
@@ -1612,6 +1629,16 @@
     question:'<path d="M37 37 a15 15 0 1 1 22 13 c-7 5 -9 8 -9 15"/><circle cx="50" cy="80" r="3.5" fill="#5C7AB0" stroke="none"/>',
     pin:'<path d="M50 88 C 30 60 26 47 26 39 a24 24 0 0 1 48 0 c0 8 -4 21 -24 49 z"/><circle cx="50" cy="39" r="9"/>'
   };
+  /* Bilder, die wirklich laden, markieren -> Rahmen/Platzhalter fallen weg */
+  Array.prototype.forEach.call(
+    document.querySelectorAll('.photo-slot img, .logo-slot-sm img, .logo-slot-lg img'),
+    function(img){
+      function mark(){ if(img.parentElement) img.parentElement.classList.add('filled'); }
+      if(img.complete && img.naturalWidth>0) mark();
+      else img.addEventListener('load', mark);
+    }
+  );
+
   slides.forEach(function(s){
     var key = s.getAttribute('data-motif');
     if(key && motifBody[key]){
