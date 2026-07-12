@@ -9,55 +9,55 @@
 <title>Mein Weg zum Fachlageristen bei DACHSER</title>
 <style>
   :root{
-    --bg:#EFF3FA;
-    --bg-alt:#DCE5F3;
+    --bg:#F3F9FF;
+    --bg-alt:#EAF4FE;
     --card:#FFFFFF;
-    --ink:#0B1A38;
-    --ink-soft:#45527012;
-    --ink-soft:#455270;
-    --ink-faint:#8792A8;
-    --line:#C6D2E6;
-    --accent:#0A2E73;      /* DACHSER Blau */
+    --ink:#1F3040;
+    --ink-soft:#566B7D;
+    --ink-faint:#97AABB;
+    --line:#D5E8F6;
+    --accent:#1B7FC9;      /* DACHSER-Blau, ruhig */
     --accent-ink:#FFFFFF;
-    --yellow:#FFCC00;      /* DACHSER Gelb */
-    --yellow-ink:#0B1A38;
-    --steel:#26509E;
-    --steel-soft:#D3DEF2;
-    --miss:#C43A2E;
+    --yellow:#F2C200;      /* DACHSER-Gelb, entsättigt */
+    --yellow-ink:#1F3040;
+    --steel:#2E9BE6;       /* Himmelblau */
+    --steel-soft:#BFE1FA;
+    --miss:#C6483B;
     --ok:#2F8050;
-    --shadow: 0 18px 40px -20px rgba(11,26,56,0.35);
+    --shadow: 0 2px 4px rgba(40,110,170,0.06), 0 14px 34px -12px rgba(40,110,170,0.20);
+    --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
     --font-display: ui-monospace, "Cascadia Mono", "Roboto Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-    --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-body: "Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   }
   @media (prefers-color-scheme: dark){
     :root{
-      --bg:#08111F;
-      --bg-alt:#0F1B2E;
-      --card:#132239;
-      --ink:#E9F0FB;
-      --ink-soft:#A7B6CE;
-      --ink-faint:#6B7A94;
-      --line:#243550;
-      --accent:#4C86E8;
-      --accent-ink:#06101F;
-      --yellow:#FFD21A;
-      --yellow-ink:#0B1A38;
-      --steel:#5C93EC;
-      --steel-soft:#1B2C46;
+      --bg:#0E1A26;
+      --bg-alt:#152633;
+      --card:#182A38;
+      --ink:#E7F1F9;
+      --ink-soft:#A6BACB;
+      --ink-faint:#6F8496;
+      --line:#263B4B;
+      --accent:#4AA3E6;
+      --accent-ink:#08131C;
+      --yellow:#E6C24A;
+      --yellow-ink:#14212C;
+      --steel:#6FB6EC;
+      --steel-soft:#1E3444;
       --miss:#E06455;
       --ok:#5FB27C;
-      --shadow: 0 18px 44px -18px rgba(0,0,0,0.65);
+      --shadow: 0 18px 40px -18px rgba(0,0,0,0.55);
     }
   }
   :root[data-theme="dark"]{
-    --bg:#08111F; --bg-alt:#0F1B2E; --card:#132239; --ink:#E9F0FB; --ink-soft:#A7B6CE; --ink-faint:#6B7A94;
-    --line:#243550; --accent:#4C86E8; --accent-ink:#06101F; --yellow:#FFD21A; --yellow-ink:#0B1A38;
-    --steel:#5C93EC; --steel-soft:#1B2C46; --miss:#E06455; --ok:#5FB27C; --shadow: 0 18px 44px -18px rgba(0,0,0,0.65);
+    --bg:#0E1A26; --bg-alt:#152633; --card:#182A38; --ink:#E7F1F9; --ink-soft:#A6BACB; --ink-faint:#6F8496;
+    --line:#263B4B; --accent:#4AA3E6; --accent-ink:#08131C; --yellow:#E6C24A; --yellow-ink:#14212C;
+    --steel:#6FB6EC; --steel-soft:#1E3444; --miss:#E06455; --ok:#5FB27C; --shadow: 0 18px 40px -18px rgba(0,0,0,0.55);
   }
   :root[data-theme="light"]{
-    --bg:#EFF3FA; --bg-alt:#DCE5F3; --card:#FFFFFF; --ink:#0B1A38; --ink-soft:#455270; --ink-faint:#8792A8;
-    --line:#C6D2E6; --accent:#0A2E73; --accent-ink:#FFFFFF; --yellow:#FFCC00; --yellow-ink:#0B1A38;
-    --steel:#26509E; --steel-soft:#D3DEF2; --miss:#C43A2E; --ok:#2F8050; --shadow: 0 18px 40px -20px rgba(11,26,56,0.35);
+    --bg:#F3F9FF; --bg-alt:#EAF4FE; --card:#FFFFFF; --ink:#1F3040; --ink-soft:#566B7D; --ink-faint:#97AABB;
+    --line:#D5E8F6; --accent:#1B7FC9; --accent-ink:#FFFFFF; --yellow:#F2C200; --yellow-ink:#1F3040;
+    --steel:#2E9BE6; --steel-soft:#BFE1FA; --miss:#C6483B; --ok:#2F8050; --shadow: 0 2px 4px rgba(40,110,170,0.06), 0 14px 34px -12px rgba(40,110,170,0.20);
   }
 
   *{box-sizing:border-box;}
@@ -73,10 +73,10 @@
     width:100%;
     background-color:var(--bg);
     background-image:
-      radial-gradient(120% 90% at 12% 0%, color-mix(in srgb, var(--accent) 12%, transparent) 0%, transparent 55%),
-      radial-gradient(120% 90% at 92% 100%, color-mix(in srgb, var(--yellow) 14%, transparent) 0%, transparent 55%),
-      repeating-linear-gradient(0deg, transparent 0 43px, color-mix(in srgb, var(--accent) 3%, transparent) 43px 44px),
-      repeating-linear-gradient(90deg, transparent 0 43px, color-mix(in srgb, var(--accent) 3%, transparent) 43px 44px);
+      radial-gradient(120% 90% at 12% 0%, color-mix(in srgb, var(--accent) 6%, transparent) 0%, transparent 55%),
+      radial-gradient(120% 90% at 92% 100%, color-mix(in srgb, var(--steel) 6%, transparent) 0%, transparent 55%),
+      repeating-linear-gradient(0deg, transparent 0 43px, color-mix(in srgb, var(--accent) 2%, transparent) 43px 44px),
+      repeating-linear-gradient(90deg, transparent 0 43px, color-mix(in srgb, var(--accent) 2%, transparent) 43px 44px);
     display:flex;
     flex-direction:column;
     overflow:hidden;
@@ -86,9 +86,9 @@
   .deck-bg{
     position:absolute;inset:0;width:100%;height:100%;
     z-index:0;pointer-events:none;
-    opacity:.5;transition:opacity .7s ease;
+    opacity:.32;transition:opacity .7s ease;
   }
-  .deck.bg-strong .deck-bg{opacity:.9;}
+  .deck.bg-strong .deck-bg{opacity:.55;}
   .deck > .hazard,
   .deck > .deck-topbar,
   .deck > .progress-track,
@@ -112,9 +112,9 @@
 
   /* Warnband: blau-gelb, wie Ladungssicherung */
   .hazard{
-    height:8px;
+    height:4px;
     flex-shrink:0;
-    background:repeating-linear-gradient(-45deg, var(--yellow) 0 15px, var(--accent) 15px 30px);
+    background:linear-gradient(90deg, var(--accent) 0 62%, var(--yellow) 62% 100%);
   }
 
   .deck-topbar{
@@ -212,18 +212,12 @@
   .eyebrow::before{content:"";width:22px;height:3px;background:var(--yellow);display:inline-block;}
 
   h1.headline{
-    font-family:var(--font-display);
-    text-transform:uppercase;font-weight:700;letter-spacing:.01em;line-height:1.06;
-    font-size:clamp(1.7rem,4.6vw,3.1rem);
+    font-family:var(--font-serif);
+    font-weight:600;letter-spacing:-0.01em;line-height:1.12;
+    font-size:clamp(1.8rem,4.6vw,3rem);
     margin:0 0 1rem;text-wrap:balance;color:var(--ink);
   }
-  /* Signature: Gelb-Marker-Highlight auf Blau/Ink */
-  h1.headline .accent{
-    color:var(--ink);
-    background:linear-gradient(transparent 58%, var(--yellow) 58%, var(--yellow) 94%, transparent 94%);
-    padding:0 .12em;
-    box-decoration-break:clone;-webkit-box-decoration-break:clone;
-  }
+  h1.headline .accent{ color:var(--accent);font-style:italic; }
 
   p.lede{font-size:clamp(1rem,1.6vw,1.2rem);line-height:1.6;color:var(--ink-soft);max-width:62ch;margin:0 0 1.4rem;}
 
@@ -670,6 +664,7 @@
       <div class="brand-lockup">FACHLAGERIST <span>· AUSBILDUNGSBOTSCHAFTER</span></div>
     </div>
     <div class="topbar-actions">
+      <button class="icon-btn" id="themeBtn" aria-label="Hell/Dunkel umschalten" title="Hell/Dunkel (Taste T)">☀️</button>
       <button class="icon-btn" id="soundBtn" aria-label="Hintergrundsound an/aus" aria-pressed="false" title="Sound an/aus (Taste M)">🔈</button>
       <button class="icon-btn" id="fullscreenBtn" aria-label="Vollbildmodus umschalten" title="Vollbild (Taste F)">⛶</button>
     </div>
@@ -688,7 +683,7 @@
             <span class="ps-hint">hier einfügen</span>
           </div>
         </div>
-        <h1 class="headline">MEIN WEG ZUM <span class="accent">FACHLAGERISTEN</span> BEI DACHSER</h1>
+        <h1 class="headline">Mein Weg zum <span class="accent">Fachlageristen</span> bei DACHSER</h1>
         <div class="role">Ausbildung · Lager &amp; Logistik</div>
         <div class="route" aria-hidden="true">
           <span class="dot"></span><span class="line"></span><span class="truck">🚚</span><span class="line"></span><span class="dot end"></span>
@@ -1117,6 +1112,21 @@
   var kbdHint = document.getElementById('kbdHint');
   var deck = document.getElementById('deck');
   var soundBtn = document.getElementById('soundBtn');
+  var themeBtn = document.getElementById('themeBtn');
+
+  /* ---- Hell/Dunkel-Umschalter (nützlich für helle Klassenräume/Beamer) ---- */
+  function currentTheme(){
+    return document.documentElement.getAttribute('data-theme')
+      || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  }
+  function updateThemeIcon(){ themeBtn.textContent = currentTheme()==='dark' ? '🌙' : '☀️'; }
+  function toggleTheme(){
+    var next = currentTheme()==='dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    updateThemeIcon();
+  }
+  themeBtn.addEventListener('click', toggleTheme);
+  updateThemeIcon();
 
   /* ---- Sound-Engine (PS5-artiger Boot + Ambient + Slide-Whoosh), rein synthetisiert ---- */
   var AudioFX = (function(){
@@ -1257,6 +1267,7 @@
     else if(e.key === 'End'){ goTo(total-1); }
     else if(e.key === 'f' || e.key === 'F'){ toggleFullscreen(); }
     else if(e.key === 'm' || e.key === 'M'){ AudioFX.toggle(); updateSoundBtn(); }
+    else if(e.key === 't' || e.key === 'T'){ toggleTheme(); }
   });
 
   function toggleFullscreen(){
@@ -1630,12 +1641,12 @@
   ];
   var routes = [[0,2],[2,4],[4,5],[5,7],[7,6],[6,8],[7,8],[0,1],[1,3],[3,2],[2,6],[0,6],[5,3]];
 
-  var colors = {dot:'#0A2E73', arc:'#26509E', pulse:'#FFCC00'};
+  var colors = {dot:'#1B7FC9', arc:'#2E9BE6', pulse:'#2E9BE6'};
   function readColors(){
     var cs = getComputedStyle(document.documentElement);
-    colors.dot = (cs.getPropertyValue('--accent')||'#0A2E73').trim();
-    colors.arc = (cs.getPropertyValue('--steel')||'#26509E').trim();
-    colors.pulse = (cs.getPropertyValue('--yellow')||'#FFCC00').trim();
+    colors.dot = (cs.getPropertyValue('--accent')||'#1B7FC9').trim();
+    colors.arc = (cs.getPropertyValue('--steel')||'#2E9BE6').trim();
+    colors.pulse = (cs.getPropertyValue('--steel')||'#2E9BE6').trim();
   }
 
   function gauss(){ return (Math.random()+Math.random()+Math.random()-1.5)/1.5; }
@@ -1655,7 +1666,7 @@
       for(var i=0;i<h.n;i++){
         var x = (h.x + gauss()*h.rx) * W;
         var y = (h.y + gauss()*h.ry) * H;
-        mctx.globalAlpha = 0.16 + Math.random()*0.28;
+        mctx.globalAlpha = 0.08 + Math.random()*0.16;
         mctx.fillRect(x, y, dotSize, dotSize);
       }
     });
@@ -1670,8 +1681,8 @@
       var cy = my + (dx/len)*len*0.16 - len*0.12;
       r._c = {x:cx, y:cy}; r._a = a; r._b = b;
       mctx.strokeStyle = colors.arc;
-      mctx.globalAlpha = 0.16;
-      mctx.lineWidth = 1.1;
+      mctx.globalAlpha = 0.10;
+      mctx.lineWidth = 1;
       mctx.beginPath();
       mctx.moveTo(a.x, a.y);
       mctx.quadraticCurveTo(cx, cy, b.x, b.y);
@@ -1718,16 +1729,16 @@
     ctx.save();
     ctx.fillStyle = colors.pulse;
     ctx.shadowColor = colors.pulse;
-    ctx.shadowBlur = 8;
+    ctx.shadowBlur = 3;
     pulses.forEach(function(p){
       p.t += p.speed*dt;
       if(p.t > 1) p.t -= 1;
       var r = p.r;
       if(!r._a) return;
       var pos = bezier(r._a, r._c, r._b, p.t);
-      ctx.globalAlpha = 0.85;
+      ctx.globalAlpha = 0.55;
       ctx.beginPath();
-      ctx.arc(pos.x, pos.y, 2.2, 0, Math.PI*2);
+      ctx.arc(pos.x, pos.y, 1.8, 0, Math.PI*2);
       ctx.fill();
     });
     ctx.restore();
