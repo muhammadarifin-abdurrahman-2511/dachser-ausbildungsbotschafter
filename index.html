@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Interaktive Praesentation: Mein Weg zum Fachlageristen bei DACHSER SE Neumuenster.">
+<link rel="stylesheet" href="maplibre-gl.css">
 </head>
 <body>
 <title>Mein Weg zum Fachlageristen bei DACHSER</title>
@@ -86,9 +87,47 @@
   .deck-bg{
     position:absolute;inset:0;width:100%;height:100%;
     z-index:0;pointer-events:none;
-    opacity:.32;transition:opacity .7s ease;
+    opacity:.14;transition:opacity .7s ease;
   }
-  .deck.bg-strong .deck-bg{opacity:.55;}
+  .deck.bg-strong .deck-bg{opacity:.22;}
+
+  /* Vollbild-Landkarte (MapLibre) als durchgehendes Hintergrund-Thema.
+     Tiles kommen von basemaps.cartocdn.com -> braucht Internet; ohne Netz
+     bleibt die Karte unsichtbar und das Deck läuft normal weiter. */
+  .deck-map{
+    position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden;
+    opacity:0;transition:opacity 1.2s ease;
+  }
+  .deck-map.ready{opacity:1;}
+  .deck.map-dim .deck-map.ready{opacity:.45;}
+  .deck-map .map-canvas{position:absolute;inset:0;z-index:1;}
+  .deck-map .maplibregl-canvas{outline:none;}
+  /* Gleichmäßiger Schleier: Karte bleibt sichtbar, Text bleibt lesbar */
+  .deck-map::after{
+    content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+    background:color-mix(in srgb, var(--bg) 45%, transparent);
+  }
+  :root[data-theme="dark"] .deck-map::after{
+    background:color-mix(in srgb, var(--bg) 52%, transparent);
+  }
+  /* DACHSER-Standort-Marker */
+  .dm-marker{pointer-events:none;position:relative;}
+  .dm-dot{display:block;width:14px;height:14px;border-radius:50%;
+    background:#F2C200;border:2.5px solid #173a94;
+    box-shadow:0 0 0 5px rgba(242,194,0,.22), 0 2px 6px rgba(0,0,0,.3);}
+  .dm-dot.main{width:19px;height:19px;animation:dmPulse 2.4s ease-out infinite;}
+  @keyframes dmPulse{
+    0%{box-shadow:0 0 0 0 rgba(242,194,0,.55), 0 2px 6px rgba(0,0,0,.3);}
+    70%{box-shadow:0 0 0 18px rgba(242,194,0,0), 0 2px 6px rgba(0,0,0,.3);}
+    100%{box-shadow:0 0 0 0 rgba(242,194,0,0), 0 2px 6px rgba(0,0,0,.3);}
+  }
+  @media (prefers-reduced-motion: reduce){.dm-dot.main{animation:none;}}
+  .dm-label{position:absolute;left:50%;bottom:calc(100% + 7px);transform:translateX(-50%);
+    white-space:nowrap;font-family:var(--font-display);font-size:.6rem;font-weight:700;letter-spacing:.04em;
+    background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:2px 8px;
+    box-shadow:0 2px 8px rgba(10,25,40,.18);opacity:0;transition:opacity .4s ease;}
+  .deck-map.show-labels .dm-label{opacity:1;}
+  .deck-map .maplibregl-ctrl-attrib{font-size:9px;opacity:.55;}
   .deck > .hazard,
   .deck > .deck-topbar,
   .deck > .progress-track,
@@ -554,16 +593,20 @@
   .vsim .stage{position:relative;height:clamp(320px,44vh,430px);overflow:hidden;border-radius:10px;}
   .vsim .load-view{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;
     background:linear-gradient(var(--bg-alt), color-mix(in srgb,var(--bg-alt) 60%,var(--bg)));opacity:1;transition:opacity .5s ease;
-    perspective:1400px;perspective-origin:50% 18%;}
+    perspective:1150px;perspective-origin:50% 16%;}
   .vsim .stage.driving .load-view{opacity:0;pointer-events:none;}
   .vsim .ramp{position:absolute;left:0;right:0;bottom:0;height:32px;background:color-mix(in srgb,var(--ink) 22%,var(--bg-alt));}
   .vsim .ramp::before{content:"";position:absolute;top:0;left:0;right:0;height:7px;
     background:repeating-linear-gradient(-45deg,var(--yellow) 0 12px,#20242B 12px 24px);opacity:.85;}
   .vsim .truck-rear{position:relative;width:clamp(220px,30vw,320px);margin:0 auto 34px;
-    --td:clamp(38px,6vw,62px);
-    transform-style:preserve-3d;transform:rotateX(5deg) rotateY(-15deg);
-    filter:drop-shadow(0 20px 16px rgba(10,20,30,.28));
+    --td:clamp(44px,6.6vw,70px);
+    transform-style:preserve-3d;transform:rotateX(6deg) rotateY(-16deg);
+    filter:drop-shadow(0 24px 20px rgba(10,20,30,.34)) drop-shadow(0 6px 5px rgba(10,20,30,.2));
     transition:transform .6s cubic-bezier(.4,0,.2,1);}
+  /* Bodenkontakt-Schatten für mehr Räumlichkeit */
+  .vsim .truck-rear::after{content:"";position:absolute;left:-6%;right:-6%;bottom:-30px;height:26px;
+    background:radial-gradient(50% 60% at 50% 50%, rgba(10,20,30,.4), transparent 72%);
+    transform:translateZ(-2px) rotateX(80deg) scaleY(.5);pointer-events:none;filter:blur(2px);}
   .vsim .cab-roof{position:relative;margin:0 auto;width:66%;height:20px;background:color-mix(in srgb,var(--accent) 82%,#fff 8%);
     border-radius:10px 10px 0 0;box-shadow:inset 0 -5px 0 rgba(0,0,0,.18);}
   .vsim .mirror{position:absolute;top:6px;width:24px;height:8px;background:color-mix(in srgb,var(--ink) 60%,var(--bg-alt));border-radius:3px;}
@@ -608,11 +651,11 @@
   .vsim .int-glow{position:absolute;inset:0;background:radial-gradient(60% 50% at 50% 42%, rgba(255,244,200,.14), transparent 70%);}
   .vsim .parcel{position:absolute;z-index:2;--pc:#B08A5A;}
   .vsim .p-face{position:absolute;inset:0;border-radius:2px;background:var(--pc);
-    box-shadow:inset 0 0 0 1px rgba(0,0,0,.18), inset 0 -6px 10px -6px rgba(0,0,0,.3);}
-  .vsim .p-top{position:absolute;left:3px;right:-3px;top:-6px;height:6px;transform:skewX(-45deg);
-    background:color-mix(in srgb,var(--pc) 70%,#fff 30%);border-radius:1px;}
-  .vsim .p-side{position:absolute;top:-3px;bottom:3px;right:-6px;width:6px;transform:skewY(-45deg);
-    background:color-mix(in srgb,var(--pc) 70%,#000 30%);border-radius:1px;}
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.18), inset 0 -6px 10px -6px rgba(0,0,0,.3), inset 6px 6px 12px -8px rgba(255,255,255,.35);}
+  .vsim .p-top{position:absolute;left:5px;right:-5px;top:-9px;height:9px;transform:skewX(-45deg);
+    background:color-mix(in srgb,var(--pc) 66%,#fff 34%);border-radius:1px;box-shadow:inset 0 2px 3px -1px rgba(255,255,255,.4);}
+  .vsim .p-side{position:absolute;top:-4px;bottom:4px;right:-9px;width:9px;transform:skewY(-45deg);
+    background:color-mix(in srgb,var(--pc) 66%,#000 34%);border-radius:1px;}
   .vsim .kg-chip{position:absolute;z-index:3;top:3px;left:3px;font-family:var(--font-display);font-weight:700;
     font-size:.55rem;line-height:1;color:#fff;background:var(--wc,#333);border-radius:8px;padding:2px 5px;box-shadow:0 1px 2px rgba(0,0,0,.4);}
   .vsim .p-label{position:absolute;z-index:3;left:0;right:0;bottom:0;font-family:var(--font-display);font-size:.5rem;
@@ -848,12 +891,8 @@
 </style>
 
 <div class="deck" id="deck" data-theme-root>
-  <canvas class="deck-bg" id="deckBg" aria-hidden="true"></canvas>
-  <div class="deck-bg-photos" aria-hidden="true">
-    <div class="bgph bgph-1"><img src="images/dachser-lkw-real.jpg" alt="" loading="lazy"></div>
-    <div class="bgph bgph-2"><img src="images/gal-lager.jpg" alt="" loading="lazy"></div>
-    <div class="bgph bgph-3"><img src="images/gal-team.jpg" alt="" loading="lazy"></div>
-    <div class="bgph bgph-4"><img src="images/gal-beladen.jpg" alt="" loading="lazy"></div>
+  <div class="deck-map" id="deckMap" aria-hidden="true">
+    <div class="map-canvas" id="deckMapCanvas"></div>
   </div>
   <div class="hazard" aria-hidden="true"></div>
   <div class="deck-topbar">
@@ -1020,7 +1059,6 @@
                     <div class="cab-roof"><span class="mirror l"></span><span class="mirror r"></span></div>
                     <div class="container-frame">
                       <div class="box-top" aria-hidden="true"></div>
-                      <div class="box-side" aria-hidden="true"></div>
                       <div class="marker-lights"><i></i><i></i><i></i></div>
                       <div class="hinges l"><i></i><i></i><i></i></div>
                       <div class="hinges r"><i></i><i></i><i></i></div>
@@ -1097,7 +1135,7 @@
                   <div class="scale-ends"><span>◀ links schwer</span><span>rechts schwer ▶</span></div>
                 </div>
                 <div class="meter">
-                  <div class="meter-label"><span>Gewicht</span><b><span id="vsWTxt">0</span> / <span id="vsWMax"></span> kg</b></div>
+                  <div class="meter-label"><span>Gewicht</span><b><span id="vsWTxt">0</span> / <span id="vsWMax"></span> t</b></div>
                   <div class="weight-track"><div class="weight-fill" id="vsWFill"></div><div class="wmark" id="vsWMinMark"><span class="mlab">min</span></div></div>
                 </div>
                 <div class="actions">
@@ -1542,6 +1580,7 @@
     nextBtn.disabled = current === total - 1;
     var globalSlides = {0:1,1:1,3:1,6:1,8:1,11:1,14:1};
     deck.classList.toggle('bg-strong', !!globalSlides[current]);
+    if(window.DachserMap){ window.DachserMap.toSlide(current); }
   }
 
   function goTo(i){
@@ -1636,19 +1675,22 @@
 
   /* ===== Verlade-Simulator ===== */
   (function(){
-    var COLS=6, ROWS=4, MAX_KG=300, MIN_KG=170, SAFE=0.8;
+    var COLS=6, ROWS=4, MAX_KG=18000, MIN_KG=11000, SAFE=0.8;
     var defs=[
-      {type:'maschine', w:2,h:1,kg:70,label:'Maschinenteil'},
-      {type:'palette',  w:2,h:1,kg:60,label:'Getränkepal.'},
-      {type:'palette',  w:2,h:1,kg:55,label:'Palette'},
-      {type:'kiste',    w:1,h:2,kg:45,label:'Holzkiste'},
-      {type:'kiste',    w:1,h:2,kg:40,label:'Holzkiste'},
-      {type:'fass',     w:1,h:1,kg:35,label:'Fass'},
-      {type:'fass',     w:1,h:1,kg:30,label:'Fass'},
-      {type:'karton',   w:1,h:1,kg:25,label:'Karton'},
-      {type:'karton',   w:1,h:1,kg:20,label:'Karton'},
-      {type:'karton',   w:1,h:1,kg:15,label:'Karton'}
+      {type:'maschine', w:2,h:1,kg:4200,label:'Maschinenteil'},
+      {type:'palette',  w:2,h:1,kg:3600,label:'Getränkepal.'},
+      {type:'palette',  w:2,h:1,kg:3000,label:'Palette'},
+      {type:'kiste',    w:1,h:2,kg:2500,label:'Holzkiste'},
+      {type:'kiste',    w:1,h:2,kg:2200,label:'Holzkiste'},
+      {type:'fass',     w:1,h:1,kg:1900,label:'Stahlfass'},
+      {type:'fass',     w:1,h:1,kg:1600,label:'Stahlfass'},
+      {type:'karton',   w:1,h:1,kg:1300,label:'Gitterbox'},
+      {type:'karton',   w:1,h:1,kg:1000,label:'Gitterbox'},
+      {type:'karton',   w:1,h:1,kg:700, label:'Paket'}
     ];
+    // Anzeige in Tonnen (intern in kg gerechnet)
+    function tNum(kg){ var t=Math.round(kg/100)/10; return (Number.isInteger(t)?t.toFixed(0):t.toFixed(1)).replace('.',','); }
+    function fmtT(kg){ return tNum(kg)+' t'; }
     var pc={karton:'#B08A5A', kiste:'#96683A', fass:'#3F76B8', palette:'#3E7BD0', maschine:'#7E8896'};
 
     var vStage=document.getElementById('vsStage');
@@ -1676,11 +1718,11 @@
     var vGoBtn=document.getElementById('vsGoBtn');
     var vUndoBtn=document.getElementById('vsUndoBtn');
 
-    document.getElementById('vsWMax').textContent=MAX_KG;
+    document.getElementById('vsWMax').textContent=tNum(MAX_KG);
 
     var vQueue, vPlaced, vColHeight, vSelected, vLocked, vGhost, vToastTimer, vTimers=[];
 
-    function wc(kg){ return kg<=25?'var(--w-light)':(kg<=50?'var(--w-medium)':'var(--w-heavy)'); }
+    function wc(kg){ return kg<=1000?'var(--w-light)':(kg<=2500?'var(--w-medium)':'var(--w-heavy)'); }
 
     function parcelHTML(p){
       var el=document.createElement('div');
@@ -1688,7 +1730,7 @@
       el.dataset.type=p.type;
       el.style.setProperty('--pc', pc[p.type]);
       el.innerHTML='<i class="p-face"></i><i class="p-top"></i><i class="p-side"></i>'+
-        '<span class="kg-chip" style="--wc:'+wc(p.kg)+'">'+p.kg+' kg</span>'+
+        '<span class="kg-chip" style="--wc:'+wc(p.kg)+'">'+fmtT(p.kg)+'</span>'+
         '<span class="p-label">'+p.label+'</span>';
       return el;
     }
@@ -1804,7 +1846,7 @@
       vNeedle.classList.toggle('unsafe',unsafe&&cg.total>0);
       vBalTxt.textContent=cg.total===0?'leer':(unsafe?(cg.offset>0?'rechts schwer!':'links schwer!'):'ausbalanciert ✓');
       vBalTxt.style.color=cg.total===0?'var(--ink)':(unsafe?'var(--bad)':'var(--ok)');
-      vWTxt.textContent=cg.total;
+      vWTxt.textContent=tNum(cg.total);
       vWFill.style.width=Math.min(100,cg.total/MAX_KG*100)+'%';
       vWFill.classList.toggle('over',cg.total>MAX_KG);
     }
@@ -1854,7 +1896,7 @@
           for(var i=0;i<6;i++){(function(i){vLater(function(){vSmoke(bx+(i%2?18:-18),by-6);}, 200+i*180);})(i);}
           vLater(function(){
             vDriveView.classList.remove('rolling');
-            vEnd(false,'💥','Achsbruch, überladen!','Mit '+cg.total+' kg lag die Ladung über der Grenze von '+MAX_KG+' kg. Im echten Lager gilt: Zuladung und Achslasten immer checken, bevor es losgeht.');
+            vEnd(false,'💥','Achsbruch, überladen!','Mit '+fmtT(cg.total)+' lag die Ladung über der Grenze von '+fmtT(MAX_KG)+'. Im echten Lager gilt: Zuladung und Achslasten immer checken, bevor es losgeht.');
           },2100);
         } else if(unbal){
           vDriveView.classList.add('rolling');
@@ -1880,9 +1922,9 @@
           vLater(function(){
             vDriveView.classList.remove('fastroll');
             if(cg.total<MIN_KG){
-              vEnd(true,'🙂','Sichere Fahrt, aber halb leer','Sauber ausbalanciert! Allerdings nur '+cg.total+' kg geladen. Eine Tour rechnet sich erst richtig ab ca. '+MIN_KG+' kg, im echten Betrieb zählt auch die Auslastung.');
+              vEnd(true,'🙂','Sichere Fahrt, aber halb leer','Sauber ausbalanciert! Allerdings nur '+fmtT(cg.total)+' geladen. Eine Tour rechnet sich erst richtig ab ca. '+fmtT(MIN_KG)+', im echten Betrieb zählt auch die Auslastung.');
             } else {
-              vEnd(true,'✅','Sichere Fahrt!','Perfekt: '+cg.total+' kg, sauber links und rechts verteilt. Genau so geht sichere Ladung. Gute Fahrt! 🚚');
+              vEnd(true,'✅','Sichere Fahrt!','Perfekt: '+fmtT(cg.total)+', sauber links und rechts verteilt. Genau so geht sichere Ladung. Gute Fahrt! 🚚');
             }
           },3700);
         }
@@ -1964,6 +2006,7 @@
 
   /* ---- Animiertes Weltkarten-Netzwerk (Canvas) ---- */
   var canvas = document.getElementById('deckBg');
+  if(!canvas){ return; }               // altes Weltkarten-Netzwerk entfernt -> Globus übernimmt
   var ctx = canvas.getContext('2d');
   var W = 0, H = 0, dpr = 1;
   var mapCanvas, mctx;
@@ -2124,6 +2167,100 @@
     .observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
 
   start();
+})();
+</script>
+
+<!-- DACHSER-Weltkarte (MapLibre GL; Bibliothek lokal, Kartendaten via Internet von CARTO) -->
+<script src="maplibre-gl.js"></script>
+<script>
+(function(){
+  var wrap = document.getElementById('deckMap');
+  var deck = document.getElementById('deck');
+  if(!wrap || !document.getElementById('deckMapCanvas') || typeof maplibregl === 'undefined') return;
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // MapLibre erwartet [lng, lat]
+  var LOC = {
+    neu:{c:[9.9799,54.0714],   name:'DACHSER Neumünster', main:1},
+    jkt:{c:[106.8456,-6.2088], name:'DACHSER Indonesia · Jakarta'},
+    ham:{c:[9.9937,53.5511],   name:'DACHSER Hamburg'},
+    muc:{c:[11.5820,48.1351],  name:'DACHSER München'},
+    fra:{c:[8.6821,50.1109],   name:'DACHSER Frankfurt'},
+    kmp:{c:[10.3168,47.7267],  name:'DACHSER Head Office Kempten'}
+  };
+
+  // Slide-Index -> Ziel-Ort + echte Kartenzoomstufe; dim bei visuell schweren Slides
+  var SLIDES = {
+    0:{loc:'neu',zoom:5.4},        1:{loc:'neu',zoom:10},
+    2:{loc:'jkt',zoom:9,dim:1},    3:{loc:'neu',zoom:11,dim:1},
+    4:{loc:'ham',zoom:10},         5:{loc:'neu',zoom:12,dim:1},
+    6:{loc:'fra',zoom:10,dim:1},   7:{loc:'jkt',zoom:10},
+    8:{loc:'muc',zoom:4.6},        9:{loc:'neu',zoom:10},
+    10:{loc:'neu',zoom:11},        11:{loc:'jkt',zoom:10},
+    12:{loc:'neu',zoom:12},        13:{loc:'kmp',zoom:5},
+    14:{loc:'neu',zoom:10}
+  };
+
+  var STYLES = {
+    light:'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
+    dark:'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
+  };
+  function themeNow(){ return document.documentElement.getAttribute('data-theme')==='dark' ? 'dark' : 'light'; }
+
+  var map;
+  try{
+    map = new maplibregl.Map({
+      container:'deckMapCanvas',
+      style: STYLES[themeNow()],
+      center: LOC.neu.c, zoom: SLIDES[0].zoom,
+      interactive: false,
+      attributionControl: {compact:true},
+      fadeDuration: 300
+    });
+  }catch(err){ console.error('Map init failed', err); return; }
+
+  // Erst einblenden, wenn Kacheln da sind; ohne Internet bleibt die Karte unsichtbar,
+  // das Deck läuft normal weiter (Fallback = ruhiger Vollton-Hintergrund).
+  map.on('load', function(){ wrap.classList.add('ready'); });
+  map.on('error', function(){ /* Offline/Tile-Fehler bewusst still schlucken */ });
+
+  Object.keys(LOC).forEach(function(k){
+    var d = LOC[k];
+    var el = document.createElement('div');
+    el.className = 'dm-marker';
+    el.innerHTML = '<i class="dm-dot'+(d.main?' main':'')+'"></i><span class="dm-label">'+d.name+'</span>';
+    new maplibregl.Marker({element:el, anchor:'center'}).setLngLat(d.c).addTo(map);
+  });
+
+  // Ort-Labels erst ab Stadt-Zoom (auf Weltansicht würden sich die DE-Labels überlappen)
+  function syncLabels(){ wrap.classList.toggle('show-labels', map.getZoom() >= 6.5); }
+  map.on('zoom', syncLabels);
+  map.on('moveend', syncLabels);
+
+  // Hell/Dunkel (Taste T) -> Kartenstil mitwechseln; DOM-Marker bleiben erhalten
+  var curStyle = STYLES[themeNow()];
+  new MutationObserver(function(){
+    var s = STYLES[themeNow()];
+    if(s !== curStyle){ curStyle = s; map.setStyle(s); }
+  }).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
+
+  var curSlide = -1;
+  window.DachserMap = {
+    toSlide: function(i){
+      var cfg = SLIDES[i] || SLIDES[0];
+      var d = LOC[cfg.loc] || LOC.neu;
+      deck.classList.toggle('map-dim', !!cfg.dim);
+      if(i === curSlide) return;
+      curSlide = i;
+      if(reduce){ map.jumpTo({center:d.c, zoom:cfg.zoom}); }
+      else{
+        // flyTo = filmischer Bogen: rauszoomen -> reisen -> reinzoomen
+        map.flyTo({center:d.c, zoom:cfg.zoom, speed:0.85, curve:1.55, essential:true, maxDuration:4500});
+      }
+    }
+  };
+  window.DachserMap.toSlide(0);
+  syncLabels();
 })();
 </script>
 </body>
