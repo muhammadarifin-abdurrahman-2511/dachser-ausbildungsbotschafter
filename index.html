@@ -339,21 +339,25 @@
     padding:clamp(1.2rem,4vh,3rem) clamp(1.2rem,4vw,3rem);
     overflow-y:auto;
     opacity:0;pointer-events:none;
-    transform:translateX(48px) scale(.975);
-    filter:blur(4px);
-    transition:opacity .6s cubic-bezier(.22,1,.36,1), transform .6s cubic-bezier(.22,1,.36,1), filter .5s ease;
+    transform:translateX(40px) scale(.985);
+    filter:blur(5px);
+    transition:opacity .9s cubic-bezier(.32,.72,.12,1), transform .9s cubic-bezier(.32,.72,.12,1), filter .8s ease;
   }
-  .slide.is-before{transform:translateX(-48px) scale(.975);}
+  .slide.is-before{transform:translateX(-40px) scale(.985);}
   .slide.is-active{opacity:1;pointer-events:auto;transform:translateX(0) scale(1);filter:blur(0);}
+  /* Choreografie: erst fliegt die Karte los, dann setzt sich der Text ruhig darüber */
   .slide.is-active .slide-inner:not(.wbi) > *{
-    animation:slideChildIn .6s cubic-bezier(.22,1,.36,1) backwards;
+    animation:slideChildIn .75s cubic-bezier(.22,1,.36,1) backwards;
   }
-  .slide.is-active .slide-inner:not(.wbi) > *:nth-child(1){animation-delay:.05s;}
-  .slide.is-active .slide-inner:not(.wbi) > *:nth-child(2){animation-delay:.11s;}
-  .slide.is-active .slide-inner:not(.wbi) > *:nth-child(3){animation-delay:.17s;}
-  .slide.is-active .slide-inner:not(.wbi) > *:nth-child(4){animation-delay:.23s;}
-  .slide.is-active .slide-inner:not(.wbi) > *:nth-child(n+5){animation-delay:.28s;}
-  @keyframes slideChildIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+  .slide.is-active .slide-inner:not(.wbi) > *:nth-child(1){animation-delay:.55s;}
+  .slide.is-active .slide-inner:not(.wbi) > *:nth-child(2){animation-delay:.68s;}
+  .slide.is-active .slide-inner:not(.wbi) > *:nth-child(3){animation-delay:.81s;}
+  .slide.is-active .slide-inner:not(.wbi) > *:nth-child(4){animation-delay:.94s;}
+  .slide.is-active .slide-inner:not(.wbi) > *:nth-child(n+5){animation-delay:1.06s;}
+  @keyframes slideChildIn{
+    from{opacity:0;transform:translateY(16px);filter:blur(4px);}
+    to{opacity:1;transform:translateY(0);filter:blur(0);}
+  }
   @media (prefers-reduced-motion: reduce){
     .slide{transition:opacity .25s ease;transform:none !important;filter:none !important;}
     .slide.is-active .slide-inner > *{animation:none !important;}
@@ -695,10 +699,13 @@
   .vsim .door::before{content:"";position:absolute;top:8%;bottom:8%;width:5px;background:#7B8494;border-radius:3px;box-shadow:0 0 0 1px #0002;}
   .vsim .door.l::before{right:14%;}
   .vsim .door.r::before{left:14%;}
-  .vsim .door.l{transform-origin:left center;transform:rotateY(-122deg);border-right:1px solid #0003;}
-  .vsim .door.r{transform-origin:right center;transform:rotateY(122deg);border-left:1px solid #0003;}
-  .vsim .doors.closed .door.l{transform:rotateY(0deg);}
-  .vsim .doors.closed .door.r{transform:rotateY(0deg);}
+  /* perspective() direkt im Transform: hängt NICHT an der preserve-3d-Kette der
+     Vorfahren - Mobile-Browser flatten die gern (overflow/filter) und die Türen
+     blieben optisch zu. So rendert der Schwung auf jedem Gerät gleich. */
+  .vsim .door.l{transform-origin:left center;transform:perspective(650px) rotateY(-122deg);border-right:1px solid #0003;will-change:transform;}
+  .vsim .door.r{transform-origin:right center;transform:perspective(650px) rotateY(122deg);border-left:1px solid #0003;will-change:transform;}
+  .vsim .doors.closed .door.l{transform:perspective(650px) rotateY(0deg);}
+  .vsim .doors.closed .door.r{transform:perspective(650px) rotateY(0deg);}
   @media (prefers-reduced-motion: reduce){.vsim .door{transition-duration:.2s;}}
   .vsim .bumper{position:relative;margin-top:6px;height:21px;background:linear-gradient(#525A66,#3C434E);border-radius:4px;
     display:flex;align-items:center;justify-content:center;}
@@ -888,6 +895,20 @@
     .field-label{min-width:auto;}
     .logo-slot-sm{display:none;}
   }
+
+  /* ===== Feinschliff: Typografie & ruhige Mikro-Interaktion ===== */
+  body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+  h1,h2,h3{text-wrap:balance;}
+  p,li{text-wrap:pretty;}
+  .lede{line-height:1.66;max-width:64ch;}
+  h1{letter-spacing:-.015em;}
+  h2{letter-spacing:-.01em;}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px;}
+  .nav-dot{transition:transform .25s cubic-bezier(.22,1,.36,1), background .25s ease;}
+  .nav-dot:hover{transform:scale(1.35);}
+  .icon-btn{transition:background .2s ease, border-color .2s ease, color .2s ease,
+    transform .2s cubic-bezier(.22,1,.36,1), box-shadow .2s ease;}
+  .icon-btn:hover{transform:translateY(-1px);box-shadow:0 6px 14px -8px rgba(10,25,40,.4);}
 </style>
 
 <div class="deck" id="deck" data-theme-root>
@@ -945,7 +966,7 @@
           </div>
         </div>
         <div class="reveal-panel" id="panel1">
-          <p>Kein Wunder, egal ob ja oder nein: DACHSER-Fahrzeuge fahren in über 40 Ländern, meistens ohne dass man sie bewusst wahrnimmt.</p>
+          <p>Egal ob ja oder nein: DACHSER-Lkw fahren in über 40 Ländern. Und ich verspreche euch, ab heute entdeckt ihr die blau-gelben Auflieger überall.</p>
         </div>
         <div class="step2" id="step2">
           <p style="font-weight:600;font-size:1.05rem;margin-top:1.2rem;">Schätzfrage: Wie viele Sendungen laufen wohl an einem einzigen Tag durch ein größeres DACHSER-Lager?</p>
@@ -955,8 +976,7 @@
             <button class="choice-btn" data-guess="c">Zehntausende</button>
           </div>
           <div class="reveal-panel" id="panel2">
-            <p>In größeren Lagern sind es echt mehrere Tausend Sendungen am Tag. Und trotzdem muss jede einzelne am richtigen Ort landen. Genau darum geht es in meinem Beruf.</p>
-            <p style="font-size:.8rem;"><em>[Tipp: Frag in deinem Betrieb nach der genauen Zahl für deinen Standort und ersetze sie hier.]</em></p>
+            <p>In größeren Lagern sind es echt mehrere Tausend Sendungen, an einem einzigen Tag. Und jede einzelne muss am richtigen Ort landen. Genau das ist mein Job.</p>
           </div>
         </div>
       </div>
@@ -978,7 +998,7 @@
             <div class="field-row"><span class="field-label">Standort</span><span class="field-value">DACHSER SE, Neumünster</span></div>
             <div class="field-row"><span class="field-label">Davor</span><span class="field-value">Guru Ngaji (Koranlehrer) an einer Mittelschule (SMP) in Indonesien</span></div>
           </div>
-          <div class="quote-card"><p>„[Ein Satz, der dich beschreibt.]“</p></div>
+          <div class="quote-card"><p>„11.000 Kilometer von zu Hause, aber genau am richtigen Ort.“</p></div>
         </div>
       </div>
     </section>
@@ -1013,7 +1033,7 @@
       <div class="slide-inner">
         <p class="eyebrow">Mein Ausbildungsberuf</p>
         <h1 class="headline">Was macht ein/e Fachlagerist/in?</h1>
-        <p class="lede" style="margin-bottom:.6rem;">Klickt auf eine Karte, um mehr zu erfahren.</p>
+        <p class="lede" style="margin-bottom:.6rem;">Sechs Stationen, durch die jede Sendung läuft. Klickt euch durch!</p>
         <div class="task-grid" id="taskGrid">
           <div class="task-card"><div class="task-card-inner">
             <div class="task-face task-front"><span class="task-num">01</span><span class="task-label">Wareneingang</span><span class="task-hint">Klicken →</span></div>
@@ -1048,7 +1068,7 @@
       <div class="slide-inner">
         <p class="eyebrow">Selbst ausprobieren</p>
         <h1 class="headline">Verlade-<span class="accent">Simulator</span></h1>
-        <p class="lede" style="margin-bottom:.2rem;">Du stehst an der Rampe und belädst den LKW von hinten. Achte auf die <b>Gewichtsverteilung links und rechts</b>, sonst kippt der Anhänger auf der Straße um. Und nicht überladen!</p>
+        <p class="lede" style="margin-bottom:.2rem;">Du stehst an der Rampe und belädst den LKW von hinten. Achte auf die <b>Gewichtsverteilung links und rechts</b>, sonst kippt der Anhänger auf der Straße um. Die Container-Überladebrücke an der Rampe trägt <b>maximal 7,3 t</b> — also nicht überladen! Jede Runde kommt eine andere Ladung.</p>
         <div class="vsim">
           <div class="vsim-game">
             <div class="stage-card">
@@ -1180,10 +1200,10 @@
         <h1 class="headline">Warum Fachlagerist? Warum DACHSER?</h1>
         <div class="field-stack">
           <div class="field-row"><span class="field-label">Vorher</span><span class="field-value">Guru Ngaji (Koranlehrer) an einer Mittelschule (SMP) in Indonesien</span></div>
-          <div class="field-row"><span class="field-label">Der Auslöser</span><span class="field-value placeholder">[Praktikum, Empfehlung, Zufall: wie kam der Kontakt zustande?]</span></div>
-          <div class="field-row"><span class="field-label">Warum DACHSER</span><span class="field-value placeholder">[Was hat dich am Unternehmen überzeugt?]</span></div>
+          <div class="field-row"><span class="field-label">Der Auslöser</span><span class="field-value">In Indonesien war es schwer, überhaupt eine Stelle zu finden, und über Deutschland wusste ich fast nichts. Den Kontakt hat eine Vermittlungsagentur hergestellt.</span></div>
+          <div class="field-row"><span class="field-label">Warum DACHSER</span><span class="field-value">Ehrlich gesagt: Dass es DACHSER wurde, war erst mal Glück. Aber es war das richtige, denn hier wird man als Azubi wirklich unterstützt und nicht nur mitgeschleppt.</span></div>
         </div>
-        <div class="quote-card"><p>„[Ein Satz, der deine Motivation auf den Punkt bringt.]“</p></div>
+        <div class="quote-card"><p>„Ich habe zwei Jahre auf diese Chance hingearbeitet. Jetzt will ich zeigen, dass es sich gelohnt hat.“</p></div>
       </div>
     </section>
 
@@ -1209,7 +1229,7 @@
         </div>
         <div class="split" style="align-items:stretch;margin-top:1rem;">
           <div>
-            <p class="lede" style="margin-bottom:.4rem;">Ich komme aus Indonesien, rund 11.000 Kilometer von hier. Meine Familie ist weit weg, und ich lebe und lerne hier ganz auf mich allein gestellt.</p>
+            <p class="lede" style="margin-bottom:.4rem;">Ich komme aus Indonesien, rund 11.000 Kilometer von hier. Meine Familie sehe ich nur über den Bildschirm. Alles andere, Wohnung, Amt, Alltag, mache ich hier allein.</p>
             <div class="support-card" style="margin-top:1rem;">
               <span class="sc-label">Was mir Sicherheit gibt</span>
               <p>Bei DACHSER fühle ich mich trotzdem nicht allein: Meine Ausbilder und Vorgesetzten sind geduldig, offen und unterstützen mich jeden Tag. So kann ich in Ruhe ankommen und meine Ausbildung Schritt für Schritt meistern.</p>
@@ -1260,7 +1280,12 @@
           </div>
           <div>
             <h3 style="font-family:var(--font-display);font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin:0 0 .6rem;">Mein Bewerbungsweg</h3>
-            <div class="fillbox"><span class="tag">Ausfüllen</span>[Wie hast du dich beworben: online, nach einem Praktikum, über eine Messe? Wie lief das Vorstellungsgespräch oder der Eignungstest ab?]</div>
+            <div class="field-stack">
+              <div class="field-row"><span class="field-label">Deutsch</span><span class="field-value">8 Monate Deutschkurs in Indonesien, danach die B1-Prüfung in Jakarta</span></div>
+              <div class="field-row"><span class="field-label">Bewerbung</span><span class="field-value">über eine Agentur, die Azubis an deutsche Firmen vermittelt</span></div>
+              <div class="field-row"><span class="field-label">Dauer &amp; Kosten</span><span class="field-value">rund 2 Jahre und ca. 2.500 € vom ersten Kurs bis zum Vertrag</span></div>
+              <div class="field-row"><span class="field-label">Ankunft</span><span class="field-value">3. Juli 2025, endlich in Deutschland</span></div>
+            </div>
           </div>
         </div>
       </div>
@@ -1280,7 +1305,7 @@
           <div class="path-arrow">→</div>
           <div class="path-step"><div class="step-eyebrow">Perspektive</div><div class="step-title">Team- oder Schichtleitung</div></div>
         </div>
-        <p class="lede" style="margin-top:1.6rem;">Lagerlogistik wird überall gebraucht, vom kleinen Onlinehändler bis zu einem großen Unternehmen wie DACHSER. Wer will, kann sich immer weiter hocharbeiten.</p>
+        <p class="lede" style="margin-top:1.6rem;">Lagerlogistik wird überall gebraucht, vom kleinen Onlinehändler bis zu einem Konzern wie DACHSER. Heißt für euch: Der Job geht nicht weg, und wer will, arbeitet sich Stufe für Stufe hoch.</p>
       </div>
     </section>
 
@@ -1318,7 +1343,7 @@
             <div class="contact-row"><span>Name</span><span class="field-value">Muhammad Arifin Abdurrahman</span></div>
             <div class="contact-row"><span>Unternehmen</span><span>DACHSER SE</span></div>
             <div class="contact-row"><span>Standort</span><span>Neumünster</span></div>
-            <div class="contact-row"><span>Kontakt</span><span class="field-value placeholder">[E-Mail oder über Schule/IHK]</span></div>
+            <div class="contact-row"><span>Kontakt</span><span class="field-value">über eure Lehrkraft oder die IHK zu Kiel (Ausbildungsbotschafter)</span></div>
           </div>
           <div class="logo-slot-lg" style="width:100%;height:120px;">
             <img src="images/dachser-logo.png" alt="DACHSER Logo" onerror="this.remove()">
@@ -1421,7 +1446,7 @@
   }
   // Standard: heller, eleganter Look (auch auf Dunkel-Systemen) — per Klick umschaltbar
   if(!document.documentElement.getAttribute('data-theme')){
-    document.documentElement.setAttribute('data-theme','light');
+    document.documentElement.setAttribute('data-theme','dark');
   }
   themeBtn.addEventListener('click', toggleTheme);
   updateThemeIcon();
@@ -1675,22 +1700,39 @@
 
   /* ===== Verlade-Simulator ===== */
   (function(){
-    var COLS=6, ROWS=4, MAX_KG=18000, MIN_KG=11000, SAFE=0.8;
-    var defs=[
-      {type:'maschine', w:2,h:1,kg:4200,label:'Maschinenteil'},
-      {type:'palette',  w:2,h:1,kg:3600,label:'Getränkepal.'},
-      {type:'palette',  w:2,h:1,kg:3000,label:'Palette'},
-      {type:'kiste',    w:1,h:2,kg:2500,label:'Holzkiste'},
-      {type:'kiste',    w:1,h:2,kg:2200,label:'Holzkiste'},
-      {type:'fass',     w:1,h:1,kg:1900,label:'Stahlfass'},
-      {type:'fass',     w:1,h:1,kg:1600,label:'Stahlfass'},
-      {type:'karton',   w:1,h:1,kg:1300,label:'Gitterbox'},
-      {type:'karton',   w:1,h:1,kg:1000,label:'Gitterbox'},
-      {type:'karton',   w:1,h:1,kg:700, label:'Paket'}
+    /* Limit = max. Traglast einer Container-Überladebrücke an der Rampe: 7.300 kg
+       (recherchiert; Hafen-Containerbrücken heben zum Vergleich 66-120 t). */
+    var COLS=6, ROWS=4, MAX_KG=7300, MIN_KG=5000, SAFE=0.8;
+
+    /* Zufalls-Ladung: jede Runde andere Gewichte, Maße und Reihenfolge */
+    var LOAD_POOL=[
+      {type:'maschine', label:'Maschinenteil', lo:1500, hi:3000, step:100, dims:[[2,1]]},
+      {type:'kiste',    label:'Holzkiste',     lo:600,  hi:1400, step:50,  dims:[[1,2],[2,1]]},
+      {type:'kiste',    label:'Holzkiste',     lo:600,  hi:1400, step:50,  dims:[[1,2],[2,1]]},
+      {type:'palette',  label:'Getränkepal.',  lo:500,  hi:1200, step:25,  dims:[[2,1]]},
+      {type:'palette',  label:'Palette',       lo:400,  hi:1000, step:25,  dims:[[2,1]]},
+      {type:'karton',   label:'Gitterbox',     lo:300,  hi:700,  step:25,  dims:[[1,1]]},
+      {type:'karton',   label:'Gitterbox',     lo:300,  hi:700,  step:25,  dims:[[1,1]]},
+      {type:'fass',     label:'Stahlfass',     lo:150,  hi:350,  step:10,  dims:[[1,1]]},
+      {type:'karton',   label:'Karton',        lo:40,   hi:120,  step:5,   dims:[[1,1]]},
+      {type:'karton',   label:'Karton',        lo:40,   hi:120,  step:5,   dims:[[1,1]]}
     ];
-    // Anzeige in Tonnen (intern in kg gerechnet)
+    function randStep(lo,hi,step){ return Math.round((lo+Math.random()*(hi-lo))/step)*step; }
+    function makeDefs(){
+      var defs=LOAD_POOL.map(function(p){
+        var d=p.dims[Math.floor(Math.random()*p.dims.length)];
+        return {type:p.type, w:d[0], h:d[1], kg:randStep(p.lo,p.hi,p.step), label:p.label};
+      });
+      for(var i=defs.length-1;i>0;i--){
+        var j=Math.floor(Math.random()*(i+1));
+        var t=defs[i]; defs[i]=defs[j]; defs[j]=t;
+      }
+      return defs;
+    }
+    // Anzeige: unter 1 t in kg, darüber in Tonnen (intern immer kg)
     function tNum(kg){ var t=Math.round(kg/100)/10; return (Number.isInteger(t)?t.toFixed(0):t.toFixed(1)).replace('.',','); }
     function fmtT(kg){ return tNum(kg)+' t'; }
+    function fmtW(kg){ return kg<1000 ? kg+' kg' : fmtT(kg); }
     var pc={karton:'#B08A5A', kiste:'#96683A', fass:'#3F76B8', palette:'#3E7BD0', maschine:'#7E8896'};
 
     var vStage=document.getElementById('vsStage');
@@ -1722,7 +1764,7 @@
 
     var vQueue, vPlaced, vColHeight, vSelected, vLocked, vGhost, vToastTimer, vTimers=[];
 
-    function wc(kg){ return kg<=1000?'var(--w-light)':(kg<=2500?'var(--w-medium)':'var(--w-heavy)'); }
+    function wc(kg){ return kg<=200?'var(--w-light)':(kg<=700?'var(--w-medium)':'var(--w-heavy)'); }
 
     function parcelHTML(p){
       var el=document.createElement('div');
@@ -1730,13 +1772,13 @@
       el.dataset.type=p.type;
       el.style.setProperty('--pc', pc[p.type]);
       el.innerHTML='<i class="p-face"></i><i class="p-top"></i><i class="p-side"></i>'+
-        '<span class="kg-chip" style="--wc:'+wc(p.kg)+'">'+fmtT(p.kg)+'</span>'+
+        '<span class="kg-chip" style="--wc:'+wc(p.kg)+'">'+fmtW(p.kg)+'</span>'+
         '<span class="p-label">'+p.label+'</span>';
       return el;
     }
 
     function vInit(){
-      vQueue=defs.map(function(d,i){return Object.assign({id:i,used:false},d);});
+      vQueue=makeDefs().map(function(d,i){return Object.assign({id:i,used:false},d);});
       vPlaced=[]; vColHeight=new Array(COLS).fill(0); vSelected=null; vLocked=false; vGhost=null;
       vTimers.forEach(clearTimeout); vTimers=[];
       vStage.classList.remove('driving'); vStage.classList.remove('locked');
@@ -2179,25 +2221,36 @@
   if(!wrap || !document.getElementById('deckMapCanvas') || typeof maplibregl === 'undefined') return;
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // MapLibre erwartet [lng, lat]
+  // MapLibre erwartet [lng, lat].
+  // Deutsche DACHSER-Niederlassungen (recherchiert, dachser.de/Presse) + Jakarta für die Indonesien-Story.
   var LOC = {
+    deu:{c:[10.2,51.3]},  // Deutschland-Überblick, kein Marker
     neu:{c:[9.9799,54.0714],   name:'DACHSER Neumünster', main:1},
-    jkt:{c:[106.8456,-6.2088], name:'DACHSER Indonesia · Jakarta'},
     ham:{c:[9.9937,53.5511],   name:'DACHSER Hamburg'},
+    ber:{c:[13.52,52.37],      name:'DACHSER Berlin (Schönefeld)'},
+    han:{c:[9.7400,52.4500],   name:'DACHSER Hannover (Langenhagen)'},
+    dor:{c:[7.4653,51.5136],   name:'DACHSER Dortmund'},
+    nrh:{c:[6.6900,51.2000],   name:'DACHSER Niederrhein (Neuss)'},
+    erl:{c:[8.9800,50.1600],   name:'DACHSER Rhein-Main (Erlensee)'},
+    nue:{c:[11.0767,49.4521],  name:'DACHSER Nürnberg'},
+    ulm:{c:[10.1200,48.5000],  name:'DACHSER Ulm (Langenau)'},
+    aug:{c:[10.9000,48.3700],  name:'DACHSER Augsburg'},
     muc:{c:[11.5820,48.1351],  name:'DACHSER München'},
-    fra:{c:[8.6821,50.1109],   name:'DACHSER Frankfurt'},
-    kmp:{c:[10.3168,47.7267],  name:'DACHSER Head Office Kempten'}
+    mem:{c:[10.1800,47.9800],  name:'DACHSER Memmingen'},
+    kmp:{c:[10.3168,47.7267],  name:'DACHSER Head Office Kempten'},
+    jkt:{c:[106.8456,-6.2088], name:'DACHSER Indonesia · Jakarta'}
   };
 
-  // Slide-Index -> Ziel-Ort + echte Kartenzoomstufe; dim bei visuell schweren Slides
+  // Slide-Index -> Ziel-Ort + echte Kartenzoomstufe; dim bei visuell schweren Slides.
+  // Überblicksfolien zeigen das ganze deutsche Netz, sonst Hüpfer von Stadt zu Stadt.
   var SLIDES = {
-    0:{loc:'neu',zoom:5.4},        1:{loc:'neu',zoom:10},
-    2:{loc:'jkt',zoom:9,dim:1},    3:{loc:'neu',zoom:11,dim:1},
+    0:{loc:'deu',zoom:5.4},        1:{loc:'neu',zoom:10},
+    2:{loc:'jkt',zoom:9,dim:1},    3:{loc:'kmp',zoom:10,dim:1},
     4:{loc:'ham',zoom:10},         5:{loc:'neu',zoom:12,dim:1},
-    6:{loc:'fra',zoom:10,dim:1},   7:{loc:'jkt',zoom:10},
-    8:{loc:'muc',zoom:4.6},        9:{loc:'neu',zoom:10},
-    10:{loc:'neu',zoom:11},        11:{loc:'jkt',zoom:10},
-    12:{loc:'neu',zoom:12},        13:{loc:'kmp',zoom:5},
+    6:{loc:'dor',zoom:10,dim:1},   7:{loc:'jkt',zoom:10},
+    8:{loc:'jkt',zoom:5.5},        9:{loc:'ber',zoom:10},
+    10:{loc:'erl',zoom:10},        11:{loc:'muc',zoom:10},
+    12:{loc:'nue',zoom:10},        13:{loc:'deu',zoom:5.6},
     14:{loc:'neu',zoom:10}
   };
 
@@ -2212,7 +2265,7 @@
     map = new maplibregl.Map({
       container:'deckMapCanvas',
       style: STYLES[themeNow()],
-      center: LOC.neu.c, zoom: SLIDES[0].zoom,
+      center: LOC.deu.c, zoom: SLIDES[0].zoom,
       interactive: false,
       attributionControl: {compact:true},
       fadeDuration: 300
@@ -2226,6 +2279,7 @@
 
   Object.keys(LOC).forEach(function(k){
     var d = LOC[k];
+    if(!d.name) return; // Pseudo-Orte (Überblick) bekommen keinen Marker
     var el = document.createElement('div');
     el.className = 'dm-marker';
     el.innerHTML = '<i class="dm-dot'+(d.main?' main':'')+'"></i><span class="dm-label">'+d.name+'</span>';
