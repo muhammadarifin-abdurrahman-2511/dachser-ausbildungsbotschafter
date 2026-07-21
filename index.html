@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="maplibre-gl.css">
 </head>
 <body>
+<script>if(/iP(hone|od|ad)/.test(navigator.platform)||(/Mac/.test(navigator.platform)&&navigator.maxTouchPoints>1))document.documentElement.classList.add('is-ios');</script>
 <title>Mein Weg zum Fachlageristen bei DACHSER</title>
 <style>
   :root{
@@ -204,8 +205,7 @@
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(1.4rem,3vh,2.2rem);
     transition:opacity .8s ease;}
   .intro.done{opacity:0;pointer-events:none;}
-  /* Intro-Hintergrund: ruhiges Logistik-Netz. Duenne blaue Routen fliessen leise,
-     EINE goldene Route (Jakarta -> Neumuenster) zeichnet sich, waehrend das Logo entsteht. */
+  /* Intro-Hintergrund: ruhiges Logistik-Netz. */
   .intro-lockup,.intro-sub,.intro-start{position:relative;z-index:2;}
   .intro-net{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden;}
   .intro-net svg{width:100%;height:100%;display:block;}
@@ -726,16 +726,15 @@
   .vsim .door.r{transform-origin:right center;transform:perspective(650px) rotateY(122deg);border-left:1px solid #0003;will-change:transform;}
   .vsim .doors.closed .door.l{transform:perspective(650px) rotateY(0deg);}
   .vsim .doors.closed .door.r{transform:perspective(650px) rotateY(0deg);}
-  /* iOS (alle iPhone-Browser = WebKit): 3D-Schwung wird dort trotz perspective()
-     unzuverlässig gerendert -> Türen klappen 2D zu einem schmalen Streifen am
-     Scharnier zusammen (wirkt wie eine offene Tür von der Kante gesehen).
-     Der @supports-Test matcht ausschließlich auf iOS. */
-  @supports (-webkit-touch-callout: none){
-    .vsim .door.l{transform:scaleX(.16);}
-    .vsim .door.r{transform:scaleX(.16);}
-    .vsim .doors.closed .door.l,
-    .vsim .doors.closed .door.r{transform:scaleX(1);}
-  }
+  /* iOS/iPadOS (alle Browser = WebKit): der 3D-Türschwung wird dort unzuverlässig
+     gerendert, die Türen blieben optisch geschlossen. Auf iOS deshalb GAR KEIN 3D:
+     im Offen-Zustand die Türen einfach ausblenden -> der Laderaum ist direkt sichtbar;
+     beim Wegfahren (.closed) wieder einblenden. Doppelt abgesichert: JS-Klasse .is-ios
+     UND @supports (falls das JS mal nicht greift). */
+  .is-ios .vsim .door.l,
+  .is-ios .vsim .door.r{transform:none !important;opacity:0;transition:opacity .35s ease;}
+  .is-ios .vsim .doors.closed .door.l,
+  .is-ios .vsim .doors.closed .door.r{transform:none !important;opacity:1;}
   @media (prefers-reduced-motion: reduce){.vsim .door{transition-duration:.2s;}}
   .vsim .bumper{position:relative;margin-top:6px;height:21px;background:linear-gradient(#525A66,#3C434E);border-radius:4px;
     display:flex;align-items:center;justify-content:center;}
