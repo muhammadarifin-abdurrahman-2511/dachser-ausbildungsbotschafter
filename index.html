@@ -105,10 +105,25 @@
   /* Gleichmäßiger Schleier: Karte bleibt sichtbar, Text bleibt lesbar */
   .deck-map::after{
     content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
-    background:color-mix(in srgb, var(--bg) 45%, transparent);
+    background:color-mix(in srgb, var(--bg) 58%, transparent);
   }
   :root[data-theme="dark"] .deck-map::after{
-    background:color-mix(in srgb, var(--bg) 52%, transparent);
+    background:color-mix(in srgb, var(--bg) 64%, transparent);
+  }
+  /* Ruhige Insel hinter dem Folieninhalt: Mitte gedämpft, Ränder zeigen die Karte */
+  .slide-inner{position:relative;}
+  .slide-inner::before{
+    content:"";position:absolute;inset:-7% -9%;z-index:-1;pointer-events:none;border-radius:28px;
+    background:radial-gradient(closest-side,
+      color-mix(in srgb, var(--bg) 82%, transparent) 0%,
+      color-mix(in srgb, var(--bg) 55%, transparent) 62%,
+      transparent 100%);
+  }
+  /* Feiner Text-Halo in Hintergrundfarbe: hebt Schrift von Straßen/Labels der Karte ab */
+  .slide-inner h1,.slide-inner h2,.slide-inner h3,.slide-inner .lede,.slide-inner p,.slide-inner li,
+  .slide-inner .field-value,.slide-inner .field-label{
+    text-shadow:0 1px 3px color-mix(in srgb, var(--bg) 92%, transparent),
+                0 2px 14px color-mix(in srgb, var(--bg) 70%, transparent);
   }
   /* DACHSER-Standort-Marker */
   .dm-marker{pointer-events:none;position:relative;}
@@ -189,34 +204,39 @@
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(1.4rem,3vh,2.2rem);
     transition:opacity .8s ease;}
   .intro.done{opacity:0;pointer-events:none;}
-  /* Halide-inspirierte 3D-Parallax-Ebene hinter dem Intro-Logo */
+  /* Intro-Hintergrund: ruhiges Logistik-Netz. Duenne blaue Routen fliessen leise,
+     EINE goldene Route (Jakarta -> Neumuenster) zeichnet sich, waehrend das Logo entsteht. */
   .intro-lockup,.intro-sub,.intro-start{position:relative;z-index:2;}
-  .intro-halide{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden;
-    display:flex;align-items:center;justify-content:center;perspective:1800px;
-    opacity:0;transition:opacity 1.3s ease;}
-  .intro.halide-ready .intro-halide{opacity:1;}
-  .intro-halide::after{content:"";position:absolute;inset:0;pointer-events:none;
-    background:radial-gradient(58% 54% at 50% 48%, color-mix(in srgb,var(--bg) 82%,transparent) 0%, color-mix(in srgb,var(--bg) 32%,transparent) 46%, transparent 74%);}
-  .intro-canvas{position:relative;width:min(660px,82vw);height:min(430px,52vh);
-    transform-style:preserve-3d;transform:rotateX(90deg) rotateZ(0deg) scale(.85);
-    transition:transform 2.4s cubic-bezier(.16,1,.3,1);}
-  .intro.halide-ready .intro-canvas{transform:rotateX(58deg) rotateZ(-24deg) scale(1);}
-  .hl-layer{position:absolute;inset:0;border-radius:14px;background-size:cover;background-position:center;
-    border:1px solid color-mix(in srgb,var(--accent) 20%,transparent);
-    box-shadow:0 34px 60px -34px rgba(31,48,64,.45);transition:transform .5s ease;}
-  .hl-layer.l1{background-image:url('images/dachser-lkw-real.jpg');filter:grayscale(.25) saturate(.9);opacity:.55;}
-  .hl-layer.l2{background-image:url('images/gal-lager.jpg');filter:grayscale(.35) brightness(1.03);opacity:.34;}
-  .hl-layer.l3{background-image:url('images/gal-team.jpg');filter:grayscale(.25);opacity:.24;}
-  :root[data-theme="dark"] .hl-layer.l1{opacity:.42;}
-  :root[data-theme="dark"] .hl-layer.l2{opacity:.26;}
-  :root[data-theme="dark"] .hl-layer.l3{opacity:.2;}
-  .hl-contours{position:absolute;width:200%;height:200%;top:-50%;left:-50%;pointer-events:none;
-    background-image:repeating-radial-gradient(circle at 50% 50%, transparent 0 36px, color-mix(in srgb,var(--accent) 24%,transparent) 37px 38px, transparent 39px);
-    transform:translateZ(88px);opacity:.45;}
-  @media (max-width:700px){.intro-canvas{width:88vw;height:44vh;}}
+  .intro-net{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden;}
+  .intro-net svg{width:100%;height:100%;display:block;}
+  .intro-net::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(56% 52% at 50% 46%, color-mix(in srgb,var(--bg) 86%,transparent) 0%, color-mix(in srgb,var(--bg) 38%,transparent) 55%, transparent 82%);}
+  .in-line{fill:none;stroke:color-mix(in srgb,var(--steel) 36%,transparent);stroke-width:1.2;
+    stroke-dasharray:7 10;opacity:0;
+    animation:inFade 1.2s ease forwards var(--d,.3s), inFlow 16s linear infinite;}
+  .in-node{fill:color-mix(in srgb,var(--steel) 55%,transparent);opacity:0;
+    animation:inFade 1s ease forwards var(--d,.6s);}
+  .in-gold{fill:none;stroke:#F2C200;stroke-width:1.8;stroke-linecap:round;
+    stroke-dasharray:1;stroke-dashoffset:1;
+    animation:inDraw 2.8s cubic-bezier(.6,0,.2,1) 1s forwards;}
+  .in-gold-node{fill:#F2C200;opacity:0;animation:inFade .7s ease forwards 1s;}
+  .in-dest{fill:none;stroke:#F2C200;stroke-width:2;opacity:0;
+    transform-box:fill-box;transform-origin:center;
+    animation:inRing 2.6s ease-out infinite 3.7s;}
+  @keyframes inFade{to{opacity:1;}}
+  @keyframes inFlow{to{stroke-dashoffset:-170;}}
+  @keyframes inDraw{to{stroke-dashoffset:0;}}
+  @keyframes inRing{
+    0%{opacity:.85;transform:scale(.4);}
+    70%{opacity:0;transform:scale(2.1);}
+    100%{opacity:0;transform:scale(2.1);}
+  }
   @media (prefers-reduced-motion: reduce){
-    .intro-canvas{transition:none;transform:rotateX(58deg) rotateZ(-24deg) scale(1);}
-    .hl-layer{transition:none;}
+    .in-line{animation:none;opacity:1;stroke-dasharray:none;}
+    .in-node,.in-gold-node{animation:none;opacity:1;}
+    .in-gold{animation:none;stroke-dashoffset:0;}
+    .in-dest{animation:none;opacity:0;}
+    .in-plane{display:none;}
   }
   .intro-lockup{display:flex;align-items:center;gap:clamp(1.4rem,5vw,3.4rem);}
   .intro-brand{display:flex;flex-direction:column;align-items:center;gap:16px;color:var(--ink);}
@@ -706,6 +726,16 @@
   .vsim .door.r{transform-origin:right center;transform:perspective(650px) rotateY(122deg);border-left:1px solid #0003;will-change:transform;}
   .vsim .doors.closed .door.l{transform:perspective(650px) rotateY(0deg);}
   .vsim .doors.closed .door.r{transform:perspective(650px) rotateY(0deg);}
+  /* iOS (alle iPhone-Browser = WebKit): 3D-Schwung wird dort trotz perspective()
+     unzuverlässig gerendert -> Türen klappen 2D zu einem schmalen Streifen am
+     Scharnier zusammen (wirkt wie eine offene Tür von der Kante gesehen).
+     Der @supports-Test matcht ausschließlich auf iOS. */
+  @supports (-webkit-touch-callout: none){
+    .vsim .door.l{transform:scaleX(.16);}
+    .vsim .door.r{transform:scaleX(.16);}
+    .vsim .doors.closed .door.l,
+    .vsim .doors.closed .door.r{transform:scaleX(1);}
+  }
   @media (prefers-reduced-motion: reduce){.vsim .door{transition-duration:.2s;}}
   .vsim .bumper{position:relative;margin-top:6px;height:21px;background:linear-gradient(#525A66,#3C434E);border-radius:4px;
     display:flex;align-items:center;justify-content:center;}
@@ -1185,7 +1215,7 @@
             <span class="corner-tab">Foto 2</span><span class="cam">📦</span><span class="ps-label">Verladen</span><span class="ps-hint">gesicherte Ladeeinheit im Trailer</span>
           </div>
           <div class="photo-slot">
-            <img src="images/gal-team.jpg" alt="Im Team mit Ausbilder und Kollegen" onerror="this.remove()">
+            <img src="images/gal-team.jpg" alt="Im Team mit Ausbilder und Kollegen" style="object-position:50% 32%;" onerror="this.remove()">
             <span class="corner-tab">Foto 3</span><span class="cam">🤝</span><span class="ps-label">Im Team</span><span class="ps-hint">mit Ausbilder und Kolleg:innen</span>
           </div>
         </div>
@@ -1368,13 +1398,31 @@
 
   <!-- Intro: Arifin-Monogramm × DACHSER -->
   <div class="intro" id="intro">
-    <div class="intro-halide" aria-hidden="true">
-      <div class="intro-canvas">
-        <div class="hl-layer l1"></div>
-        <div class="hl-layer l2"></div>
-        <div class="hl-layer l3"></div>
-        <div class="hl-contours"></div>
-      </div>
+    <div class="intro-net" aria-hidden="true">
+      <svg viewBox="0 0 1440 810" preserveAspectRatio="xMidYMid slice">
+        <path class="in-line" style="--d:.2s"  d="M480 120 Q 700 30 900 90"/>
+        <path class="in-line" style="--d:.45s" d="M900 90 Q 1120 110 1250 210"/>
+        <path class="in-line" style="--d:.7s"  d="M1250 210 Q 1240 340 1105 425"/>
+        <path class="in-line" style="--d:.55s" d="M300 530 Q 460 630 645 565"/>
+        <path class="in-line" style="--d:.35s" d="M820 300 Q 655 205 480 120"/>
+        <path class="in-line" style="--d:.85s" d="M645 565 Q 880 500 1105 425"/>
+        <circle class="in-node" style="--d:.5s"  cx="480"  cy="120" r="3.5"/>
+        <circle class="in-node" style="--d:.7s"  cx="900"  cy="90"  r="3.5"/>
+        <circle class="in-node" style="--d:.9s"  cx="1250" cy="210" r="3.5"/>
+        <circle class="in-node" style="--d:1s"   cx="1105" cy="425" r="3.5"/>
+        <circle class="in-node" style="--d:.8s"  cx="300"  cy="530" r="3.5"/>
+        <circle class="in-node" style="--d:.95s" cx="645"  cy="565" r="3.5"/>
+        <circle class="in-node" style="--d:.6s"  cx="820"  cy="300" r="3.5"/>
+        <path class="in-gold" pathLength="1" d="M1240 655 Q 770 290 262 192"/>
+        <circle class="in-gold-node" cx="1240" cy="655" r="5"/>
+        <circle class="in-gold-node" cx="262"  cy="192" r="6.5"/>
+        <circle class="in-dest" cx="262" cy="192" r="13"/>
+        <circle class="in-plane" r="4.5" fill="#F2C200">
+          <animateMotion dur="2.8s" begin="1s" fill="freeze"
+            calcMode="spline" keySplines="0.6 0 0.2 1" keyTimes="0;1" keyPoints="0;1"
+            path="M1240 655 Q 770 290 262 192"/>
+        </circle>
+      </svg>
     </div>
     <div class="intro-lockup">
       <div class="intro-brand">
@@ -1555,29 +1603,10 @@
   if(intro){
     var introStart = document.getElementById('introStart');
     var introGone = false;
-    var hlCanvas = intro.querySelector('.intro-canvas');
-    var hlLayers = Array.prototype.slice.call(intro.querySelectorAll('.hl-layer'));
-    var hlReduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    function hlMove(e){
-      if(!hlCanvas) return;
-      var x = (window.innerWidth/2 - e.pageX)/25;
-      var y = (window.innerHeight/2 - e.pageY)/25;
-      hlCanvas.style.transform = 'rotateX('+(58+y/2)+'deg) rotateZ('+(-24+x/2)+'deg)';
-      hlLayers.forEach(function(layer,i){
-        var depth=(i+1)*16;
-        layer.style.transform='translateZ('+depth+'px) translate('+(x*(i+1)*0.2)+'px,'+(y*(i+1)*0.2)+'px)';
-      });
-    }
     function dismissIntro(){
       if(introGone) return; introGone = true;
-      window.removeEventListener('mousemove', hlMove);
       intro.classList.add('done');
       setTimeout(function(){ intro.style.display = 'none'; }, 850);
-    }
-    if(hlCanvas){
-      hlLayers.forEach(function(layer,i){ layer.style.transform='translateZ('+((i+1)*16)+'px)'; });
-      requestAnimationFrame(function(){ intro.classList.add('halide-ready'); });
-      if(!hlReduce) window.addEventListener('mousemove', hlMove);
     }
     introStart && introStart.addEventListener('click', dismissIntro);
     intro.addEventListener('click', function(e){ if(e.target === intro) dismissIntro(); });
@@ -2317,5 +2346,6 @@
   syncLabels();
 })();
 </script>
+
 </body>
 </html>
