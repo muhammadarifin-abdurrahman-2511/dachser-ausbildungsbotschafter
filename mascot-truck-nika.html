@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Maskot-Truck &mdash; Rig Karet (Nika)</title>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.184.0/build/three.module.js",
+    "three/addons/controls/OrbitControls.js": "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js",
+    "three/addons/exporters/OBJExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js",
+    "three/addons/exporters/GLTFExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js"
+  },
+  "integrity": {
+    "https://unpkg.com/three@0.184.0/build/three.module.js": "sha384-8FCZ1eVO6it4+pbec2aDtnTrwjWXZLJRC+MAGCIPDgsYnUrl/E0A2YlF8ioMKI/J",
+    "https://unpkg.com/three@0.184.0/build/three.core.js": "sha384-dw2ooPewaEIrAgl6oFDBmmBWCE9oW9LxRGcfwZ0hLvEprzo202wXl7vCYHRlSnOT",
+    "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js": "sha384-4rziNxOBZKQ69i+w+f89KJ55TCYquwchVbByQwmaOeIOXdOU2PLDn3kOfXHwIJC9",
+    "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js": "sha384-nbwtoZENJD3Vq+ACK0CuGQdPMuDWHkamC2KJD70EV5nfg6jQjfppKOea07YJN+N3",
+    "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js": "sha384-VofkvpG6HERhFCYbsUOHeNXBCqID2nfqkQqnVzE1jc/oPcz+qJ13ADdXH08hE+cQ"
+  }
+}
+</script>
+<style>
+  html,body{margin:0;height:100%;background:#dce9f8;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  three-d-stage:not(:defined){visibility:hidden}
+  three-d-stage{display:block;width:100vw;height:100vh}
+  #panel{position:fixed;left:18px;top:18px;width:258px;max-height:calc(100vh - 36px);overflow:auto;
+    background:rgba(247,250,255,.94);border:1px solid #bcd0e8;border-radius:14px;padding:12px;z-index:6;
+    font-size:11px;letter-spacing:.04em;color:#31435c;box-shadow:0 8px 24px rgba(40,70,110,.12)}
+  #panel h4{margin:14px 0 7px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#7d92ad;font-weight:700}
+  #panel h4:first-child{margin-top:0}
+  .row{display:flex;flex-wrap:wrap;gap:5px}
+  .btn{all:unset;cursor:pointer;padding:6px 9px;border-radius:999px;border:1px solid #bcd0e8;
+    font:700 10px/1 ui-monospace,Menlo,monospace;letter-spacing:.07em;text-transform:uppercase;color:#31435c;background:#fff}
+  .btn:hover{background:#e8f1fd}
+  .btn.on{background:#1f56a8;border-color:#1f56a8;color:#fff}
+  .sl{display:grid;grid-template-columns:38px 1fr 46px;align-items:center;gap:6px;margin:3px 0}
+  .sl label{font-size:10px;color:#6b819c;white-space:nowrap}
+  .sl input{width:100%;accent-color:#1f56a8}
+  .sl span{text-align:right;font-size:10px;color:#31435c}
+  select{width:100%;font:600 11px ui-monospace,Menlo,monospace;color:#31435c;padding:5px;border:1px solid #bcd0e8;border-radius:8px;background:#fff}
+  #kflist{display:flex;flex-direction:column;gap:3px;margin-top:6px}
+  .kf{display:flex;align-items:center;gap:5px;font-size:10px;color:#4c6party}
+  .kf b{font-weight:700;color:#1f56a8}
+  #hint{position:fixed;left:292px;top:22px;font-size:11px;letter-spacing:.05em;color:#6b819c;pointer-events:none;text-transform:uppercase}
+</style>
+</head>
+<body>
+<three-d-stage name="maskot-truck-nika" background="#dbe8f7"></three-d-stage>
+<div id="hint">Mata ikut kursor &middot; Klik truck &rarr; ngakak &middot; Titik oranye = sendi (klik buat pilih)</div>
+
+<div id="panel">
+  <h4>Animasi</h4>
+  <div class="row" id="clips"></div>
+
+  <h4>Kekenyalan karet</h4>
+  <div class="sl"><label>kenyal</label><input id="gk" type="range" min="20" max="420" step="5" value="150"><span id="gkv"></span></div>
+  <div class="sl"><label>redam</label><input id="gd" type="range" min="2" max="30" step="0.5" value="9"><span id="gdv"></span></div>
+  <div class="sl"><label>speed</label><input id="gs" type="range" min="0.2" max="2" step="0.05" value="1"><span id="gsv"></span></div>
+
+  <h4>Sendi <span id="jname" style="color:#1f56a8"></span></h4>
+  <select id="jsel"></select>
+  <div id="jsliders"></div>
+  <div class="row" style="margin-top:8px">
+    <button class="btn" id="jreset">Reset sendi</button>
+    <button class="btn" id="jresetall">Reset semua</button>
+    <button class="btn on" id="jdots">Titik sendi</button>
+  </div>
+
+  <h4>Bikin animasi sendiri</h4>
+  <div class="row">
+    <button class="btn" id="kfadd">+ Keyframe</button>
+    <button class="btn" id="kfplay">Play</button>
+    <button class="btn" id="kfclear">Hapus</button>
+    <button class="btn" id="kfcopy">Copy JSON</button>
+  </div>
+  <div id="kflist"></div>
+</div>
+
+<script src="./three-d-stage.js"></script>
+<script src="./nika-rig.js"></script>
+<script type="module">
+const stage = document.querySelector('three-d-stage');
+const { THREE } = await stage.ready;
+
+/* Rig-nya ada di nika-rig.js (dipakai juga oleh presentasi) — file ini cuma editornya. */
+const nika = createNika(THREE, { onClipEnd: stopClip });
+const { M, J, JL, CLIPS, G } = nika;
+const kf = nika.kf;
+stage.setObject(nika.root);
+stage._scene.add(nika.smoke);
+
+/* ── playback ─────────────────────────────────────────────────────── */
+function play(name, loop) {
+  if (!CLIPS[name]) return;
+  nika.play(name, loop);
+  document.querySelectorAll('#clips .btn').forEach((b) => b.classList.toggle('on', b.dataset.clip === name));
+}
+function stopClip() {
+  nika.stop();
+  document.querySelectorAll('#clips .btn').forEach((b) => b.classList.remove('on'));
+}
+
+/* ── keyframer (bikin animasi sendiri) ────────────────────────────── */
+function snapshot() {
+  const p = {};
+  JL.forEach((j) => { if (Object.keys(j.man).length) p[j.name] = Object.assign({}, j.man); });
+  return p;
+}
+function kfRender() {
+  const box = document.getElementById('kflist');
+  box.innerHTML = kf.frames.length ? '' : '<div style="color:#8fa3bd">Atur sendi &rarr; + Keyframe</div>';
+  kf.frames.forEach((k, i) => {
+    const d = document.createElement('div'); d.className = 'kf';
+    d.innerHTML = `<b>#${i + 1}</b> ${k.t.toFixed(2)}s &middot; ${Object.keys(k.pose).length} sendi`;
+    box.appendChild(d);
+  });
+}
+
+/* ── UI ───────────────────────────────────────────────────────────── */
+const clipsBox = document.getElementById('clips');
+Object.entries(CLIPS).forEach(([k, c]) => {
+  const b = document.createElement('button');
+  b.className = 'btn'; b.dataset.clip = k; b.textContent = c.label;
+  b.addEventListener('click', () => play(k, true));
+  clipsBox.appendChild(b);
+});
+const bStop = document.createElement('button');
+bStop.className = 'btn'; bStop.textContent = 'Stop';
+bStop.addEventListener('click', () => { stopClip(); kf.t = null; });
+clipsBox.appendChild(bStop);
+
+const gk = document.getElementById('gk'), gd = document.getElementById('gd'), gs = document.getElementById('gs');
+const sync = () => {
+  G.k = +gk.value; G.d = +gd.value; G.speed = +gs.value;
+  document.getElementById('gkv').textContent = G.k;
+  document.getElementById('gdv').textContent = G.d;
+  document.getElementById('gsv').textContent = G.speed.toFixed(2) + '×';
+};
+[gk, gd, gs].forEach((el) => el.addEventListener('input', sync)); sync();
+
+const jsel = document.getElementById('jsel');
+JL.forEach((j) => {
+  const o = document.createElement('option'); o.value = j.name; o.textContent = j.label; jsel.appendChild(o);
+});
+let sel = JL[0];
+const SL = [
+  ['rx', 'rot X', -1.6, 1.6, 0.01, 0], ['ry', 'rot Y', -1.6, 1.6, 0.01, 0], ['rz', 'rot Z', -1.6, 1.6, 0.01, 0],
+  ['x', 'pos X', -2.5, 2.5, 0.01, 0], ['y', 'pos Y', -2, 2.5, 0.01, 0], ['z', 'pos Z', -2.5, 2.5, 0.01, 0],
+  ['sx', 'skl X', 0.2, 3, 0.01, 1], ['sy', 'skl Y', 0.2, 3, 0.01, 1], ['sz', 'skl Z', 0.2, 3, 0.01, 1]
+];
+const slBox = document.getElementById('jsliders'), inputs = {};
+SL.forEach(([key, label, min, max, st, def]) => {
+  const row = document.createElement('div'); row.className = 'sl';
+  row.innerHTML = `<label>${label}</label><input type="range" min="${min}" max="${max}" step="${st}" value="${def}"><span>${def}</span>`;
+  const inp = row.querySelector('input'), out = row.querySelector('span');
+  inp.addEventListener('input', () => {
+    const v = +inp.value; out.textContent = v.toFixed(2);
+    if (v === def) delete sel.man[key]; else sel.man[key] = v;
+  });
+  inputs[key] = { inp, out, def }; slBox.appendChild(row);
+});
+function selectJoint(name) {
+  sel = J[name]; jsel.value = name;
+  document.getElementById('jname').textContent = '→ ' + sel.label;
+  SL.forEach(([key, , , , , def]) => {
+    const v = sel.man[key] ?? def;
+    inputs[key].inp.value = v; inputs[key].out.textContent = (+v).toFixed(2);
+  });
+  JL.forEach((j) => j.dot.material = j === sel ? M.shine : M.dot);
+}
+jsel.addEventListener('change', () => selectJoint(jsel.value));
+selectJoint(JL[0].name);
+document.getElementById('jreset').addEventListener('click', () => { sel.man = {}; selectJoint(sel.name); });
+document.getElementById('jresetall').addEventListener('click', () => { JL.forEach((j) => j.man = {}); selectJoint(sel.name); });
+let dotsOn = true;
+document.getElementById('jdots').addEventListener('click', (e) => {
+  dotsOn = !dotsOn; e.currentTarget.classList.toggle('on', dotsOn);
+  JL.forEach((j) => j.dot.visible = dotsOn);
+});
+document.getElementById('kfadd').addEventListener('click', () => {
+  kf.frames.push({ t: kf.frames.length * 0.4, pose: snapshot() }); kfRender();
+});
+document.getElementById('kfplay').addEventListener('click', () => {
+  if (!kf.frames.length) return; stopClip(); kf.t = 0;
+});
+document.getElementById('kfclear').addEventListener('click', () => { kf.frames = []; kf.t = null; kfRender(); });
+document.getElementById('kfcopy').addEventListener('click', async () => {
+  const txt = JSON.stringify(kf.frames, null, 2);
+  try { await navigator.clipboard.writeText(txt); } catch (e) { console.log(txt); }
+});
+kfRender();
+
+/* ── mode bare: sembunyikan UI untuk dipasang di web ─────────────── */
+// ?bare = tanpa panel & hint · ?bare&clip=ngakak = langsung loop animasi
+// #ngakak juga jalan · ?bare&dots=1 = titik sendi tetap tampil
+const Q = new URLSearchParams(location.search);
+if (Q.has('bare')) {
+  document.getElementById('panel').style.display = 'none';
+  document.getElementById('hint').style.display = 'none';
+  if (!Q.has('dots')) { dotsOn = false; JL.forEach((j) => j.dot.visible = false); }
+}
+const startClip = Q.get('clip') || location.hash.replace('#', '');
+if (CLIPS[startClip]) play(startClip, true);
+
+/* ── gaze + klik ──────────────────────────────────────────────────── */
+const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+stage.addEventListener('pointermove', (e) => {
+  const r = stage.getBoundingClientRect();
+  ndc.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+  ndc.y = -((e.clientY - r.top) / r.height) * 2 + 1;
+  ray.setFromCamera(ndc, stage._camera);
+  nika.look = ray.ray.at(7, new THREE.Vector3());
+});
+stage.addEventListener('pointerleave', () => { nika.look = null; });
+let down = null;
+stage.addEventListener('pointerdown', (e) => { down = [e.clientX, e.clientY]; });
+stage.addEventListener('pointerup', (e) => {
+  if (!down) return;
+  const moved = Math.hypot(e.clientX - down[0], e.clientY - down[1]); down = null;
+  if (moved > 6) return;
+  const r = stage.getBoundingClientRect();
+  ndc.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+  ndc.y = -((e.clientY - r.top) / r.height) * 2 + 1;
+  ray.setFromCamera(ndc, stage._camera);
+  const hit = ray.intersectObjects(JL.filter((j) => j.dot.visible).map((j) => j.dot), false)[0];
+  if (hit) { selectJoint(hit.object.name.replace('dot_', '')); return; }
+  play('ngakak');
+});
+
+/* ── frame loop ───────────────────────────────────────────────────── */
+window.RIG = { J, JL, add: nika.add, squash: nika.squash, play, stop: stopClip, CLIPS, G, keyframes: () => kf.frames, setKeyframes: (v) => { kf.frames = v; kfRender(); } };
+console.log('%cRIG siap','color:#1f56a8;font-weight:700', '— RIG.add("cab",{rz:.3}) · RIG.play("ngakak") · sendi:', JL.map(j => j.name).join(', '));
+
+let last = performance.now();
+(function frame(now) {
+  requestAnimationFrame(frame);
+  const dtReal = Math.min((now - last) / 1000, 0.05); last = now;
+  nika.update(dtReal, now);
+  if (sel.dot.visible) sel.dot.scale.multiplyScalar(1.3);
+})(last);
+</script>
+</body>
+</html>

@@ -208,34 +208,10 @@
   /* Intro-Hintergrund: ruhiges Logistik-Netz. */
   .intro-lockup,.intro-sub,.intro-start{position:relative;z-index:2;}
   .intro-net{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden;}
-  .intro-net svg{width:100%;height:100%;display:block;}
+  .intro-net canvas{position:absolute;inset:0;width:100%;height:100%;display:block;}
+  /* Schleier in der Mitte: der Globus darf leuchten, der Schriftzug bleibt lesbar. */
   .intro-net::after{content:"";position:absolute;inset:0;pointer-events:none;
-    background:radial-gradient(56% 52% at 50% 46%, color-mix(in srgb,var(--bg) 86%,transparent) 0%, color-mix(in srgb,var(--bg) 38%,transparent) 55%, transparent 82%);}
-  .in-globe-ring{fill:none;stroke:color-mix(in srgb,var(--steel) 30%,transparent);stroke-width:1.2;
-    stroke-dasharray:2 7;opacity:0;animation:inFade 1.4s ease forwards .1s;}
-  .in-globe-dot{fill:color-mix(in srgb,var(--steel) 55%,transparent);opacity:0;
-    animation:inFade .8s ease forwards var(--d,.3s);}
-  .in-gold{fill:none;stroke:#F2C200;stroke-width:1.8;stroke-linecap:round;
-    stroke-dasharray:1;stroke-dashoffset:1;
-    animation:inDraw 2.8s cubic-bezier(.6,0,.2,1) 1s forwards;}
-  .in-gold-node{fill:#F2C200;opacity:0;animation:inFade .7s ease forwards 1s;}
-  .in-dest{fill:none;stroke:#F2C200;stroke-width:2;opacity:0;
-    transform-box:fill-box;transform-origin:center;
-    animation:inRing 2.6s ease-out infinite 3.7s;}
-  @keyframes inFade{to{opacity:1;}}
-  @keyframes inDraw{to{stroke-dashoffset:0;}}
-  @keyframes inRing{
-    0%{opacity:.85;transform:scale(.4);}
-    70%{opacity:0;transform:scale(2.1);}
-    100%{opacity:0;transform:scale(2.1);}
-  }
-  @media (prefers-reduced-motion: reduce){
-    .in-globe-ring{animation:none;opacity:1;stroke-dasharray:none;}
-    .in-globe-dot,.in-gold-node{animation:none;opacity:1;}
-    .in-gold{animation:none;stroke-dashoffset:0;}
-    .in-dest{animation:none;opacity:0;}
-    .in-plane{display:none;}
-  }
+    background:radial-gradient(34% 30% at 50% 47%, color-mix(in srgb,var(--bg) 72%,transparent) 0%, color-mix(in srgb,var(--bg) 30%,transparent) 62%, transparent 100%);}
   .intro-lockup{display:flex;align-items:center;gap:clamp(1.4rem,5vw,3.4rem);}
   .intro-brand{display:flex;flex-direction:column;align-items:center;gap:16px;color:var(--ink);}
   .intro-mono{width:clamp(88px,11vw,124px);height:auto;display:block;}
@@ -606,13 +582,12 @@
   .cube-icon .ci-side{position:absolute;top:0;bottom:0;right:0;width:8px;transform-origin:right center;transform:rotateY(48deg) translateX(1px);
     background:color-mix(in srgb,var(--cc) 60%,#000 30%);border-radius:0 9px 9px 0;}
 
-  /* Maskot-Truck: eigenes WebGL-Canvas (Three.js). Die Mimik (Blinzeln, Pupillen, Raeder)
-     laeuft im Canvas, die Fahrt zwischen den Ecken ueber transform + transition hier. */
-  .mascot-dock{position:fixed;left:0;top:0;z-index:40;width:150px;height:128px;
-    pointer-events:none;filter:drop-shadow(0 12px 14px rgba(10,20,30,.32));
-    transform:translate3d(0,0,0);transition:transform 2.4s cubic-bezier(.45,.05,.35,1), width .5s ease, height .5s ease;}
-  .mascot-dock canvas{width:100%;height:100%;display:block;}
-  .mascot-dock.hero{width:240px;height:200px;}
+  /* Maskot "Nika" (Rig in nika-rig.js): ein durchsichtiges Vollbild-Canvas statt einer
+     kleinen Box - er springt, dehnt sich (molor = dreifache Laenge) und faehrt frei,
+     ohne an einem unsichtbaren Rand abgeschnitten zu werden. Klicks gehen durch. */
+  .mascot-layer{position:fixed;inset:0;z-index:40;pointer-events:none;}
+  .mascot-layer canvas{width:100%;height:100%;display:block;}
+  .mascot-say{position:fixed;left:0;top:0;z-index:41;pointer-events:none;will-change:transform;}
   .mascot-bubble{position:absolute;left:50%;bottom:100%;width:max-content;max-width:min(230px,52vw);
     background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:14px;
     padding:.5rem .8rem;font-size:.74rem;line-height:1.35;box-shadow:var(--shadow);text-align:center;
@@ -621,9 +596,7 @@
   .mascot-bubble::after{content:"";position:absolute;top:100%;left:50%;margin-left:-7px;
     border:7px solid transparent;border-top-color:var(--card);}
   .mascot-bubble.show{opacity:1;transform:translateX(-50%) translateY(-4px) scale(1);}
-  @media (max-width:700px){.mascot-dock{width:104px;height:90px;}
-    .mascot-dock.hero{width:168px;height:142px;}
-    .mascot-bubble{font-size:.68rem;}}
+  @media (max-width:700px){.mascot-bubble{font-size:.68rem;}}
 
   /* Game */
   .game-wrap{display:grid;grid-template-columns:minmax(220px,280px) 1fr;gap:1.6rem;margin-top:1.2rem;}
@@ -640,8 +613,19 @@
   :root[data-theme="light"]{--bad:#C43A2E;--w-light:#3E7BD0;--w-medium:#D08A18;--w-heavy:#C0502A;
     --sky1:#8FBDE8;--sky2:#DCEBFA;--grass:#9DB89A;--roadc:#6A7380;--sunc:#FFD84D;}
 
-  .vsim-game{display:grid;grid-template-columns:1fr 284px;gap:1.2rem;align-items:start;margin-top:1rem;}
-  @media (max-width:840px){.vsim-game{grid-template-columns:1fr;}}
+  /* Buehne oben links, Steuerleiste direkt darunter, Paketablage rechts ueber beide Zeilen:
+     so sind beide Spalten gleich hoch und nichts bleibt leer. */
+  .vsim-game{display:grid;grid-template-columns:minmax(0,1fr) 300px;grid-template-areas:"stage tray" "ctrl tray";
+    gap:1rem;align-items:stretch;margin-top:.9rem;}
+  .vsim .stage-card{grid-area:stage;}
+  .vsim .tray{grid-area:tray;display:flex;flex-direction:column;}
+  .vsim .ctrl{grid-area:ctrl;display:grid;grid-template-columns:1fr 1fr auto;gap:1.2rem;align-items:center;padding:.85rem 1rem;}
+  @media (max-width:840px){
+    .vsim-game{grid-template-columns:1fr;grid-template-areas:"stage" "ctrl" "tray";}
+    .vsim .ctrl{grid-template-columns:1fr 1fr;}
+    .vsim .ctrl .actions{grid-column:1 / -1;flex-direction:row;}
+    .vsim .ctrl .actions .btn{flex:1;}
+  }
   /* Parallax-Tilt fuer den Laderaum: --tx/--ty registriert, damit sie sich weich
      animieren lassen (idle-sway). Unregistriert wuerden sie nur hart springen -
      kein Bruch, nur weniger butterweich in alten Browsern. */
@@ -878,20 +862,23 @@
     .vsim .drive-view.shake{animation:none;}
   }
   .vsim .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:.95rem;box-shadow:var(--shadow);}
-  .vsim .panel + .panel{margin-top:.9rem;}
   .vsim .panel h3{font-family:var(--font-display);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:0 0 .7rem;display:flex;justify-content:space-between;gap:.5rem;}
-  .vsim .queue{display:flex;flex-wrap:wrap;gap:.5rem;}
-  .vsim .qitem{position:relative;border:2px solid var(--line);border-radius:8px;background:var(--bg-alt);cursor:grab;padding:7px 6px 5px;
-    transition:transform .12s ease, box-shadow .12s ease;touch-action:none;}
-  .vsim .qitem:hover{transform:translateY(-2px);}
+  .vsim .queue{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem;}
+  .vsim .qitem{position:relative;border:2px solid var(--line);border-radius:10px;background:var(--bg-alt);cursor:grab;
+    display:flex;flex-direction:column;align-items:center;height:84px;padding:8px 4px 6px;min-width:0;
+    transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;touch-action:none;}
+  .vsim .qitem:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .vsim .qprev{flex:1;display:flex;align-items:center;justify-content:center;width:100%;}
+  .vsim .qitem:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--accent) 45%,var(--line));}
   .vsim .qitem.selected{border-color:var(--ink);box-shadow:0 0 0 3px var(--yellow);}
   .vsim .qitem.used{opacity:.25;pointer-events:none;filter:grayscale(.7);}
   .vsim .drag-ghost{position:fixed;z-index:9999;pointer-events:none;opacity:.85;
     filter:drop-shadow(0 10px 14px rgba(10,20,30,.35));transform:translate(-50%,-50%);}
   .vsim .qitem .parcel{position:relative;display:block;}
   .vsim .qitem .p-label{display:none;}
-  .vsim .qname{display:block;text-align:center;font-family:var(--font-display);font-size:.5rem;color:var(--ink-soft);margin-top:4px;white-space:nowrap;}
-  .vsim .meter{margin-bottom:.9rem;} .vsim .meter:last-child{margin-bottom:0;}
+  .vsim .qitem .kg-chip{left:50%;transform:translateX(-50%);white-space:nowrap;}
+  .vsim .qname{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;text-align:center;font-family:var(--font-display);font-size:.56rem;color:var(--ink-soft);margin-top:4px;white-space:nowrap;}
+  .vsim .meter{min-width:0;}
   .vsim .meter-label{display:flex;justify-content:space-between;font-size:.76rem;color:var(--ink-soft);margin-bottom:.3rem;}
   .vsim .meter-label b{font-family:var(--font-display);color:var(--ink);font-variant-numeric:tabular-nums;}
   .vsim .balance-track{position:relative;height:15px;border-radius:8px;background:var(--bg-alt);overflow:hidden;box-shadow:inset 0 0 0 1px var(--line);}
@@ -904,14 +891,17 @@
   .vsim .weight-fill.over{background:var(--bad);}
   .vsim .wmark{position:absolute;top:0;bottom:0;width:2px;background:var(--ink);opacity:.5;}
   .vsim .wmark .mlab{position:absolute;top:100%;left:50%;transform:translateX(-50%);font-size:.52rem;color:var(--ink-faint);font-family:var(--font-display);margin-top:1px;}
-  .vsim .actions{display:flex;flex-direction:column;gap:.55rem;margin-top:1rem;}
+  .vsim .actions{display:flex;flex-direction:column;gap:.5rem;min-width:190px;}
   .vsim .btn{font-family:var(--font-display);font-weight:700;text-transform:uppercase;letter-spacing:.04em;font-size:.76rem;
-    border-radius:9px;padding:.65rem 1rem;cursor:pointer;border:2px solid var(--accent);background:var(--accent);color:var(--accent-ink);}
+    border-radius:9px;padding:.6rem 1rem;cursor:pointer;border:2px solid var(--accent);background:var(--accent);color:var(--accent-ink);
+    display:inline-flex;align-items:center;justify-content:center;gap:.45rem;min-height:44px;}
+  .vsim .btn svg{width:17px;height:17px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
   .vsim .btn:hover{filter:brightness(1.08);}
   .vsim .btn:disabled{opacity:.4;cursor:default;filter:none;}
   .vsim .btn.ghost-btn{background:transparent;color:var(--accent);}
-  .vsim .hint{font-size:.72rem;color:var(--ink-faint);margin-top:.55rem;line-height:1.4;}
-  .vsim .legend{display:flex;gap:.65rem;flex-wrap:wrap;font-size:.68rem;color:var(--ink-soft);margin-top:.6rem;}
+  .vsim .tray-foot{margin-top:auto;padding-top:.8rem;border-top:1px solid var(--line);}
+  .vsim .hint{font-size:.7rem;color:var(--ink-faint);margin:.5rem 0 0;line-height:1.4;}
+  .vsim .legend{display:flex;gap:.8rem;flex-wrap:wrap;font-size:.68rem;color:var(--ink-soft);}
   .vsim .legend span{display:flex;align-items:center;gap:.3rem;}
   .vsim .swatch{width:11px;height:11px;border-radius:3px;}
   .vsim .toast{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);background:var(--ink);color:var(--bg);
@@ -941,6 +931,54 @@
   .path-step .step-title{font-weight:700;margin-top:.2rem;}
   .path-arrow{font-family:var(--font-display);color:var(--yellow);font-size:1.5rem;flex:0 0 auto;padding:0 .2rem;-webkit-text-stroke:.5px var(--accent);}
   @media (max-width:700px){.path-arrow{transform:rotate(90deg);}}
+  /* Zeitstrahl "Ein Blick zurueck": Strasse mit 6 Stationen. Sobald die Folie aktiv wird,
+     faehrt ein kleiner Lkw sie ab und jede Station leuchtet beim Ankommen auf. Reines CSS -
+     .is-active startet die Animation bei jedem Besuch neu. Taktung: Ankunft an Station i
+     bei 0,45 s + i x 1 s (histDrive haelt an jeder Station ~0,45 s). */
+  .hist{--top:124px;--lane:46px;position:relative;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0 .6rem;margin-top:1.8rem;}
+  .hist-road{position:absolute;left:calc(100% / 12);right:calc(100% / 12);top:calc(var(--top) + var(--lane) / 2 - 8px);height:16px;
+    border-radius:8px;background:color-mix(in srgb,var(--ink-faint) 28%,var(--bg));overflow:hidden;}
+  .hist-road::after{content:"";position:absolute;left:10px;right:10px;top:7px;height:2px;
+    background:repeating-linear-gradient(90deg,var(--yellow) 0 14px,transparent 14px 26px);opacity:.8;}
+  .hist-fill{position:absolute;inset:0;background:color-mix(in srgb,var(--yellow) 30%,transparent);transform-origin:left center;}
+  .hist-rider{position:absolute;left:calc(100% / 12);right:calc(100% / 12);top:calc(var(--top) + var(--lane) / 2 - 29px);
+    height:34px;z-index:2;pointer-events:none;transform:translateX(100%);}
+  .hist-truck{position:absolute;left:0;top:0;width:64px;height:34px;transform:translateX(-50%);filter:drop-shadow(0 4px 4px rgba(0,0,0,.3));}
+  .hist-stop{display:flex;flex-direction:column;align-items:center;text-align:center;min-width:0;}
+  .hist-top{height:var(--top);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:.6rem;}
+  .hist-year{font-family:var(--font-display);font-weight:700;font-size:clamp(1.3rem,2.2vw,1.85rem);line-height:1;color:var(--ink);font-variant-numeric:tabular-nums;}
+  .hist-badge{width:60px;height:60px;border-radius:50%;display:grid;place-items:center;background:var(--card);color:var(--accent);
+    border:2px solid var(--yellow);box-shadow:0 0 0 5px color-mix(in srgb,var(--yellow) 14%,transparent),var(--shadow);}
+  .hist-badge svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
+  .hist-lane{height:var(--lane);width:2px;background:linear-gradient(var(--line) 0 15px,transparent 15px);}
+  .hist-cap{font-weight:700;font-size:clamp(.9rem,1.25vw,1.05rem);line-height:1.2;color:var(--ink);margin-top:.3rem;}
+  .hist-sub{font-size:.74rem;line-height:1.3;color:var(--ink-faint);margin-top:.25rem;}
+  .hist-stop.now .hist-badge{background:var(--yellow);color:var(--yellow-ink);}
+  .hist-stop.now .hist-year{color:var(--accent);}
+  .slide.is-active .hist-rider{animation:histDrive 5.5s ease-in-out .15s both;}
+  .slide.is-active .hist-fill{animation:histFill 5.5s ease-in-out .15s both;}
+  .slide.is-active .hist-truck{animation:histBob .3s ease-in-out infinite alternate;}
+  .slide.is-active .hist-top,.slide.is-active .hist-cap,.slide.is-active .hist-sub{
+    animation:histPop .6s cubic-bezier(.2,1.45,.4,1) calc(.45s + var(--i) * 1s) both;}
+  @keyframes histDrive{0%,13.6%{transform:translateX(0)}23.6%,31.8%{transform:translateX(20%)}41.8%,50%{transform:translateX(40%)}
+    60%,68.2%{transform:translateX(60%)}78.2%,86.4%{transform:translateX(80%)}96.4%,100%{transform:translateX(100%)}}
+  @keyframes histFill{0%,13.6%{transform:scaleX(0)}23.6%,31.8%{transform:scaleX(.2)}41.8%,50%{transform:scaleX(.4)}
+    60%,68.2%{transform:scaleX(.6)}78.2%,86.4%{transform:scaleX(.8)}96.4%,100%{transform:scaleX(1)}}
+  @keyframes histPop{from{opacity:.22;transform:scale(.7);filter:grayscale(1)}to{opacity:1;transform:none;filter:none}}
+  @keyframes histBob{to{transform:translateX(-50%) translateY(-1.5px)}}
+  @media (prefers-reduced-motion: reduce){
+    .slide.is-active .hist-rider,.slide.is-active .hist-fill,.slide.is-active .hist-truck,
+    .slide.is-active .hist-top,.slide.is-active .hist-cap,.slide.is-active .hist-sub{animation:none;}
+  }
+  @media (max-width:760px){
+    .hist{grid-template-columns:1fr;gap:.85rem;margin-top:1.2rem;}
+    .hist-road,.hist-rider,.hist-lane{display:none;}
+    .hist-stop{display:grid;grid-template-columns:50px 64px 1fr;align-items:center;text-align:left;column-gap:.8rem;}
+    .hist-top{display:contents;}
+    .hist-badge{grid-column:1;grid-row:1 / span 2;width:50px;height:50px;}
+    .hist-year{grid-column:2;grid-row:1 / span 2;font-size:1.2rem;}
+    .hist-cap,.hist-sub{grid-column:3;margin:0;}
+  }
 
   /* checklist */
   .checklist{list-style:none;margin:1.4rem 0 0;padding:0;display:flex;flex-direction:column;gap:.8rem;max-width:58ch;}
@@ -1114,19 +1152,40 @@
       <div class="slide-inner">
         <p class="eyebrow">Der Arbeitgeber</p>
         <h1 class="headline">Ein Blick zurück: <span class="accent">90+ Jahre</span> DACHSER</h1>
-        <p class="lede" style="margin-bottom:1rem;">Vom Ein-Mann-Fuhrbetrieb im Allgäu zu einem der größten Logistikunternehmen Europas, bis heute in Familienhand.</p>
-        <div class="path-row">
-          <div class="path-step"><div class="step-eyebrow">1930</div><div class="step-title">Thomas Dachser gründet in Kempten ein Ein-Mann-Fuhrunternehmen</div></div>
-          <div class="path-arrow">→</div>
-          <div class="path-step"><div class="step-eyebrow">1952</div><div class="step-title">Erste Auslandsfahrten, aus der Spedition wird ein internationales Unternehmen</div></div>
-          <div class="path-arrow">→</div>
-          <div class="path-step"><div class="step-eyebrow">1982</div><div class="step-title">Start von DACHSER Food Logistics mit eigener Kühlkette</div></div>
-          <div class="path-arrow">→</div>
-          <div class="path-step"><div class="step-eyebrow">1999</div><div class="step-title">Bernhard Simon, 3. Generation der Familie, übernimmt die Geschäftsführung</div></div>
-          <div class="path-arrow">→</div>
-          <div class="path-step"><div class="step-eyebrow">2020</div><div class="step-title">90-jähriges Jubiläum: über 30.000 Mitarbeitende weltweit</div></div>
-          <div class="path-arrow">→</div>
-          <div class="path-step"><div class="step-eyebrow">Heute</div><div class="step-title">4. Generation der Familie im Aufsichtsrat, Standorte in mehr als 40 Ländern</div></div>
+        <p class="lede" style="margin-bottom:0;">Vom Ein-Mann-Betrieb zum Weltunternehmen – bis heute in Familienhand.</p>
+        <div class="hist" role="list">
+          <div class="hist-road" aria-hidden="true"><div class="hist-fill"></div></div>
+          <div class="hist-rider" aria-hidden="true"><svg class="hist-truck" viewBox="0 0 64 34"><rect x="1" y="3" width="39" height="21" rx="3" fill="#FBFAF6" stroke="#1F56A8" stroke-width="2"/><rect x="3" y="11" width="35" height="4.5" fill="#1F56A8"/><path d="M41 9h10.5l8.5 8.5V24H41z" fill="#1F56A8"/><path d="M45 12h5.8l4.4 4.4H45z" fill="#9FD0F5"/><rect x="40" y="23" width="23" height="3.4" rx="1.5" fill="#F2C200"/><circle cx="11" cy="27.5" r="4.6" fill="#1B1E27"/><circle cx="11" cy="27.5" r="1.8" fill="#D9DEE8"/><circle cx="30" cy="27.5" r="4.6" fill="#1B1E27"/><circle cx="30" cy="27.5" r="1.8" fill="#D9DEE8"/><circle cx="53" cy="27.5" r="4.6" fill="#1B1E27"/><circle cx="53" cy="27.5" r="1.8" fill="#D9DEE8"/></svg></div>
+          <div class="hist-stop" role="listitem" style="--i:0">
+            <div class="hist-top"><span class="hist-year">1930</span><span class="hist-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg></span></div>
+            <span class="hist-lane" aria-hidden="true"></span>
+            <span class="hist-cap">1 Mann, 1 Lkw</span><span class="hist-sub">Kempten im Allgäu</span>
+          </div>
+          <div class="hist-stop" role="listitem" style="--i:1">
+            <div class="hist-top"><span class="hist-year">1952</span><span class="hist-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v3"/><path d="M18.5 13h-13L2 9.5 5.5 6h13L22 9.5Z"/><path d="M12 13v8"/></svg></span></div>
+            <span class="hist-lane" aria-hidden="true"></span>
+            <span class="hist-cap">Ab ins Ausland</span><span class="hist-sub">erste Fahrten über die Grenze</span>
+          </div>
+          <div class="hist-stop" role="listitem" style="--i:2">
+            <div class="hist-top"><span class="hist-year">1982</span><span class="hist-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12h20"/><path d="M12 2v20"/><path d="m20 16-4-4 4-4"/><path d="m4 8 4 4-4 4"/><path d="m16 4-4 4-4-4"/><path d="m8 20 4-4 4 4"/></svg></span></div>
+            <span class="hist-lane" aria-hidden="true"></span>
+            <span class="hist-cap">Food Logistics</span><span class="hist-sub">mit eigener Kühlkette</span>
+          </div>
+          <div class="hist-stop" role="listitem" style="--i:3">
+            <div class="hist-top"><span class="hist-year">1999</span><span class="hist-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span></div>
+            <span class="hist-lane" aria-hidden="true"></span>
+            <span class="hist-cap">3. Generation</span><span class="hist-sub">Familie am Steuer</span>
+          </div>
+          <div class="hist-stop" role="listitem" style="--i:4">
+            <div class="hist-top"><span class="hist-year">2020</span><span class="hist-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="6"/><path d="M15.48 12.89 17 22l-5-3-5 3 1.52-9.11"/></svg></span></div>
+            <span class="hist-lane" aria-hidden="true"></span>
+            <span class="hist-cap">30.000+</span><span class="hist-sub">Mitarbeitende</span>
+          </div>
+          <div class="hist-stop now" role="listitem" style="--i:5">
+            <div class="hist-top"><span class="hist-year">Heute</span><span class="hist-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg></span></div>
+            <span class="hist-lane" aria-hidden="true"></span>
+            <span class="hist-cap">40+ Länder</span><span class="hist-sub">weltweit vernetzt</span>
+          </div>
         </div>
         <p class="note-strip">Quelle: dachser.de/unternehmensgeschichte</p>
       </div>
@@ -1172,7 +1231,7 @@
       <div class="slide-inner">
         <p class="eyebrow">Selbst ausprobieren</p>
         <h1 class="headline">Verlade-<span class="accent">Simulator</span></h1>
-        <p class="lede" style="margin-bottom:.2rem;">Du stehst an der Rampe und belädst den LKW von hinten. Achte auf die <b>Gewichtsverteilung links und rechts</b>, sonst kippt der Anhänger auf der Straße um. Die Container-Überladebrücke an der Rampe trägt <b>maximal 7,3 t</b> — also nicht überladen! Jede Runde kommt eine andere Ladung.</p>
+        <p class="lede" style="margin-bottom:.2rem;">Belade den Lkw von hinten. Halte die <b>Balance links/rechts</b> und bleib unter <b>7,3 t</b> — sonst kippt er auf der Straße um. Jede Runde kommt neue Ladung.</p>
         <div class="vsim">
           <div class="vsim-game">
             <div class="stage-card">
@@ -1241,32 +1300,31 @@
                 </div>
               </div>
             </div>
-            <div>
-              <div class="panel">
-                <h3>Pakete <span id="vsQueueCount"></span></h3>
-                <div class="queue" id="vsQueue"></div>
+            <div class="panel tray">
+              <h3>Pakete <span id="vsQueueCount"></span></h3>
+              <div class="queue" id="vsQueue"></div>
+              <div class="tray-foot">
                 <div class="legend">
                   <span><i class="swatch" style="background:var(--w-light)"></i>leicht</span>
                   <span><i class="swatch" style="background:var(--w-medium)"></i>mittel</span>
                   <span><i class="swatch" style="background:var(--w-heavy)"></i>schwer</span>
                 </div>
-                <p class="hint">Paket in den Laderaum ziehen (oder anklicken → dann Laderaum anklicken). Es stapelt sich von unten.</p>
+                <p class="hint">In den Laderaum ziehen oder antippen · stapelt sich von unten</p>
               </div>
-              <div class="panel">
-                <h3>Status</h3>
-                <div class="meter">
-                  <div class="meter-label"><span>Balance</span><b id="vsBalTxt">leer</b></div>
-                  <div class="balance-track"><div class="safe-zone" id="vsSafeZone"></div><div class="needle" id="vsNeedle" style="left:50%"></div></div>
-                  <div class="scale-ends"><span>◀ links schwer</span><span>rechts schwer ▶</span></div>
-                </div>
-                <div class="meter">
-                  <div class="meter-label"><span>Gewicht</span><b><span id="vsWTxt">0</span> / <span id="vsWMax"></span> t</b></div>
-                  <div class="weight-track"><div class="weight-fill" id="vsWFill"></div><div class="wmark" id="vsWMinMark"><span class="mlab">min</span></div></div>
-                </div>
-                <div class="actions">
-                  <button class="btn" id="vsGoBtn">🚚 Türen zu &amp; losfahren!</button>
-                  <button class="btn ghost-btn" id="vsUndoBtn">↶ Letztes zurück</button>
-                </div>
+            </div>
+            <div class="panel ctrl">
+              <div class="meter">
+                <div class="meter-label"><span>Balance</span><b id="vsBalTxt">leer</b></div>
+                <div class="balance-track"><div class="safe-zone" id="vsSafeZone"></div><div class="needle" id="vsNeedle" style="left:50%"></div></div>
+                <div class="scale-ends"><span>◀ links</span><span>rechts ▶</span></div>
+              </div>
+              <div class="meter">
+                <div class="meter-label"><span>Gewicht</span><b><span id="vsWTxt">0</span> / <span id="vsWMax"></span> t</b></div>
+                <div class="weight-track"><div class="weight-fill" id="vsWFill"></div><div class="wmark" id="vsWMinMark"><span class="mlab">min</span></div></div>
+              </div>
+              <div class="actions">
+                <button class="btn" id="vsGoBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>Türen zu &amp; los!</button>
+                <button class="btn ghost-btn" id="vsUndoBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>Letztes zurück</button>
               </div>
             </div>
           </div>
@@ -1469,192 +1527,16 @@
   </div>
 
   <div class="slide-stamp" id="slideStamp">01 / 15</div>
-  <div class="kbd-hint" id="kbdHint">↕ Scrollen oder ← → blättern · F Vollbild · T Hell/Dunkel</div>
+  <div class="kbd-hint" id="kbdHint">← → blättern · F Vollbild · T Hell/Dunkel</div>
 
-  <!-- Maskot: 3D-Truck (GLB), guckt auf jeder Folie am Rand rein; auf dem Cover
-       (Folie 1) groesser mit Begruessung. Zustand per .hero-Klasse in render(). -->
-  <div class="mascot-dock" id="mascotDock" aria-hidden="true">
-    <div class="mascot-bubble" id="mascotBubble"></div>
-    <canvas id="mascotCanvas"></canvas>
-  </div>
+  <!-- Maskot "Nika": faehrt am unteren Rand umher, auf dem Cover groesser mit Begruessung. -->
+  <div class="mascot-layer" aria-hidden="true"><canvas id="mascotCanvas"></canvas></div>
+  <div class="mascot-say" id="mascotSay" aria-hidden="true"><div class="mascot-bubble" id="mascotBubble"></div></div>
 
   <!-- Intro: Arifin-Monogramm × DACHSER -->
   <div class="intro" id="intro">
     <div class="intro-net" aria-hidden="true">
-      <svg viewBox="0 0 1440 810" preserveAspectRatio="xMidYMid slice">
-        <ellipse class="in-globe-ring" cx="755" cy="375" rx="230" ry="216.2"/>
-        <circle class="in-globe-dot" style="--d:0.15s" cx="870.0" cy="562.2" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.185s" cx="854.6" cy="562.2" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.22s" cx="812.5" cy="562.2" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.255s" cx="755.0" cy="562.2" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.29s" cx="697.5" cy="562.2" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.325s" cx="655.4" cy="562.2" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.36s" cx="640.0" cy="562.2" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.395s" cx="943.4" cy="499.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.43s" cx="934.2" cy="499.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.465s" cx="907.4" cy="499.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.5s" cx="865.7" cy="499.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.535s" cx="813.2" cy="499.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.57s" cx="755.0" cy="499.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.605s" cx="696.8" cy="499.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.64s" cx="644.3" cy="499.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.675s" cx="602.6" cy="499.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.71s" cx="575.8" cy="499.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.745s" cx="566.6" cy="499.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.78s" cx="980.0" cy="420.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.815s" cx="972.3" cy="420.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.85s" cx="949.8" cy="420.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.885s" cx="914.1" cy="420.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.92s" cx="867.5" cy="420.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.15s" cx="813.2" cy="420.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.185s" cx="755.0" cy="420.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.22s" cx="696.8" cy="420.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.255s" cx="642.5" cy="420.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.29s" cx="595.9" cy="420.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.325s" cx="560.2" cy="420.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.36s" cx="537.7" cy="420.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.395s" cx="530.0" cy="420.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.43s" cx="980.0" cy="330.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.465s" cx="972.3" cy="330.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.5s" cx="949.8" cy="330.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.535s" cx="914.1" cy="330.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.57s" cx="867.5" cy="330.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.605s" cx="813.2" cy="330.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.64s" cx="755.0" cy="330.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.675s" cx="696.8" cy="330.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.71s" cx="642.5" cy="330.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.745s" cx="595.9" cy="330.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.78s" cx="560.2" cy="330.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.815s" cx="537.7" cy="330.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.85s" cx="530.0" cy="330.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.885s" cx="943.4" cy="251.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.92s" cx="934.2" cy="251.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.15s" cx="907.4" cy="251.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.185s" cx="865.7" cy="251.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.22s" cx="813.2" cy="251.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.255s" cx="755.0" cy="251.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.29s" cx="696.8" cy="251.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.325s" cx="644.3" cy="251.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.36s" cx="602.6" cy="251.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.395s" cx="575.8" cy="251.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.43s" cx="566.6" cy="251.0" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.465s" cx="870.0" cy="187.8" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.5s" cx="854.6" cy="187.8" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.535s" cx="812.5" cy="187.8" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.57s" cx="755.0" cy="187.8" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.605s" cx="697.5" cy="187.8" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.64s" cx="655.4" cy="187.8" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.675s" cx="640.0" cy="187.8" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.71s" cx="755.0" cy="591.2" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.745s" cx="802.8" cy="586.5" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.78s" cx="848.5" cy="572.5" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.815s" cx="890.2" cy="549.9" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.85s" cx="925.9" cy="519.7" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.885s" cx="954.2" cy="483.1" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.92s" cx="973.7" cy="441.8" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.15s" cx="983.7" cy="397.6" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.185s" cx="983.7" cy="352.4" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.22s" cx="973.7" cy="308.2" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.255s" cx="954.2" cy="266.9" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.29s" cx="925.9" cy="230.3" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.325s" cx="890.2" cy="200.1" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.36s" cx="848.5" cy="177.5" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.395s" cx="802.8" cy="163.5" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.43s" cx="755.0" cy="158.8" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.465s" cx="707.2" cy="586.5" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.5s" cx="661.5" cy="572.5" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.535s" cx="619.8" cy="549.9" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.57s" cx="584.1" cy="519.7" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.605s" cx="555.8" cy="483.1" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.64s" cx="536.3" cy="441.8" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.675s" cx="526.3" cy="397.6" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.71s" cx="526.3" cy="352.4" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.745s" cx="536.3" cy="308.2" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.78s" cx="555.8" cy="266.9" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.815s" cx="584.1" cy="230.3" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.85s" cx="619.8" cy="200.1" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.885s" cx="661.5" cy="177.5" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.92s" cx="707.2" cy="163.5" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.15s" cx="796.4" cy="586.5" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.185s" cx="836.0" cy="572.5" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.22s" cx="872.1" cy="549.9" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.255s" cx="903.0" cy="519.7" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.29s" cx="927.5" cy="483.1" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.325s" cx="944.4" cy="441.8" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.36s" cx="953.1" cy="397.6" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.395s" cx="953.1" cy="352.4" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.43s" cx="944.4" cy="308.2" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.465s" cx="927.5" cy="266.9" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.5s" cx="903.0" cy="230.3" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.535s" cx="872.1" cy="200.1" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.57s" cx="836.0" cy="177.5" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.605s" cx="796.4" cy="163.5" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.64s" cx="713.6" cy="586.5" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.675s" cx="674.0" cy="572.5" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.71s" cx="637.9" cy="549.9" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.745s" cx="607.0" cy="519.7" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.78s" cx="582.5" cy="483.1" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.815s" cx="565.6" cy="441.8" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.85s" cx="556.9" cy="397.6" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.885s" cx="556.9" cy="352.4" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.92s" cx="565.6" cy="308.2" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.15s" cx="582.5" cy="266.9" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.185s" cx="607.0" cy="230.3" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.22s" cx="637.9" cy="200.1" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.255s" cx="674.0" cy="177.5" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.29s" cx="713.6" cy="163.5" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.325s" cx="778.9" cy="586.5" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.36s" cx="801.8" cy="572.5" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.395s" cx="822.6" cy="549.9" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.43s" cx="840.5" cy="519.7" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.465s" cx="854.6" cy="483.1" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.5s" cx="864.4" cy="441.8" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.535s" cx="869.4" cy="397.6" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.57s" cx="869.4" cy="352.4" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.605s" cx="864.4" cy="308.2" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.64s" cx="854.6" cy="266.9" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.675s" cx="840.5" cy="230.3" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.71s" cx="822.6" cy="200.1" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.745s" cx="801.8" cy="177.5" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.78s" cx="778.9" cy="163.5" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.815s" cx="731.1" cy="586.5" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.85s" cx="708.2" cy="572.5" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.885s" cx="687.4" cy="549.9" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.92s" cx="669.5" cy="519.7" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.15s" cx="655.4" cy="483.1" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.185s" cx="645.6" cy="441.8" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.22s" cx="640.6" cy="397.6" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.255s" cx="640.6" cy="352.4" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.29s" cx="645.6" cy="308.2" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.325s" cx="655.4" cy="266.9" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.36s" cx="669.5" cy="230.3" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.395s" cx="687.4" cy="200.1" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.43s" cx="708.2" cy="177.5" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.465s" cx="731.1" cy="163.5" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.5s" cx="755.0" cy="586.5" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.535s" cx="755.0" cy="572.5" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.57s" cx="755.0" cy="549.9" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.605s" cx="755.0" cy="519.7" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.64s" cx="755.0" cy="483.1" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.675s" cx="755.0" cy="441.8" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.71s" cx="755.0" cy="397.6" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.745s" cx="755.0" cy="352.4" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.78s" cx="755.0" cy="308.2" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.815s" cx="755.0" cy="266.9" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.85s" cx="755.0" cy="230.3" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.885s" cx="755.0" cy="200.1" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.92s" cx="755.0" cy="177.5" r="2.1"/>
-        <circle class="in-globe-dot" style="--d:0.15s" cx="755.0" cy="163.5" r="2.1"/>
-        <path class="in-gold" pathLength="1" d="M1240 655 Q 770 290 262 192"/>
-        <circle class="in-gold-node" cx="1240" cy="655" r="5"/>
-        <circle class="in-gold-node" cx="262"  cy="192" r="6.5"/>
-        <circle class="in-dest" cx="262" cy="192" r="13"/>
-        <circle class="in-plane" r="4.5" fill="#F2C200">
-          <animateMotion dur="2.8s" begin="1s" fill="freeze"
-            calcMode="spline" keySplines="0.6 0 0.2 1" keyTimes="0;1" keyPoints="0;1"
-            path="M1240 655 Q 770 290 262 192"/>
-        </circle>
-      </svg>
+      <canvas id="introGlobe"></canvas>
     </div>
     <div class="intro-lockup">
       <div class="intro-brand">
@@ -1696,6 +1578,182 @@
     <button class="intro-start" id="introStart">Präsentation starten &#8594;</button>
   </div>
 </div>
+
+<script>
+/* Intro-Globus: gepunktete Kontinente drehen sich schwungvoll ein und bleiben in
+   Bewegung; die goldene Route ist Arifins Weg Jakarta -> Neumuenster. Canvas 2D,
+   die Schleife stoppt, sobald das Intro weg ist. */
+(function(){
+  var cv = document.getElementById('introGlobe'), intro = document.getElementById('intro');
+  if(!cv || !intro || !cv.getContext) return;
+  var ctx = cv.getContext('2d');
+  var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var D = Math.PI / 180, TAU = Math.PI * 2;
+
+  // Grobe Kuestenlinien [lon, lat] - bei ~2,5° Punktabstand reicht das voellig.
+  var LAND = [
+    [[-168,66],[-162,70],[-156,71],[-140,69.5],[-128,70],[-115,68.5],[-95,69],[-85,70],[-80,73],[-70,70],[-62,66],[-64,60],[-60,55],[-56,52],[-66,48],[-65,45],[-70,43],[-70,41.5],[-74,40.5],[-76,37],[-76,35],[-81,31.5],[-80,27],[-80.5,25],[-82,26.5],[-83,29],[-85,30],[-89,30],[-91,29],[-94,29.5],[-97,27.5],[-97.5,24],[-97,21],[-95,18.5],[-91,18.5],[-90,21],[-87,21.5],[-87.5,18],[-88.5,16],[-84,15.5],[-83.5,11],[-81.5,9],[-79,9],[-77.5,8],[-80,7.2],[-82,8],[-85.5,10],[-87.5,13],[-92,14.5],[-96,15.7],[-100,17],[-105,19.5],[-105.5,22.5],[-109,25.5],[-112.5,29],[-114.5,30.5],[-111,25],[-110,23],[-112,24.5],[-115,28],[-117,32.5],[-120.5,34.5],[-122.5,37.5],[-124,40],[-124,46],[-124.5,48.5],[-128,51],[-131,54],[-135,57],[-140,59.5],[-146,60.5],[-152,59],[-156,57],[-161,55.5],[-165,54.5],[-158,58],[-162,59],[-165,62],[-165,64.5]],
+    [[-78,62.5],[-66,62],[-62,66.5],[-68,70],[-75,72.5],[-88,70.5],[-82,67]],
+    [[-44,60],[-40,65],[-22,70],[-18,76],[-20,80],[-32,83.5],[-60,82],[-72,78],[-58,75.5],[-54,70],[-51,64]],
+    [[-24,64],[-18,63.3],[-13.5,65],[-16,66.5],[-22.5,66.4]],
+    [[-84.9,21.9],[-80.5,23.1],[-74.2,20.2],[-77.7,19.9],[-81.5,22.2]],
+    [[-77,8.5],[-72,12],[-68,10.5],[-61,10.7],[-57,6],[-51,4],[-50,0],[-44,-2.5],[-35,-5.5],[-37,-11],[-39,-15],[-40,-22],[-44.5,-23],[-48.5,-26],[-50,-30],[-53,-34],[-57,-36],[-58,-38.5],[-62,-39],[-65,-42],[-67,-46],[-69,-50],[-68.5,-53],[-71,-54],[-74,-51],[-75,-46],[-73.5,-42],[-73.5,-37],[-71.5,-30],[-70.5,-18],[-75,-15],[-78,-10],[-81,-5],[-80.5,-1],[-79.5,1],[-78.5,4],[-77.5,7]],
+    [[-10,36],[-9,43],[-2,43.5],[-1.5,46],[-4.5,48],[-1,49.5],[2,51],[4.5,52.5],[8,54],[8.5,57],[10.5,57.5],[10,59],[6,58],[5,62],[12,66],[17,69],[22,70.5],[28,71],[34,69.5],[40,67],[44,68],[53,68.5],[60,68],[60,55],[50,45],[40,42],[29,41],[26,40],[23,40],[24,38],[22,36.5],[20,39],[19.5,41.5],[13,45.5],[12.5,44],[16,41],[18.5,40],[16,38],[15.5,40],[12,42],[10,44],[7,43.5],[3,43],[3,42],[0,40],[-0.5,38],[-2,36.7],[-5.5,36]],
+    [[-5.7,50],[1.5,51.2],[1.7,52.7],[0.2,53.5],[-1.6,55.6],[-2,57.6],[-4,58.6],[-5,58.6],[-6.2,56.8],[-5,55.8],[-3,54.9],[-3.2,53.4],[-4.5,52.8],[-5,51.6]],
+    [[-10,51.6],[-6,52.2],[-6,54],[-6,55.2],[-8.3,55.2],[-10,54.2]],
+    [[-17,14.7],[-16.5,19],[-17,21],[-15,24],[-13,27.7],[-9.5,30],[-9.5,32.5],[-6,35.8],[-2,35],[3,36.8],[10,37.2],[11,35],[10,33.5],[15,32.3],[19,30.3],[20,32],[25,31.8],[29,30.9],[32.3,31.3],[34,29],[35.5,24],[37,21],[38.5,18],[39.5,15.5],[43,12.7],[43.5,11.5],[51,11.8],[51,10.5],[49,6],[46,2],[42,-1],[40,-3],[39.3,-7],[40.5,-11],[40.5,-15],[35,-22],[35.5,-24],[33,-26],[32.5,-28.5],[30.5,-31],[27,-33.8],[22,-34.2],[18.5,-34],[17.8,-32],[15,-26.5],[11.8,-17.5],[13.5,-12],[12.2,-6],[9.5,-2],[9.5,1],[9.8,3.7],[8.5,4.4],[5,5.9],[1,6],[-4,5.2],[-7.5,4.4],[-12.5,7.5],[-13.5,9.5],[-15,11],[-16.8,12.3]],
+    [[49.3,-12],[50.4,-15.5],[47.5,-24.5],[45,-25.5],[43.5,-22],[44.3,-16]],
+    [[60,68],[68,69],[73,68.5],[72,72.5],[80,73],[88,75.5],[100,77],[106,78],[113,74],[125,73.5],[140,72.5],[150,71.5],[160,70],[170,70],[180,68.5],[180,65],[178,62.5],[172,61],[164,60],[162,57],[156,51],[155.5,56],[160,61],[155,59.5],[143,59.3],[138,56],[141,52],[140,48],[137,45],[133,43],[130,42.5],[129,40.5],[128.5,38],[129.5,35.5],[126.5,34.5],[126,37],[124.7,39.6],[121.5,39],[121.5,40.8],[119,39],[118,39],[119.5,37],[122.5,37],[120,35],[121.5,32],[122,29.5],[120,26.5],[117,23.5],[113,22.3],[110,21],[108,18],[109,12],[106,10],[105,9],[103,11],[101,13],[100,9],[102,6],[104,2],[103,1],[101,3],[100,6],[98,9],[98,15],[97,17],[94,17],[92,22],[88,22],[86,20],[80,15],[80,10],[77,8],[73,17],[72.5,21],[70,21],[67,24.5],[62,25],[57,25.5],[56,27],[52,28],[48,30],[50,26],[51.5,24.5],[56,24],[59,22.5],[57,19],[55,17],[52,16],[44,12.5],[42.7,15],[39.5,21],[35,28],[34.3,31.2],[35.5,33],[36,36],[32,36.2],[29,36.7],[27,37.5],[26,40],[29,41],[31,41.2],[40,42],[50,45],[60,55]],
+    [[79.9,9.7],[81.9,7.5],[81.2,6.2],[80,6],[79.7,8]],
+    [[95.3,5.6],[97.5,5.2],[100.4,2.2],[103.8,-1],[106,-3],[105.8,-5.8],[104.5,-5.9],[102.3,-4],[100.3,-1],[98.8,1.7]],
+    [[105.2,-6.8],[106.1,-5.9],[108.3,-6.2],[110.5,-6.9],[112.6,-6.9],[114.6,-7.8],[114.4,-8.7],[111,-8.2],[108,-7.8]],
+    [[109,1.5],[109.7,-1],[110.2,-2.9],[113,-3.2],[114.5,-4],[116.2,-3.4],[116.5,-1],[117.6,0.8],[118.6,4.8],[117,6.9],[115.5,5.3],[113.5,3.8],[111,1.6],[109.6,2]],
+    [[119.5,-5.5],[120.4,-2.9],[119.8,0.1],[121,1.3],[124.8,1.5],[123,0.4],[120.6,0.6],[121.4,-1],[123.3,-0.8],[121.6,-1.9],[122.9,-4.3],[121.3,-4.8],[120.5,-5.6]],
+    [[131,-1],[134,-1],[136.5,-2.2],[141,-2.6],[145.8,-5],[147.5,-6.2],[150.8,-10.3],[147,-10.1],[143.5,-9],[141,-9.1],[138,-8.3],[137.6,-5.2],[134,-4],[132,-2.8]],
+    [[120.2,18.5],[122.3,18.4],[122,16],[124,12.6],[126.2,9.3],[125.5,6.1],[122,6.9],[122.7,10],[121.7,13.5],[120.6,14.5]],
+    [[130.2,31.3],[131.4,31.4],[132.1,33.9],[135.2,33.7],[137,34.6],[139.8,35],[140.9,36.9],[141.1,40.5],[141.5,41.4],[145.3,43.3],[141.9,45.5],[140.4,43.3],[139.9,40.6],[139.3,38.5],[136.7,37.2],[133,35.5],[131,34.3],[129.7,33.3]],
+    [[113.7,-22],[114.2,-26],[115,-33.8],[117.9,-35.1],[123.6,-33.9],[129,-31.7],[134.2,-32.6],[137.8,-35.6],[140,-37.9],[143.6,-38.8],[146.3,-39.1],[150,-37.5],[153.1,-30],[153.6,-28],[152.1,-24.4],[149.4,-21.4],[145.3,-15],[143.8,-14],[142.5,-10.7],[141.7,-12.8],[141.6,-15],[140.5,-17.6],[139.3,-17.4],[135.9,-15],[136.9,-12.2],[132.6,-11.5],[130.5,-12.3],[129.4,-14.9],[126.1,-13.9],[122,-17.5],[121.1,-19.5],[117,-20.6]],
+    [[144.6,-40.7],[148.3,-40.9],[147.9,-43.2],[146,-43.6]],
+    [[172.6,-34.4],[174.4,-35.8],[175.9,-37.4],[178.5,-37.7],[177,-39.3],[176,-41.3],[174.6,-41.3],[175,-39.2],[173.8,-39.1],[174.6,-37]],
+    [[172.6,-40.5],[174.3,-41.7],[173,-43.8],[171.2,-44.7],[169,-46.6],[166.5,-46],[167,-45],[170.5,-42.5]]
+  ];
+  var WATER = [
+    [[10.5,54],[14,54],[21,55],[22,57.5],[24,59.5],[30,60],[23,61],[21,63],[25,65.5],[22,66],[17.5,62],[19,59.5],[16,57],[14,55.5],[12,56]],
+    [[28,41.5],[33,42],[41.5,41.5],[41.5,43],[38,45],[33.5,46],[30,46.5],[28,43.5]],
+    [[47,45],[53,47],[54,41],[53.5,37.5],[49,38],[50,40.5],[47,43]],
+    [[-95,59],[-87,56],[-80,52],[-79,56],[-78,62],[-86,64],[-94,62]]
+  ];
+  function withBox(p){ var b = [999,999,-999,-999]; p.forEach(function(q){ b[0]=Math.min(b[0],q[0]); b[1]=Math.min(b[1],q[1]); b[2]=Math.max(b[2],q[0]); b[3]=Math.max(b[3],q[1]); }); p.b = b; }
+  LAND.forEach(withBox); WATER.forEach(withBox);
+  function inPoly(lon, lat, p){
+    var b = p.b; if(lon < b[0] || lon > b[2] || lat < b[1] || lat > b[3]) return false;
+    var ins = false;
+    for(var i = 0, j = p.length - 1; i < p.length; j = i++){
+      var xi = p[i][0], yi = p[i][1], xj = p[j][0], yj = p[j][1];
+      if((yi > lat) !== (yj > lat) && lon < (xj - xi) * (lat - yi) / (yj - yi) + xi) ins = !ins;
+    }
+    return ins;
+  }
+  function inAny(list, lon, lat){ for(var k = 0; k < list.length; k++) if(inPoly(lon, lat, list[k])) return true; return false; }
+
+  // Gleichmaessig verteilte Punkte (Fibonacci-Kugel), nur die auf Land bleiben
+  var pts = [], N = 7000, GA = Math.PI * (3 - Math.sqrt(5));
+  for(var i = 0; i < N; i++){
+    var y = 1 - 2 * (i + 0.5) / N, th = i * GA;
+    var lat = Math.asin(y) / D, lon = Math.atan2(Math.sin(th), Math.cos(th)) / D;
+    if(inAny(LAND, lon, lat) && !inAny(WATER, lon, lat)) pts.push([Math.sin(lat * D), Math.cos(lat * D), lon * D]);
+  }
+
+  // Grosskreis Jakarta -> Neumuenster, in der Mitte leicht ueber der Oberflaeche
+  function v3(lat, lon){ lat *= D; lon *= D; return [Math.cos(lat) * Math.cos(lon), Math.sin(lat), Math.cos(lat) * Math.sin(lon)]; }
+  var A = v3(-6.2, 106.85), Bv = v3(54.07, 9.98);
+  var om = Math.acos(A[0] * Bv[0] + A[1] * Bv[1] + A[2] * Bv[2]), route = [];
+  for(var s = 0; s <= 80; s++){
+    var t = s / 80, a = Math.sin((1 - t) * om) / Math.sin(om), b = Math.sin(t * om) / Math.sin(om);
+    var ry = a * A[1] + b * Bv[1];
+    route.push([ry, Math.sqrt(1 - ry * ry), Math.atan2(a * A[2] + b * Bv[2], a * A[0] + b * Bv[0]), 1 + 0.34 * Math.sin(Math.PI * t)]);
+  }
+
+  var css = getComputedStyle(document.documentElement);
+  var DOT = css.getPropertyValue('--steel').trim() || '#6FB6EC';
+  var INK = css.getPropertyValue('--ink-soft').trim() || '#A6BACB';
+  function rgba(hex, al){
+    var n = parseInt(hex.replace('#', ''), 16);
+    return 'rgba(' + (n >> 16 & 255) + ',' + (n >> 8 & 255) + ',' + (n & 255) + ',' + al + ')';
+  }
+
+  var W = 0, H = 0, dpr = 1, cx = 0, cy = 0, R = 0, L0 = 0;
+  var CT = Math.cos(14 * D), ST = Math.sin(14 * D);          // Blick leicht von Norden
+  var P = { x: 0, y: 0, z: 0, v: true };
+  function proj(sp, cp, lon, rho){
+    var dl = lon - L0, x = cp * Math.sin(dl), yy = sp, z = cp * Math.cos(dl);
+    var y2 = yy * CT - z * ST, z2 = yy * ST + z * CT;
+    P.x = cx + R * rho * x; P.y = cy - R * rho * y2; P.z = z2;
+    P.v = z2 > 0 || rho * rho * (x * x + y2 * y2) > 1;   // ueber dem Rand noch sichtbar
+    return P;
+  }
+  function ease(x){ x = Math.max(0, Math.min(1, x)); return 1 - Math.pow(1 - x, 3); }
+  function marker(q, label, t, fa){
+    proj(q[0], q[1], q[2], 1); if(P.z <= 0.05) return;
+    ctx.globalAlpha = fa; ctx.fillStyle = '#F2C200';
+    ctx.beginPath(); ctx.arc(P.x, P.y, 3.6 * dpr, 0, TAU); ctx.fill();
+    var ph = (t % 2) / 2;
+    ctx.globalAlpha = fa * (1 - ph) * 0.9; ctx.strokeStyle = '#F2C200'; ctx.lineWidth = 1.5 * dpr;
+    ctx.beginPath(); ctx.arc(P.x, P.y, (4 + 15 * ph) * dpr, 0, TAU); ctx.stroke();
+    ctx.globalAlpha = fa * 0.9; ctx.fillStyle = INK;
+    ctx.font = '700 ' + (10.5 * dpr) + 'px ui-monospace, Menlo, Consolas, monospace';
+    ctx.fillText(label, P.x + 10 * dpr, P.y - 8 * dpr);
+  }
+
+  var t0 = performance.now(), doneAt = 0, bins = [[],[],[],[],[],[],[]];
+  function frame(now){
+    if(intro.classList.contains('done')){ doneAt = doneAt || now; if(now - doneAt > 900) return; }
+    if(!calm) requestAnimationFrame(frame);
+    var w = cv.clientWidth, h = cv.clientHeight;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    if(w !== W || h !== H){ W = w; H = h; cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+    var t = calm ? 99 : (now - t0) / 1000;
+    cx = W * dpr * 0.5; cy = H * dpr * 0.47;
+    R = Math.min(W, H) * dpr * 0.39 * (0.84 + 0.16 * ease(t / 1.4));
+    // 330° Schwung, der ausrollt; danach pendelt er ruhig, damit die Route im Bild bleibt
+    L0 = calm ? 76 * D : (76 + 330 * (1 - ease(t / 3.4)) + 24 * ease((t - 3.4) / 3) * Math.sin((t - 3.4) / 20 * TAU)) * D;
+    var fa = ease(t / 0.8);
+
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    var g = ctx.createRadialGradient(cx, cy, R * 0.9, cx, cy, R * 1.22);
+    g.addColorStop(0, rgba(DOT, 0.14)); g.addColorStop(1, rgba(DOT, 0));
+    ctx.globalAlpha = fa; ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(cx, cy, R * 1.22, 0, TAU); ctx.fill();
+    ctx.globalAlpha = fa * 0.2; ctx.strokeStyle = DOT; ctx.lineWidth = dpr;
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU); ctx.stroke();
+
+    // Punkte nach Tiefe sortiert in 7 Stufen: hinten ganz blass (Roentgenblick), vorne kraeftig
+    for(var k = 0; k < 7; k++) bins[k].length = 0;
+    for(var i = 0; i < pts.length; i++){
+      var p = pts[i]; proj(p[0], p[1], p[2], 1);
+      bins[P.z <= 0 ? 0 : 1 + Math.min(5, (P.z * 6) | 0)].push(P.x, P.y);
+    }
+    ctx.fillStyle = DOT;
+    for(k = 0; k < 7; k++){
+      var arr = bins[k]; if(!arr.length) continue;
+      var zc = k === 0 ? 0 : (k - 0.5) / 6;
+      ctx.globalAlpha = fa * (k === 0 ? 0.07 : 0.2 + 0.62 * zc);
+      var rr = R * (k === 0 ? 0.0028 : 0.0034 + 0.0036 * zc);
+      ctx.beginPath();
+      for(var j = 0; j < arr.length; j += 2){ ctx.moveTo(arr[j] + rr, arr[j + 1]); ctx.arc(arr[j], arr[j + 1], rr, 0, TAU); }
+      ctx.fill();
+    }
+
+    var pr = calm ? 1 : ease((t - 2.6) / 1.8);
+    if(pr > 0){
+      var n = Math.max(1, Math.round(pr * (route.length - 1)));
+      ctx.globalAlpha = fa; ctx.strokeStyle = '#F2C200'; ctx.lineWidth = 2.2 * dpr; ctx.lineCap = 'round';
+      ctx.shadowColor = 'rgba(242,194,0,.6)'; ctx.shadowBlur = 10 * dpr;
+      ctx.beginPath();
+      for(var s = 0, pen = false; s <= n; s++){
+        var q = route[s]; proj(q[0], q[1], q[2], q[3]);
+        if(P.v){ if(pen) ctx.lineTo(P.x, P.y); else ctx.moveTo(P.x, P.y); pen = true; } else pen = false;
+      }
+      ctx.stroke(); ctx.shadowBlur = 0;
+      if(!calm && t > 4.4){                              // Lichtpunkt fliegt immer wieder die Strecke ab
+        var hI = (((t - 4.4) / 2.6) % 1) * (route.length - 1);
+        ctx.fillStyle = '#FFE27A';
+        for(s = 0; s < 12; s++){
+          var idx = Math.floor(hI - s * 0.9); if(idx < 0) break;
+          q = route[idx]; proj(q[0], q[1], q[2], q[3]); if(!P.v) continue;
+          ctx.globalAlpha = fa * (1 - s / 12);
+          ctx.beginPath(); ctx.arc(P.x, P.y, (3.4 - s * 0.22) * dpr, 0, TAU); ctx.fill();
+        }
+      }
+      marker(route[0], 'JAKARTA', t, fa);
+      if(pr >= 1) marker(route[route.length - 1], 'NEUMÜNSTER', t, fa);
+    }
+    ctx.globalAlpha = 1;
+  }
+  requestAnimationFrame(frame);
+  if(calm) window.addEventListener('resize', function(){ frame(performance.now()); });
+})();
+</script>
 
 <script>
 (function(){
@@ -1890,45 +1948,6 @@
     else if(e.key === 't' || e.key === 'T'){ toggleTheme(); }
   });
 
-  /* ---- Scrollen zum Blättern (fullpage-artig) ---- */
-  var slidesEl = document.getElementById('slides');
-  var scrollLock = false;
-  function atScrollEdge(el, dir){
-    var scrollable = el.scrollHeight > el.clientHeight + 2;
-    if(!scrollable) return true;
-    if(dir > 0) return (el.scrollTop + el.clientHeight >= el.scrollHeight - 2);
-    return el.scrollTop <= 2;
-  }
-  slidesEl.addEventListener('wheel', function(e){
-    var active = slides[current];
-    if(!active) return;
-    if(Math.abs(e.deltaY) < 6) return;
-    var dir = e.deltaY > 0 ? 1 : -1;
-    if(!atScrollEdge(active, dir)) return;          // erst den Folieninhalt scrollen
-    if((dir > 0 && current >= total-1) || (dir < 0 && current <= 0)) return;
-    e.preventDefault();
-    if(scrollLock) return;
-    scrollLock = true;
-    goTo(current + dir);
-    setTimeout(function(){ scrollLock = false; }, 750);
-  }, {passive:false});
-
-  /* Touch-Wischen (vertikal) für Tablets/Handys */
-  var touchY = null;
-  slidesEl.addEventListener('touchstart', function(e){ touchY = e.touches[0].clientY; }, {passive:true});
-  slidesEl.addEventListener('touchend', function(e){
-    if(touchY === null) return;
-    var dy = touchY - e.changedTouches[0].clientY;
-    var dir = dy > 0 ? 1 : -1;
-    var active = slides[current];
-    if(Math.abs(dy) > 55 && active && atScrollEdge(active, dir) && !scrollLock){
-      if((dir > 0 && current < total-1) || (dir < 0 && current > 0)){
-        scrollLock = true; goTo(current + dir); setTimeout(function(){ scrollLock = false; }, 750);
-      }
-    }
-    touchY = null;
-  }, {passive:true});
-
   function toggleFullscreen(){
     if(!document.fullscreenElement){ deck.requestFullscreen && deck.requestFullscreen(); }
     else { document.exitFullscreen && document.exitFullscreen(); }
@@ -2096,10 +2115,11 @@
         if(!p.used) remain++;
         var q=document.createElement('button');
         q.className='qitem'+(p.used?' used':'')+(vSelected&&vSelected.id===p.id?' selected':'');
-        var pv=parcelHTML(p);
+        var pv=parcelHTML(p), box=document.createElement('span');
         pv.style.position='relative';
-        pv.style.width=(p.w*38-6)+'px'; pv.style.height=(p.h*28-4)+'px';
-        q.appendChild(pv);
+        pv.style.width=(p.w*32+6)+'px'; pv.style.height=(p.h*20+6)+'px';
+        box.className='qprev'; box.appendChild(pv); q.appendChild(box);
+        q.setAttribute('aria-label', p.label+', '+fmtW(p.kg));
         var nm=document.createElement('span'); nm.className='qname'; nm.textContent=p.label;
         q.appendChild(nm);
         q.addEventListener('click',function(){selectVParcel(p);});
@@ -2548,27 +2568,28 @@
 })();
 </script>
 
-<!-- Maskot-Truck: GLB mit benannten Teilen (Augen, Lider, Brauen, Raeder, Blinker).
-     Die Datei hat keine fertigen Animationsclips, deshalb wird das Rig hier direkt
-     angesteuert - dadurch kann der Truck auch auf Folienwechsel und Maus reagieren.
+<!-- Maskot "Nika": das Rig (Gelenke, Federn, Clips) liegt in nika-rig.js und wird auch
+     vom Editor mascot-truck-nika.html benutzt. Hier nur Fahren, Verhalten, Sprechblase.
      Three.js liegt lokal, es wird kein Internet gebraucht. -->
+<script src="nika-rig.js"></script>
 <script type="importmap">
 { "imports": { "three": "./three/three.module.min.js" } }
 </script>
 <script type="module">
 import * as THREE from 'three';
-import { GLTFLoader } from './three/jsm/loaders/GLTFLoader.js';
 
-const dock = document.getElementById('mascotDock');
 const canvas = document.getElementById('mascotCanvas');
+const sayBox = document.getElementById('mascotSay');
 const bubble = document.getElementById('mascotBubble');
 const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/* Blickwinkel des Modells. Der Truck schaut im Modell nach -X; diese Werte sind
-   gegen die Kameraposition eingemessen: front = Gesicht zur Kamera, left/right =
-   Dreiviertel-Ansicht in Fahrtrichtung (Gesicht bleibt sichtbar). */
-const YAW = { left: 0, right: 1.4, front: 0.71 };
-const LID_CLOSE = 1.5;          // Radiant, bis das Lid das Auge deckt
+/* Drehung um die Hochachse, gegen den Kamera-Schraegblick eingemessen. Beim Fahren
+   (left/right) fast reines Seitenprofil - nur 10° zum Publikum, damit das Gesicht noch
+   hervorlugt; im Dreiviertel-Winkel sah das Fahren wie seitliches Rutschen aus.
+   front = zum Publikum; geparkt halb zum Publikum, halb zur Folienmitte. */
+const YAW = { left: -0.69, right: 2.11, front: 0.71, parkL: 1.05, parkR: 0.37 };
+const HERO = 1.55;                                   // Groesse auf dem Cover
+const VMAX = 400, ACC = 620, DEC = 520;              // px/s und px/s² - das Fahrgefuehl
 const SAY = {
   0:'Hallo! Ich fahr heute mit euch mit.',
   1:'Blau-gelb — das sind wir!',
@@ -2578,247 +2599,263 @@ const SAY = {
   14:'Fragen? Immer her damit!',
   15:'Tschüss! War schön mit euch.'
 };
-const QUIPS = ['Tuut tuut!','Ich hör zu!','Weiter geht\'s!','Ich guck nur kurz.'];
+const QUIPS = ['Tuut tuut!', 'Ich hör zu!', 'Weiter geht\'s!', 'Ich guck nur kurz.'];
 
-let renderer, scene, camera, rig, parts = {}, ready = false, started = false, modelSize = null;
+let renderer;
+try { renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true }); } catch (e) {}
+if (renderer && window.createNika) start();
+else canvas.parentNode.style.display = 'none';       // kein WebGL -> kein Maskot, sonst alles normal
 
-/* Kamera so weit weg stellen, dass der Truck knapp ins Canvas passt - haengt vom
-   Seitenverhaeltnis ab, deshalb bei jeder Groessenaenderung neu rechnen. */
-function frameCamera() {
-  if (!modelSize || !camera) return;
-  const vFov = THREE.MathUtils.degToRad(camera.fov);
-  const aspect = camera.aspect || 1.17;
-  const byH = (modelSize.y * 0.5) / Math.tan(vFov / 2);
-  const byW = (Math.max(modelSize.x, modelSize.z) * 0.5) / (Math.tan(vFov / 2) * aspect);
-  const dist = Math.max(byH, byW) * 1.12;
-  camera.position.set(-dist * 0.72, dist * 0.30, dist * 0.62);
-  camera.lookAt(0, 0, 0);
-}
-try {
-  renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+function start() {
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  scene = new THREE.Scene();
-  camera = new THREE.PerspectiveCamera(30, 1, 0.1, 200);
-  scene.add(new THREE.HemisphereLight(0xdceeff, 0x24303f, 2.1));
-  const key = new THREE.DirectionalLight(0xffffff, 2.6); key.position.set(-7, 8, 7); scene.add(key);
-  const rim = new THREE.DirectionalLight(0x8fc4ff, 1.1); rim.position.set(5, 3, -6); scene.add(rim);
-  rig = new THREE.Group(); scene.add(rig);
-} catch (e) {
-  dock.style.display = 'none';           // kein WebGL -> Maskot faellt einfach weg
-}
+  const scene = new THREE.Scene();
+  // Orthografisch mit 1 Einheit = 1 CSS-Pixel: Bildschirm- und Weltkoordinaten sind gleich.
+  const camera = new THREE.OrthographicCamera(0, 1, 0, -1, -3000, 3000);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xd8d2c4, 1.0));
+  const key = new THREE.DirectionalLight(0xffffff, 2.2); key.position.set(-0.15, 0.6, 1); scene.add(key);
+  const fill = new THREE.DirectionalLight(0xfff4e6, 0.5); fill.position.set(0.6, 0.3, -0.8); scene.add(fill);
 
-const state = {
-  yaw: YAW.left, yawTo: YAW.left, spin: 0, speed: 0,
-  lid: 0, lidTo: 0, blinkAt: 0,
-  look: { x:0, y:0 }, lookTo: { x:0, y:0 },
-  brow: 0, browTo: 0, hop: 0,
-  driveUntil: 0, wanderAt: 0, quipAt: 0, blinker: 0, blinkerSide: 1,
-  spot: { x:0, y:0 }, hero: false, slide: 0
-};
+  const nika = createNika(THREE);
+  const J = nika.J;
+  nika.JL.forEach((j) => { j.dot.visible = false; });
 
-if (renderer) new GLTFLoader().load('maskot-truck.glb', (gltf) => {
-  const root = gltf.scene;
-  root.traverse(o => { if (o.name) parts[o.name] = o; });
-  ['blinkerLeftFront','blinkerLeftRear','blinkerRightFront','blinkerRightRear',
-   'headlightLeft','headlightRight'].forEach(n => {
-    const m = parts[n];
-    if (m && m.material) m.material = m.material.clone();
+  /* mover (Position + Groesse) > viewG (fester Schraegblick von vorn-links oben)
+     > yawG (Fahrtrichtung) > Truck, auf seine Mitte zentriert. */
+  const box = new THREE.Box3().setFromObject(nika.root);
+  const center = box.getCenter(new THREE.Vector3());
+  nika.root.position.sub(center);
+  const yawG = new THREE.Group(); yawG.add(nika.root);
+  const viewG = new THREE.Group(); viewG.rotation.set(0.22, 0.86, 0); viewG.add(yawG);
+  const mover = new THREE.Group(); mover.add(viewG);
+  scene.add(mover, nika.smoke);
+
+  // Bodenschatten: bleibt beim Springen unten und wird kleiner -> der Sprung liest sich.
+  const shadow = new THREE.Mesh(new THREE.CircleGeometry(1, 40),
+    new THREE.MeshBasicMaterial({ color: 0x0a1420, transparent: true, opacity: 0.22, depthWrite: false }));
+  shadow.rotation.x = -Math.PI / 2; shadow.position.y = box.min.y - center.y + 0.02; shadow.renderOrder = -1;
+  yawG.add(shadow);
+
+  let vw = 0, vh = 0, S = 22;                        // S = Pixel pro Rig-Einheit
+  function resize() {
+    vw = window.innerWidth; vh = window.innerHeight;
+    renderer.setSize(vw, vh, false);
+    Object.assign(camera, { left: 0, right: vw, top: 0, bottom: -vh });
+    camera.updateProjectionMatrix();
+    nika.ink.uniforms.aspect.value = vw / vh;
+    nika.ink.uniforms.thickness.value = 3.2 / vh;    // ~1,6 px Konturlinie, egal wie gross er ist
+    S = Math.min(22, Math.max(14, vw * 0.016));
+  }
+  resize();
+
+  const st = {
+    x: 0, y: 0, vx: 0, gx: 0, ax: 0,
+    yaw: YAW.front, yawV: 0, yawTo: YAW.front,
+    s: HERO, sV: 0, sTo: HERO,
+    hero: true, slide: 0, parked: true, faceAt: 0,
+    turnUntil: 0, blinkUntil: 0, blinkSide: 0,
+    hopAt: -1e9, browAt: -1e9, puffUntil: 0, sweepUntil: 0,
+    wanderAt: 0, mischiefAt: 0, lastPointer: -1e9, idleLookAt: 0, idleMode: 'content'
+  };
+
+  /* Nur der untere Streifen, geparkt nur in den aeusseren Zonen - dort liegt selten Text,
+     und die Nav-Leiste bleibt frei. Durchfahren darf er ueberall. */
+  const halfLen = (s) => 3.1 * S * s;
+  const groundY = () => Math.max(170, vh - 100);         // Strasse knapp ueber der Nav-Leiste
+  const heroSpot = () => ({ x: vw - halfLen(HERO) - Math.max(24, vw * 0.05) });
+  const faceContent = () => st.x < vw / 2 ? YAW.parkL : YAW.parkR;
+  function parkSpot() {
+    const lo = halfLen(1) + 12, hi = vw - lo;
+    if (hi - lo < 200) return { x: (lo + hi) / 2 };
+    const left = [lo, lo + vw * 0.06], right = [hi - vw * 0.06, hi];   // parken nur am Rand: dort liegt nie Folieninhalt
+    const pick = (z) => z[0] + Math.random() * (z[1] - z[0]);
+    const onLeft = st.x < vw / 2;
+    let x = pick(Math.random() < 0.65 ? (onLeft ? right : left) : (onLeft ? left : right));
+    if (Math.abs(x - st.x) < 120) x = pick(onLeft ? right : left);
+    return { x };
+  }
+  function place(p) {
+    st.x = st.gx = p.x; st.vx = 0; st.s = st.sTo; st.parked = true;
+    st.yaw = st.yawTo = st.hero ? YAW.front : faceContent();
+  }
+  function goTo(p) {
+    if (calm) return place(p);
+    st.gx = p.x; st.parked = false; st.faceAt = 0;
+    const dir = Math.sign(p.x - st.x);
+    if (!dir) return;
+    const to = dir > 0 ? YAW.right : YAW.left;
+    if (Math.abs(to - st.yaw) > 0.3) {               // erst einlenken + blinken, dann Gas
+      st.turnUntil = performance.now() + 640;
+      st.blinkSide = to > st.yaw ? 0 : 1;             // positive Drehung = Linkskurve
+      st.blinkUntil = performance.now() + 1500;
+    }
+    st.yawTo = to;
+  }
+
+  function physics(dt, now) {
+    const dx = st.gx - st.x;
+    // "Ankommen": nie schneller als man bis zum Ziel noch bremsen kann -> kein Rutschen
+    let want = Math.sign(dx) * Math.min(VMAX, Math.sqrt(2 * DEC * Math.abs(dx)));
+    if (now < st.turnUntil) want = 0;
+    const speedingUp = Math.abs(want) > Math.abs(st.vx) && (st.vx === 0 || Math.sign(want) === Math.sign(st.vx));
+    const lim = speedingUp ? ACC : DEC * 1.4;
+    st.ax = Math.max(-lim, Math.min(lim, (want - st.vx) / Math.max(dt, 1e-3)));
+    st.vx += st.ax * dt; st.x += st.vx * dt;
+    if (!st.parked && Math.abs(dx) < 1 && Math.abs(st.vx) < 8) {
+      st.x = st.gx; st.vx = 0; st.ax = 0; st.parked = true;
+      st.faceAt = now + 450;                          // erst ausfedern, dann zur Folie drehen
+      st.wanderAt = now + 22000 + Math.random() * 18000;
+    }
+    const kw = 38;                                    // Drehen: leicht ueberschwingend
+    st.yawV += (kw * (st.yawTo - st.yaw) - 1.44 * Math.sqrt(kw) * st.yawV) * dt; st.yaw += st.yawV * dt;
+    const ks = 70;                                    // Groesse: gummiartig ("boing")
+    st.sV += (ks * (st.sTo - st.s) - 0.84 * Math.sqrt(ks) * st.sV) * dt; st.s += st.sV * dt;
+  }
+
+  /* Fahrphysik -> Rig: Beschleunigung und Drehung gehen als Ziele in die Federn,
+     die Federn machen daraus das Nachschwingen. Das ist der Unterschied zu "gleiten". */
+  const pulse = (now, at, ms) => { const k = (now - at) / ms; return k > 0 && k < 1 ? Math.sin(Math.PI * k) : 0; };
+  const gazeFwd = new THREE.Vector3(-1, 0.05, 0.22).normalize();
+  function couple(R) {
+    const { add, squash, E, F } = R;
+    const now = performance.now(), t = now / 1000;
+    const sp = Math.min(1, Math.abs(st.vx) / VMAX);
+    const dir = Math.sign(st.vx) || Math.sign(st.gx - st.x) || 1;
+    const aF = st.ax * dir / ACC;                     // >0 Gas geben, <0 bremsen
+    const L = Math.max(0, Math.min(1, aF)), B = Math.max(0, Math.min(1, -aF));
+    const wv = st.yawV;
+    add('body', { rz: -0.06 * L + 0.09 * B + 0.018 * sp * Math.sin(t * 9.5), y: 0.07 * sp * Math.sin(t * 23) * Math.sin(t * 7.3) });
+    if (L + B > 0.02) squash('body', 1 - 0.07 * L + 0.1 * B, 'x');
+    add('trailer', { rz: 0.05 * L - 0.12 * B, ry: -0.22 * wv });   // Anhaenger haengt hinterher
+    add('cab', { rx: 0.022 * sp * Math.sin(t * 41), ry: 0.07 * wv });
+    add('face', { ry: 0.16 * wv, x: -0.05 * sp });                // Gesicht dreht voraus
+    const steer = Math.max(-0.45, Math.min(0.45, 0.3 * wv));
+    add('wheelFL', { ry: steer }); add('wheelFR', { ry: steer });
+    add('stack', { rz: -0.12 * sp });
+    add('mirrorL', { rz: 0.6 * B }); add('mirrorR', { rz: -0.6 * B });
+    E.lid += 0.28 * L - 0.3 * B; E.brow += -0.35 * L + 0.8 * B; E.mouth += 0.5 * B;
+    E.smile += 0.25 * sp; E.tilt += 0.4 * sp;
+    const hop = pulse(now, st.hopAt, 460);
+    if (hop > 0) { add('body', { y: 0.9 * hop }); squash('body', 1 + 0.22 * hop); }
+    E.brow += 0.9 * pulse(now, st.browAt, 1100);
+    F.spin = Math.abs(st.vx) / (0.52 * S * st.s);   // Raeder rollen passend zur Strecke
+    F.emit = 0.7 * L + 0.1 * sp + (now < st.puffUntil ? 0.8 : 0);
+    if (!st.parked) F.gaze = gazeFwd;
+    if (now < st.blinkUntil && Math.sin(t * 18) > 0) F.blink[st.blinkSide] = 1;
+  }
+
+  let bubbleTimer;
+  function say(text, ms) {
+    if (!text) return;
+    bubble.textContent = text;
+    bubble.classList.add('show');
+    placeBubble();
+    clearTimeout(bubbleTimer);
+    bubbleTimer = setTimeout(() => bubble.classList.remove('show'), ms || 4200);
+  }
+  function placeBubble() {
+    const lift = Math.max(0, J.body.c.y) * 0.95;
+    const x = Math.max(120, Math.min(vw - 120, st.x));
+    const y = st.y - (2.1 + lift) * S * st.s;
+    sayBox.style.transform = 'translate3d(' + Math.round(x) + 'px,' + Math.round(y) + 'px,0)';
+  }
+
+  function mischief(now) {
+    st.mischiefAt = now + 55000 + Math.random() * 45000;
+    const r = Math.random();
+    if (r < 0.22) nika.play('melenting');
+    else if (r < 0.42) st.sweepUntil = now + 2600;                        // umschauen
+    else if (r < 0.56) nika.play('ngakak');
+    else if (r < 0.70) { say('Tuut tuut!', 2200); st.hopAt = now; st.puffUntil = now + 450; }
+    else if (r < 0.82) { nika.play('ngebut'); say('Brumm brumm!', 2400); }
+    else if (r < 0.93) nika.play('molor');
+    else nika.play('rem');
+  }
+
+  const lookV = new THREE.Vector3();
+  function brain(now) {
+    if (st.faceAt && now > st.faceAt) { st.yawTo = st.hero ? YAW.front : faceContent(); st.faceAt = 0; }
+    if (!calm) {
+      const busy = !!nika.anim.name;
+      if (st.parked && !busy && !st.hero && now > st.wanderAt) goTo(parkSpot());
+      if (st.parked && !busy && now > st.mischiefAt) mischief(now);
+    }
+    // Blick: Maus > Umschauen > ohne Maus mal zur Folie, mal ins Publikum
+    if (now < st.sweepUntil) {
+      nika.look = lookV.set(st.x + 420 * Math.sin((now - st.sweepUntil) / 330), -st.y - 40, 220);
+    } else if (now - st.lastPointer > 7000) {
+      if (now > st.idleLookAt) {
+        st.idleMode = Math.random() < 0.6 ? 'content' : 'audience';
+        st.idleLookAt = now + 3000 + Math.random() * 4000;
+      }
+      if (st.idleMode === 'content') lookV.set(vw * 0.5 + 140 * Math.sin(now / 3100), -vh * 0.36 + 50 * Math.sin(now / 2300), 200);
+      else lookV.set(st.x, -st.y, 3000);
+      nika.look = lookV;
+    }
+  }
+
+  document.addEventListener('deck:slide', (e) => {
+    const now = performance.now(), i = e.detail.index;
+    st.slide = i;
+    const hero = i === 0;
+    if (hero !== st.hero) {
+      st.hero = hero; st.sTo = hero ? HERO : 1;
+      goTo(hero ? heroSpot() : parkSpot());
+    } else if (!calm && st.parked && !nika.anim.name && Math.random() < 0.3) goTo(parkSpot());
+    if (!calm && st.parked) st.hopAt = now;          // nicht hopsen, wenn er gerade losfaehrt
+    st.browAt = now;
+    const line = SAY[i] || (Math.random() < 0.25 ? QUIPS[Math.floor(Math.random() * QUIPS.length)] : '');
+    if (line) say(line, 4200);
   });
-  const box = new THREE.Box3().setFromObject(root);
-  modelSize = box.getSize(new THREE.Vector3());
-  root.position.sub(box.getCenter(new THREE.Vector3()));
-  rig.add(root);
-  frameCamera();
-  ['pupilLeft','pupilRight','browLeft','browRight','eyelidLeft','eyelidRight'].forEach(n => {
-    const p = parts[n];
-    if (p) { p.userData.base = p.position.clone(); p.userData.rot = p.rotation.clone(); }
-  });
-  if (parts.mouthOpen) parts.mouthOpen.visible = false;
-  ready = true;
-  state.wanderAt = performance.now() + 50000;  // erst ankommen, dann umherfahren
-  state.hero = state.slide === 0;              // Modul laedt nach dem ersten render()
-  dock.classList.toggle('hero', state.hero);
-  place(pickSpot(state.hero), 0);
-  state.yaw = state.yawTo = state.hero ? YAW.front : faceContent();
-  if (started) greet();
-}, undefined, () => { dock.style.display = 'none'; });
 
-/* Begruessung erst zeigen, wenn das Intro-Overlay weg ist - sonst redet er dagegen. */
-function greet() { state.hop = 1.2; state.browTo = 1; setTimeout(() => state.browTo = 0, 1000); say(SAY[state.slide], 5200); }
-document.addEventListener('deck:start', () => { started = true; if (ready) greet(); });
+  // Begruessung erst, wenn das Intro-Overlay weg ist - sonst redet er dagegen.
+  const intro = document.getElementById('intro');
+  function greet() { if (!calm) nika.play('melenting'); st.browAt = performance.now(); say(SAY[st.slide], 5200); }
+  document.addEventListener('deck:start', greet);
+  if (intro && intro.classList.contains('done')) greet();
 
-const wheels = () => ['wheelFrontLeft','wheelFrontRight','wheelRearLeftA','wheelRearLeftB',
-  'wheelRearRightA','wheelRearRightB'].map(n => parts[n]).filter(Boolean);
+  window.addEventListener('pointermove', (e) => {
+    st.lastPointer = performance.now();
+    if (st.lastPointer < st.sweepUntil) return;
+    nika.look = lookV.set(e.clientX, -e.clientY, 260);
+  }, { passive: true });
 
-function lampsOff() {
-  ['blinkerLeftFront','blinkerLeftRear','blinkerRightFront','blinkerRightRear'].forEach(n => {
-    const m = parts[n];
-    if (m && m.material) m.material.emissiveIntensity = 0;
-  });
+  // Anklicken kitzelt ihn (wie im Editor). Das Canvas selbst laesst Klicks durch.
+  const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+  window.addEventListener('pointerdown', (e) => {
+    if (intro && !intro.classList.contains('done')) return;
+    ndc.set(e.clientX / vw * 2 - 1, -(e.clientY / vh) * 2 + 1);
+    ray.setFromCamera(ndc, camera);
+    if (ray.intersectObject(nika.root, true).length) { nika.play('ngakak'); say('Hihi, das kitzelt!', 2200); }
+  }, { passive: true });
+
+  place(heroSpot());                                 // Modul laedt nach dem ersten render() -> Folie 1
+  st.wanderAt = performance.now() + 30000;
+  st.mischiefAt = performance.now() + 60000;
+
+  let last = performance.now();
+  (function frame(now) {
+    requestAnimationFrame(frame);
+    if (document.hidden) { last = now; return; }     // Tab im Hintergrund: nichts rechnen
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (window.innerWidth !== vw || window.innerHeight !== vh) {
+      resize();
+      place(st.hero ? heroSpot() : { x: Math.max(halfLen(1) + 12, Math.min(vw - halfLen(1) - 12, st.gx)) });
+    }
+    brain(now);
+    physics(dt, now);
+    st.y = groundY() - 1.9 * S * st.s;
+    mover.position.set(st.x, -st.y, 0);
+    mover.scale.setScalar(S * st.s);
+    yawG.rotation.y = st.yaw;
+    nika.update(dt, now, couple);
+    const lift = Math.min(1, Math.max(0, J.body.c.y) / 1.5);
+    shadow.scale.set(3.5 * (1 - 0.3 * lift), 1.5 * (1 - 0.3 * lift), 1);
+    shadow.material.opacity = 0.22 * (1 - 0.6 * lift);
+    if (bubble.classList.contains('show')) placeBubble();
+    renderer.render(scene, camera);
+  })(last);
 }
-
-function pickSpot(hero) {
-  const w = window.innerWidth, h = window.innerHeight;
-  const dw = dock.offsetWidth || 150, dh = dock.offsetHeight || 128;
-  if (hero) return { x: w - dw - Math.max(16, w * 0.05), y: Math.max(86, h - dh - 150) };
-  /* Nur der untere Streifen - dort liegt selten Text, und die Nav-Leiste bleibt frei. */
-  const pad = 8, low = Math.max(80, h - dh - 104), up = Math.max(80, low - 74);
-  const list = [{ x:w-dw-pad, y:low }, { x:pad, y:low }, { x:w-dw-pad, y:up }, { x:pad, y:up }];
-  const far = list.filter(s => Math.abs(s.x - state.spot.x) + Math.abs(s.y - state.spot.y) > 60);
-  return (far.length ? far : list)[Math.floor(Math.random() * (far.length || list.length))];
-}
-
-function place(spot, ms) {
-  state.spot = spot;
-  dock.style.transitionDuration = ms + 'ms';
-  dock.style.transform = 'translate3d(' + Math.round(spot.x) + 'px,' + Math.round(spot.y) + 'px,0)';
-}
-
-/* Am Rand geparkt schaut er immer Richtung Folieninhalt, nicht aus dem Bild heraus. */
-function faceContent() {
-  return state.spot.x < window.innerWidth / 2 ? YAW.right : YAW.left;
-}
-
-function driveTo(spot, ms) {
-  if (calm) return place(spot, 0);
-  ms = ms || 2400;
-  const right = spot.x > state.spot.x + 8, left = spot.x < state.spot.x - 8;
-  if (right || left) {
-    state.yawTo = right ? YAW.right : YAW.left;
-    state.blinkerSide = right ? -1 : 1;
-    state.blinker = 1.6;
-  }
-  state.driveUntil = performance.now() + ms;
-  place(spot, ms);
-  setTimeout(() => { if (!state.hero) state.yawTo = faceContent(); }, ms + 150);
-}
-
-let bubbleTimer;
-function say(text, ms) {
-  if (!text) return;
-  bubble.textContent = text;
-  bubble.classList.add('show');
-  clearTimeout(bubbleTimer);
-  bubbleTimer = setTimeout(() => bubble.classList.remove('show'), ms || 4200);
-}
-
-document.addEventListener('deck:slide', (e) => {
-  const i = e.detail.index;
-  state.slide = i;
-  const hero = i === 0;
-  if (hero !== state.hero) {
-    state.hero = hero;
-    dock.classList.toggle('hero', hero);
-    setTimeout(() => driveTo(pickSpot(hero), 1700), 30);   // rollend, nicht rutschend
-  } else if (!calm && Math.random() < 0.35) {
-    driveTo(pickSpot(false));
-  }
-  if (hero) state.yawTo = YAW.front;
-  else if (performance.now() > state.driveUntil) state.yawTo = faceContent();
-  state.browTo = 1; state.hop = 1;                    // kurz aufhorchen
-  setTimeout(() => { state.browTo = 0; }, 900);
-  if (SAY[i] || Math.random() < 0.3) say(SAY[i] || QUIPS[Math.floor(Math.random()*QUIPS.length)], 4200);
-  state.wanderAt = performance.now() + 45000 + Math.random() * 45000;
-});
-
-window.addEventListener('pointermove', (e) => {
-  const r = dock.getBoundingClientRect();
-  const dx = (e.clientX - (r.left + r.width/2)) / Math.max(320, window.innerWidth/2);
-  const dy = (e.clientY - (r.top + r.height/2)) / Math.max(240, window.innerHeight/2);
-  state.lookTo.x = Math.max(-1, Math.min(1, dx));
-  state.lookTo.y = Math.max(-1, Math.min(1, dy));
-}, { passive:true });
-
-window.addEventListener('resize', () => place(pickSpot(state.hero), 400));
-
-function mischief(now) {
-  const pick = Math.floor(Math.random() * 4);
-  if (pick === 0) { state.hop = 1.4; say(QUIPS[0], 2200); }
-  else if (pick === 1) {                                   // umschauen
-    let k = 0;
-    const sweep = setInterval(() => {
-      state.lookTo.x = [1,-1,.5,0][k]; if (++k > 3) clearInterval(sweep);
-    }, 420);
-  }
-  else if (pick === 2) { state.lidTo = 1; setTimeout(() => state.lidTo = 0, 700); state.browTo = -1;
-    setTimeout(() => state.browTo = 0, 900); }            // gaehnen
-  else { state.blinker = 1.2; state.blinkerSide = Math.random() < .5 ? 1 : -1; }
-  state.quipAt = now + 60000 + Math.random() * 60000;
-}
-
-let last = performance.now(), cw = 0, ch = 0;
-function frame(now) {
-  requestAnimationFrame(frame);
-  if (!ready || document.hidden) { last = now; return; }
-  const dt = Math.min(0.05, (now - last) / 1000); last = now;
-
-  const w = dock.clientWidth, h = dock.clientHeight;
-  if (w !== cw || h !== ch) {
-    cw = w; ch = h;
-    renderer.setSize(w, h, false);
-    camera.aspect = w / h; camera.updateProjectionMatrix();
-    frameCamera();
-  }
-
-  if (!calm) {
-    if (now > state.wanderAt) { driveTo(pickSpot(state.hero)); state.wanderAt = now + 45000 + Math.random()*45000; }
-    if (!state.quipAt) state.quipAt = now + 60000;
-    else if (now > state.quipAt && now > state.driveUntil) mischief(now);
-  }
-
-  const driving = now < state.driveUntil;
-  state.speed += ((driving ? 9 : 0) - state.speed) * Math.min(1, dt * 4);
-  state.spin += state.speed * dt;
-  wheels().forEach(wl => { wl.rotation.z = state.spin; });
-
-  if (now > state.blinkAt) {                                // blinzeln
-    state.lidTo = 1;
-    setTimeout(() => { state.lidTo = 0; }, 130);
-    state.blinkAt = now + 2200 + Math.random() * 4300;
-  }
-  state.lid += (state.lidTo - state.lid) * Math.min(1, dt * 18);
-  ['eyelidLeft','eyelidRight'].forEach(n => {
-    const l = parts[n]; if (l) l.rotation.z = l.userData.rot.z + state.lid * LID_CLOSE;
-  });
-
-  const fs = Math.cos(state.yaw) >= 0 ? 1 : -1;             // Pupillen je nach Blickrichtung
-  state.look.x += (state.lookTo.x - state.look.x) * Math.min(1, dt * 5);
-  state.look.y += (state.lookTo.y - state.look.y) * Math.min(1, dt * 5);
-  ['pupilLeft','pupilRight'].forEach(n => {
-    const p = parts[n]; if (!p) return;
-    p.position.z = p.userData.base.z - state.look.x * 0.085 * fs;
-    p.position.y = p.userData.base.y - state.look.y * 0.06;
-  });
-
-  state.brow += (state.browTo - state.brow) * Math.min(1, dt * 8);
-  ['browLeft','browRight'].forEach(n => {
-    const b = parts[n]; if (b) b.position.y = b.userData.base.y + state.brow * 0.07;
-  });
-  if (parts.mouthOpen) parts.mouthOpen.visible = state.brow < -0.4;
-  if (parts.smile) parts.smile.visible = !(state.brow < -0.4);
-
-  state.yaw += (state.yawTo - state.yaw) * Math.min(1, dt * 3);
-  state.hop *= Math.max(0, 1 - dt * 3.2);
-  const t = now / 1000;
-  rig.rotation.y = state.yaw;
-  rig.rotation.z = calm ? 0 : Math.sin(t * 1.1) * 0.012 - (driving ? 0.05 : 0) * fs;
-  rig.position.y = calm ? 0 : Math.sin(t * 1.7) * 0.05 + state.hop * Math.abs(Math.sin(t * 13)) * 0.22;
-
-  if (state.blinker > 0) {                                  // Blinker blitzen
-    state.blinker -= dt;
-    const on = Math.floor(state.blinker * 3) % 2 === 0;
-    const side = state.blinkerSide > 0 ? 'Left' : 'Right';
-    ['Front','Rear'].forEach(p => {
-      const m = parts['blinker' + side + p];
-      if (m && m.material) { m.material.emissive.setHex(0xffb300); m.material.emissiveIntensity = on ? 2.4 : 0; }
-    });
-    if (state.blinker <= 0) lampsOff();                     // sonst bleibt er leuchten
-  }
-
-  renderer.render(scene, camera);
-}
-if (renderer) requestAnimationFrame(frame);
 </script>
 
 <!-- DACHSER-Weltkarte (MapLibre GL; Bibliothek lokal, Kartendaten via Internet von CARTO) -->
