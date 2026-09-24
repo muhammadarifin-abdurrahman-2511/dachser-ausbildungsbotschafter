@@ -13,8 +13,8 @@ oder lokal durch Öffnen der Datei im Browser.
 
 - **Pfeiltasten ← →** oder die Pfeil-Buttons unten zum Blättern
 - **Leertaste** = nächste Folie, **F** = Vollbildmodus
-- Interaktive Folien: DACHSER-Quiz, aufklappbare Aufgaben-Karten und die
-  Kommissionier-Challenge zum Mitmachen
+- Interaktive Folien: DACHSER-Quiz, die Paketreise durch sechs Lager-Stationen und der
+  Verlade-Simulator zum Mitmachen
 
 ## Aufbau (nach IHK-Vorgabe)
 
