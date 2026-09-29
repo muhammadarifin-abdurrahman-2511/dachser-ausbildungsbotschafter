@@ -8,10 +8,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..800&display=swap">
 <link rel="stylesheet" href="maplibre-gl.css">
+<title>Mein Weg zum Fachlageristen bei DACHSER</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23FBBA00'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-family='Arial' font-weight='700' font-size='36' fill='%231A3682'%3ED%3C/text%3E%3C/svg%3E">
 </head>
 <body>
 <script>if(/iP(hone|od|ad)/.test(navigator.platform)||(/Mac/.test(navigator.platform)&&navigator.maxTouchPoints>1))document.documentElement.classList.add('is-ios');</script>
-<title>Mein Weg zum Fachlageristen bei DACHSER</title>
 <style>
   :root{
     --bg:#F3F9FF;
@@ -117,12 +118,15 @@
   }
   /* Ruhige Insel hinter dem Folieninhalt: Mitte gedämpft, Ränder zeigen die Karte */
   .slide-inner{position:relative;}
+  /* Halo nur innerhalb der Box + weicher Schatten nach aussen: Schatten zaehlt nicht zur
+     Scrollflaeche, ein ueberstehendes Element schon (sonst Mini-Scrollbalken auf 720p). */
   .slide-inner::before{
-    content:"";position:absolute;inset:-7% -9%;z-index:-1;pointer-events:none;border-radius:28px;
+    content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;border-radius:28px;
     background:radial-gradient(closest-side,
       color-mix(in srgb, var(--bg) 82%, transparent) 0%,
-      color-mix(in srgb, var(--bg) 55%, transparent) 62%,
-      transparent 100%);
+      color-mix(in srgb, var(--bg) 62%, transparent) 70%,
+      color-mix(in srgb, var(--bg) 40%, transparent) 100%);
+    box-shadow:0 0 70px 40px color-mix(in srgb, var(--bg) 38%, transparent);
   }
   /* Feiner Text-Halo in Hintergrundfarbe: hebt Schrift von Straßen/Labels der Karte ab */
   .slide-inner h1,.slide-inner h2,.slide-inner h3,.slide-inner .lede,.slide-inner p,.slide-inner li,
@@ -517,8 +521,8 @@
   /* "Wer bin ich": Portrait ragt oben aus einer Scheibe heraus (Pop-out), rechts Bento-Kacheln.
      Der Clip ist ein Polygon in Prozent: Kreis unten + Kopfbereich oben -> skaliert mit. */
   .wbi{display:grid;grid-template-columns:minmax(240px,.85fr) 1.15fr;gap:clamp(1.4rem,4vw,3.4rem);align-items:center;width:min(1060px,100%);}
-  .wbi-portrait{position:relative;margin:0;width:min(100%,370px,48vh);aspect-ratio:4/5;justify-self:center;}
-  .wbi-glow{position:absolute;left:-14%;right:-14%;bottom:-12%;aspect-ratio:1;border-radius:50%;
+  .wbi-portrait{position:relative;margin:0;width:min(100%,370px,45vh);aspect-ratio:4/5;justify-self:center;}
+  .wbi-glow{position:absolute;left:0;right:0;bottom:0;aspect-ratio:1;border-radius:50%;
     background:radial-gradient(closest-side,color-mix(in srgb,var(--accent) 55%,transparent),transparent);filter:blur(34px);opacity:.55;}
   .wbi-disc{position:absolute;left:4%;right:4%;bottom:0;aspect-ratio:1;border-radius:50%;
     background:radial-gradient(110% 90% at 28% 18%,#4F9DE0 0%,#1E5A9A 42%,#0E2B4C 100%);
@@ -586,6 +590,7 @@
   /* Stat cards */
   .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-top:1.4rem;}
   .stat-card{background:var(--card);border:1px solid var(--line);border-top:3px solid var(--yellow);border-radius:10px;padding:1rem 1.1rem;position:relative;}
+  .stat-card:has(.check-badge){padding-top:2rem;}
   .stat-num{font-family:var(--font-head);font-variant-numeric:tabular-nums;font-size:2.1rem;font-weight:700;letter-spacing:-.03em;color:var(--accent);line-height:1.05;}
   .stat-cap{margin-top:.4rem;font-size:.86rem;color:var(--ink-soft);line-height:1.4;}
   .check-badge{position:absolute;top:.6rem;right:.6rem;font-family:var(--font-ui);font-size:.6rem;font-weight:600;letter-spacing:.02em;color:var(--accent);text-transform:uppercase;border:1px solid var(--yellow);background:color-mix(in srgb,var(--yellow) 22%,transparent);border-radius:4px;padding:.1rem .3rem;}
@@ -734,14 +739,12 @@
   @media (max-width:760px){
     .pj-stage{grid-template-columns:1fr;}
     .pj-name{display:none;}
-    .pj-stop.on .pj-name{display:block;position:absolute;top:100%;margin-top:.35rem;}
-    .pj-rail{margin-bottom:1.2rem;}
   }
 
   /* Maskot "Nika" (Rig in nika-rig.js): ein durchsichtiges Vollbild-Canvas statt einer
      kleinen Box - er springt, dehnt sich (molor = dreifache Laenge) und faehrt frei,
      ohne an einem unsichtbaren Rand abgeschnitten zu werden. Klicks gehen durch. */
-  .mascot-layer{position:fixed;inset:0;z-index:40;pointer-events:none;}
+  .mascot-layer{position:fixed;inset:0;z-index:40;pointer-events:none;transition:opacity .4s ease;}
   .mascot-layer canvas{width:100%;height:100%;display:block;}
   .mascot-say{position:fixed;left:0;top:0;z-index:41;pointer-events:none;will-change:transform;}
   .mascot-bubble{position:absolute;left:50%;bottom:100%;width:max-content;max-width:min(230px,52vw);
@@ -756,7 +759,8 @@
 
   /* Game */
   .game-wrap{display:grid;grid-template-columns:minmax(220px,280px) 1fr;gap:1.6rem;margin-top:1.2rem;}
-  @media (max-width:760px){.game-wrap{grid-template-columns:1fr;}}
+  .game-wrap.cols-2{grid-template-columns:1fr 1fr;}
+  @media (max-width:760px){.game-wrap,.game-wrap.cols-2{grid-template-columns:1fr;}}
   /* ===== Verlade-Simulator (Extra-Farbtokens) ===== */
   :root{--bad:#C43A2E;--w-light:#3E7BD0;--w-medium:#D08A18;--w-heavy:#C0502A;
     --sky1:#8FBDE8;--sky2:#DCEBFA;--grass:#9DB89A;--roadc:#6A7380;--sunc:#FFD84D;}
@@ -1228,6 +1232,30 @@
     .field-row{flex-direction:column;gap:.15rem;}
     .field-label{min-width:auto;}
     .dlogo-sm{display:none;}
+  }
+
+  .weg-split{grid-template-columns:1.3fr .7fr;}
+  @media (max-width:760px){.weg-split{grid-template-columns:1fr;}}
+  @media (max-height:940px) and (min-width:761px){
+    .slide{padding-top:.8rem;padding-bottom:.8rem;}
+    h1.headline{margin-bottom:.6rem;}
+    .jr-wrap{margin:.7rem 0 .1rem;}
+    .weg-split .lede{font-size:1.05rem;}
+    .weg-split .support-card{margin-top:.7rem!important;padding:.9rem 1.1rem;}
+    .weg-split .support-card p{font-size:.95rem;line-height:1.5;}
+    .weg-split .takeaway{margin-top:.8rem;}
+    .vsim .stage{height:clamp(220px,32vh,330px);}
+    .vsim .truck-rear{width:clamp(150px,calc((32vh - 70px) * 1.1),300px);margin-bottom:30px;}
+    .slide:has(.vsim) .lede{font-size:1rem;}
+    .bt{padding:.75rem 1rem;}
+    .bento{margin-top:1rem;gap:.6rem;}
+    .wbi-quote{margin-top:.9rem;}
+    .vsim-game{margin-top:.6rem;gap:.75rem;}
+    .vsim .panel{padding:.75rem;}
+    .vsim .ctrl{padding:.6rem .9rem;}
+    .vsim .qitem{height:58px;padding:4px 4px 3px;}
+    .vsim .tray-foot{padding-top:.5rem;}
+    .vsim .hint{display:none;}
   }
 
   /* ===== Feinschliff: Typografie & ruhige Mikro-Interaktion ===== */
@@ -1800,7 +1828,7 @@
             <span class="jr-sub">meine Ausbildung</span>
           </div>
         </div>
-        <div class="split" style="align-items:stretch;margin-top:1rem;">
+        <div class="split weg-split" style="align-items:stretch;margin-top:1rem;">
           <div>
             <p class="lede" style="margin-bottom:.4rem;">Ich komme aus Indonesien, rund 11.000 Kilometer von hier. Meine Familie sehe ich nur über den Bildschirm. Alles andere, Wohnung, Amt, Alltag, mache ich hier allein.</p>
             <div class="support-card" style="margin-top:1rem;">
@@ -1840,7 +1868,7 @@
       <div class="slide-inner">
         <p class="eyebrow">Der Weg rein</p>
         <h1 class="headline">Voraussetzungen &amp; Bewerbung</h1>
-        <div class="game-wrap" style="grid-template-columns:1fr 1fr;">
+        <div class="game-wrap cols-2">
           <div>
             <h3 style="font-family:var(--font-ui);font-size:1.05rem;font-weight:600;letter-spacing:-.015em;color:var(--accent);margin:0 0 .6rem;">Was du mitbringen solltest</h3>
             <ul class="checklist" style="max-width:none;margin-top:.4rem;">
@@ -1870,7 +1898,7 @@
         <p class="eyebrow">Und danach?</p>
         <h1 class="headline">Wie geht's nach der Ausbildung <span class="accent">weiter</span>?</h1>
         <div class="cl" role="list">
-          <div class="cl-step" role="listitem" style="--i:0;--h:18%;--a:30%">
+          <div class="cl-step" role="listitem" style="--i:0;--h:14%;--a:30%">
             <div class="cl-card">
               <span class="cl-here"><img src="images/profile-cutout.png" alt="" onerror="this.remove()">Ich bin hier</span>
               <span class="cl-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="m3.3 7 7.7 4.73a2 2 0 0 0 2 0L20.7 7"/></svg></span>
@@ -1880,7 +1908,7 @@
             </div>
             <div class="cl-bar" aria-hidden="true"><span class="cl-n">1</span></div>
           </div>
-          <div class="cl-step" role="listitem" style="--i:1;--h:34%;--a:42%">
+          <div class="cl-step" role="listitem" style="--i:1;--h:26%;--a:42%">
             <div class="cl-card">
               <span class="cl-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="6"/><path d="M15.48 12.89 17 22l-5-3-5 3 1.52-9.11"/></svg></span>
               <span class="cl-when">+ 1 Jahr</span>
@@ -1889,7 +1917,7 @@
             </div>
             <div class="cl-bar" aria-hidden="true"><span class="cl-n">2</span></div>
           </div>
-          <div class="cl-step" role="listitem" style="--i:2;--h:50%;--a:54%">
+          <div class="cl-step" role="listitem" style="--i:2;--h:38%;--a:54%">
             <div class="cl-card">
               <span class="cl-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.42 10.92a1 1 0 0 0-.02-1.84l-8.57-3.9a2 2 0 0 0-1.66 0l-8.57 3.9a1 1 0 0 0 0 1.83l8.57 3.91a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg></span>
               <span class="cl-when">Weiterbildung</span>
@@ -1898,7 +1926,7 @@
             </div>
             <div class="cl-bar" aria-hidden="true"><span class="cl-n">3</span></div>
           </div>
-          <div class="cl-step top" role="listitem" style="--i:3;--h:64%;--a:68%">
+          <div class="cl-step top" role="listitem" style="--i:3;--h:50%;--a:68%">
             <div class="cl-card">
               <span class="cl-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
               <span class="cl-when">Perspektive</span>
@@ -2618,7 +2646,7 @@
     function buildCols(){
       vColHits.innerHTML='';
       for(var c=0;c<COLS;c++){(function(c){
-        var b=document.createElement('button'); b.className='col-btn'; b.title='Spalte '+(c+1);
+        var b=document.createElement('button'); b.className='col-btn'; b.title='Spalte '+(c+1); b.setAttribute('aria-label','Paket in Spalte '+(c+1)+' laden');
         b.addEventListener('click',function(){tryPlace(c);});
         b.addEventListener('mousemove',function(){showVGhost(c);});
         b.addEventListener('mouseleave',hideVGhost);
@@ -3358,15 +3386,39 @@ function start() {
   const groundY = () => Math.max(170, vh - 100);         // Strasse knapp ueber der Nav-Leiste
   const heroSpot = () => ({ x: vw - halfLen(HERO) - Math.max(24, vw * 0.05) });
   const faceContent = () => st.x < vw / 2 ? YAW.parkL : YAW.parkR;
+  /* Freier Rand links/rechts neben dem Inhalt der aktiven Folie. Dort parkt er - und wird
+     kleiner, wenn der Rand schmal ist -, damit er nie Text oder Bedienelemente verdeckt. */
+  function freeRoom() {
+    const inner = document.querySelector('.slide.is-active .slide-inner');
+    if (!inner) return { l: vw * 0.1, r: vw * 0.1 };
+    // offsetLeft/offsetWidth statt getBoundingClientRect: ignoriert die Einflug-Animation der Folie
+    const l = inner.offsetLeft + inner.offsetParent.offsetLeft;
+    return { l: Math.max(0, l), r: Math.max(0, vw - l - inner.offsetWidth) };
+  }
   function parkSpot() {
-    const lo = halfLen(1) + 12, hi = vw - lo;
-    if (hi - lo < 200) return { x: (lo + hi) / 2 };
-    const left = [lo, lo + vw * 0.06], right = [hi - vw * 0.06, hi];   // parken nur am Rand: dort liegt nie Folieninhalt
-    const pick = (z) => z[0] + Math.random() * (z[1] - z[0]);
-    const onLeft = st.x < vw / 2;
-    let x = pick(Math.random() < 0.65 ? (onLeft ? right : left) : (onLeft ? left : right));
-    if (Math.abs(x - st.x) < 120) x = pick(onLeft ? right : left);
-    return { x };
+    const room = freeRoom(), full = 2 * halfLen(1) + 16;
+    const wantLeft = st.x > vw / 2;                                    // meist die Seite wechseln = sichtbare Fahrt
+    const useLeft = room.l >= full || room.r >= full
+      ? (wantLeft ? room.l >= full || room.l > room.r : !(room.r >= full || room.r > room.l))
+      : room.l > room.r;
+    const m = useLeft ? room.l : room.r;
+    st.sTo = Math.max(0.55, Math.min(1, m / full));
+    const hl = halfLen(st.sTo) + 8;
+    return { x: useLeft ? Math.max(hl, m / 2) : vw - Math.max(hl, m / 2) };
+  }
+  function overlapsContent() {
+    const room = freeRoom(), hl = halfLen(st.s);
+    return st.x + hl > room.l && st.x - hl < vw - room.r;
+  }
+  // Kein Platz neben dem Inhalt (Handy, 1024er-Beamer): dann nur auf dem Cover zeigen
+  const noRoom = () => { const r = freeRoom(); return vw < 760 || Math.max(r.l, r.r) < 0.55 * (2 * halfLen(1) + 16); };
+  function syncVisible() {
+    const hide = !st.hero && noRoom();
+    if (hide === st.hidden) return;
+    st.hidden = hide;
+    canvas.parentNode.style.opacity = hide ? '0' : '';
+    if (hide) bubble.classList.remove('show');
+    else if (!st.hero) place(parkSpot());          // taucht direkt am Rand wieder auf, nicht mitten im Text
   }
   function place(p) {
     st.x = st.gx = p.x; st.vx = 0; st.s = st.sTo; st.parked = true;
@@ -3427,6 +3479,7 @@ function start() {
     add('wheelFL', { ry: steer }); add('wheelFR', { ry: steer });
     add('stack', { rz: -0.12 * sp });
     add('mirrorL', { rz: 0.6 * B }); add('mirrorR', { rz: -0.6 * B });
+    add('antenna', { rz: -0.45 * L + 0.7 * B + 0.08 * sp * Math.sin(t * 13) });   // Antenne kippt beim Gasgeben nach hinten
     E.lid += 0.28 * L - 0.3 * B; E.brow += -0.35 * L + 0.8 * B; E.mouth += 0.5 * B;
     E.smile += 0.25 * sp; E.tilt += 0.4 * sp;
     const hop = pulse(now, st.hopAt, 460);
@@ -3440,8 +3493,9 @@ function start() {
 
   let bubbleTimer;
   function say(text, ms) {
-    if (!text) return;
+    if (!text || st.hidden) return;
     bubble.textContent = text;
+    nika.talk(Math.min(2600, 380 + text.length * 55));                   // Mund bewegt sich beim Sprechen
     bubble.classList.add('show');
     placeBubble();
     clearTimeout(bubbleTimer);
@@ -3455,7 +3509,7 @@ function start() {
   }
 
   function mischief(now) {
-    st.mischiefAt = now + 55000 + Math.random() * 45000;
+    st.mischiefAt = now + 24000 + Math.random() * 22000;
     const r = Math.random();
     if (r < 0.22) nika.play('melenting');
     else if (r < 0.42) st.sweepUntil = now + 2600;                        // umschauen
@@ -3494,8 +3548,12 @@ function start() {
     const hero = i === 0;
     if (hero !== st.hero) {
       st.hero = hero; st.sTo = hero ? HERO : 1;
+      syncVisible();
       goTo(hero ? heroSpot() : parkSpot());
-    } else if (!calm && st.parked && !nika.anim.name && Math.random() < 0.3) goTo(parkSpot());
+    } else if (!hero) {
+      // Neue Folie = anderes Layout: steht er jetzt im Inhalt, faehrt er an den Rand
+      setTimeout(() => { syncVisible(); if (st.parked && !nika.anim.name && (overlapsContent() || Math.random() < 0.3)) goTo(parkSpot()); }, 60);
+    }
     if (!calm && st.parked) st.hopAt = now;          // nicht hopsen, wenn er gerade losfaehrt
     st.browAt = now;
     const line = SAY[i] || (Math.random() < 0.25 ? QUIPS[Math.floor(Math.random() * QUIPS.length)] : '');
@@ -3520,12 +3578,13 @@ function start() {
     if (intro && !intro.classList.contains('done')) return;
     ndc.set(e.clientX / vw * 2 - 1, -(e.clientY / vh) * 2 + 1);
     ray.setFromCamera(ndc, camera);
-    if (ray.intersectObject(nika.root, true).length) { nika.play('ngakak'); say('Hihi, das kitzelt!', 2200); }
+    if (!st.hidden && ray.intersectObject(nika.root, true).length) { nika.play('ngakak'); say('Haha, das kitzelt!', 2200); }
   }, { passive: true });
 
   place(heroSpot());                                 // Modul laedt nach dem ersten render() -> Folie 1
+  syncVisible();
   st.wanderAt = performance.now() + 30000;
-  st.mischiefAt = performance.now() + 60000;
+  st.mischiefAt = performance.now() + 25000;
 
   let last = performance.now();
   (function frame(now) {
@@ -3534,8 +3593,9 @@ function start() {
     const dt = Math.min(0.05, (now - last) / 1000); last = now;
     if (window.innerWidth !== vw || window.innerHeight !== vh) {
       resize();
-      place(st.hero ? heroSpot() : { x: Math.max(halfLen(1) + 12, Math.min(vw - halfLen(1) - 12, st.gx)) });
+      place(st.hero ? heroSpot() : parkSpot()); syncVisible();
     }
+    if (st.hidden) return;                           // auf dem Handy ausgeblendet: nichts rechnen
     brain(now);
     physics(dt, now);
     st.y = groundY() - 1.9 * S * st.s;

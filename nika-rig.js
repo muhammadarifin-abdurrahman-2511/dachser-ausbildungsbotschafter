@@ -32,11 +32,15 @@
       glass: toon('glassDark', 0x6fb6e8, G2),
       eyelid: toon('eyelid', 0x1f56a8, G3, { side: 2 }),
       eyeWhite: new THREE.MeshBasicMaterial({ name: 'eyeWhite', color: 0xffffff }),
-      iris: toon('iris', 0x2f7fd6, G2),
+      iris: toon('iris', 0x1d3a7e, G2),
+      irisLow: new THREE.MeshBasicMaterial({ name: 'irisLow', color: 0x3f86d6 }),
       pupil: new THREE.MeshBasicMaterial({ name: 'pupilDark', color: 0x15182a }),
-      brow: new THREE.MeshBasicMaterial({ name: 'brow', color: 0x2a2118 }),
+      brow: new THREE.MeshBasicMaterial({ name: 'brow', color: 0x1a1f3a }),
       shine: new THREE.MeshBasicMaterial({ name: 'eyeShine', color: 0xffffff }),
-      blush: new THREE.MeshBasicMaterial({ name: 'blush', color: 0xff9aa8, transparent: true, opacity: 0.55 }),
+      visor: toon('visor', 0x16213d, G2),
+      led: new THREE.MeshBasicMaterial({ name: 'ledWhite', color: 0xeaf6ff }),
+      mouthIn: new THREE.MeshBasicMaterial({ name: 'mouthIn', color: 0x1c1a2e, side: 2 }),
+      teeth: new THREE.MeshBasicMaterial({ name: 'teeth', color: 0xffffff, side: 2 }),
       dot: new THREE.MeshBasicMaterial({ name: 'jointDot', color: 0xff7a1a })
     };
 
@@ -67,9 +71,14 @@
       s.lineTo(x, y + r); s.quadraticCurveTo(x, y, x + r, y);
       return s;
     }
-    function slab(j, name, mat, w, h, d, r, pos) {
-      const g = new THREE.ExtrudeGeometry(roundedShape(w, h, r), { depth: d, bevelEnabled: false, curveSegments: 10 });
-      g.translate(0, 0, -d / 2);
+    // bev > 0: Kanten rundum weich abgerundet (Bevel) statt scharf - wirkt knuffiger
+    function slab(j, name, mat, w, h, d, r, pos, bev) {
+      const b = bev || 0;
+      const g = b
+        ? new THREE.ExtrudeGeometry(roundedShape(w - 2 * b, h - 2 * b, Math.max(0.02, r - b)),
+            { depth: d - 2 * b, bevelEnabled: true, bevelSize: b, bevelThickness: b, bevelSegments: 5, curveSegments: 12 })
+        : new THREE.ExtrudeGeometry(roundedShape(w, h, r), { depth: d, bevelEnabled: false, curveSegments: 10 });
+      g.translate(0, 0, -(b ? d - 2 * b : d) / 2);
       const m = new THREE.Mesh(g, mat); m.name = name;
       m.position.set(pos[0], pos[1], pos[2] || 0); j.g.add(m); return m;
     }
@@ -80,65 +89,110 @@
 
     /* ── cab ──────────────────────────────────────────────────────────── */
     const jCab = joint('cab', jBody, [-2.05, 0.55, 0], 'kabin', 1);
-    slab(jCab, 'cabBody', M.bodyBlue, 2.25, 2.15, 2.2, 0.4, [0, 1.07, 0]);
-    slab(jCab, 'cabRoofVisor', M.accent, 0.62, 0.2, 2.06, 0.08, [-0.95, 2.07, 0]);
-    slab(jCab, 'facePlate', M.bodyBlue, 0.16, 1.15, 1.9, 0.3, [-1.07, 1.51, 0]);
-    slab(jCab, 'sideWindowL', M.glass, 0.72, 0.72, 0.12, 0.2, [0.05, 1.5, 1.105]);
-    slab(jCab, 'sideWindowR', M.glass, 0.72, 0.72, 0.12, 0.2, [0.05, 1.5, -1.105]);
+    slab(jCab, 'cabBody', M.bodyBlue, 2.3, 2.35, 2.24, 0.5, [0, 1.17, 0], 0.2);
+    slab(jCab, 'sideWindowL', M.glass, 0.8, 0.76, 0.12, 0.22, [0.14, 1.62, 1.1]);
+    slab(jCab, 'sideWindowR', M.glass, 0.8, 0.76, 0.12, 0.22, [0.14, 1.62, -1.1]);
     for (const s of [1, -1]) slab(jCab, s > 0 ? 'fenderFrontLeft' : 'fenderFrontRight', M.bodyBlue, 1.3, 0.34, 0.12, 0.16, [-0.5, 0.37, 1.12 * s]);
+    // sportlicher gelber Streifen an den Kabinenseiten
+    for (const s of [1, -1]) slab(jCab, 'cabStripe' + (s > 0 ? 'L' : 'R'), M.accent, 1.8, 0.13, 0.05, 0.06, [0.02, 1.08, 1.12 * s]);
+    // Dachleuchten wie bei einem echten Fernverkehrs-Lkw
+    for (let i = -1; i <= 1; i++) {
+      const l = new THREE.Mesh(new THREE.CapsuleGeometry(0.06, 0.14, 6, 14), M.accent);
+      l.name = 'roofLight' + (i + 1); l.rotation.x = Math.PI / 2; l.position.set(-0.55, 2.37, i * 0.42); jCab.g.add(l);
+    }
+    // Sonnenblende ueber den Augen: wie eine Cap-Krempe, macht den Blick laessig statt niedlich
+    const visor = slab(jCab, 'sunVisor', M.visor, 0.44, 0.13, 2.14, 0.06, [-1.2, 2.16, 0], 0.05);
+    visor.rotation.z = 0.14;
 
-    /* ── face ─────────────────────────────────────────────────────────── */
-    const jFace = joint('face', jCab, [-1.07, 1.49, 0], 'muka', 1.1);
-    const EYE_R = 0.42;
-    const eyeJ = [], pupils = [], lids = [], brows = [];
+    /* ── face: ruhige, selbstbewusste Augen, kraeftige Brauen, Grinsen ─── */
+    const jFace = joint('face', jCab, [-1.12, 1.4, 0], 'muka', 1.1);
+    const EYE_R = 0.42, EYE_FRONT = -0.21, LID0 = 0.28;      // LID0: Oberlid immer leicht gesenkt = cool
+    const eyeJ = [], pupils = [], lids = [], lashes = [], brows = [];
+    /* Oberlid = Kappe derselben Kugel wie der Augapfel, von oben bis zu einem Breitengrad.
+       Dadurch folgt die Lidkante exakt der Augenform (keine "Ecken" mehr wie beim gekippten
+       Halbkugel-Lid). Die dunkle Wimpernlinie laeuft genau auf dieser Kante. Pro Oeffnungs-
+       stufe wird die Geometrie einmal gebaut und gemerkt. */
+    const LID_R = EYE_R + 0.025, LID_STEPS = 40, lidCache = [];
+    function lidGeo(k) {
+      if (lidCache[k]) return lidCache[k];
+      const th = 0.1 + (k / LID_STEPS) * (Math.PI * 0.9 - 0.1);
+      const rr = LID_R * Math.sin(th), yy = LID_R * Math.cos(th), pts = [];
+      for (let i = 0; i <= 24; i++) {                       // nur vordere Haelfte (Blickrichtung -x)
+        const a = Math.PI / 2 + 0.2 + ((Math.PI - 0.4) * i) / 24;
+        pts.push(new THREE.Vector3(rr * Math.cos(a), yy, rr * Math.sin(a)));
+      }
+      return (lidCache[k] = {
+        cap: new THREE.SphereGeometry(LID_R, 36, 16, 0, Math.PI * 2, 0, th),
+        lash: new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 28, 0.05, 6, false)
+      });
+    }
     for (const s of [1, -1]) {
-      const je = joint(s > 0 ? 'eyeL' : 'eyeR', jFace, [-0.02, 0, 0.55 * s], s > 0 ? 'mata kiri' : 'mata kanan', 1.4);
+      const je = joint(s > 0 ? 'eyeL' : 'eyeR', jFace, [-0.02, 0, 0.5 * s], s > 0 ? 'mata kiri' : 'mata kanan', 1.4);
       je.dot.scale.setScalar(0.6);
       eyeJ.push(je);
       const eye = new THREE.Mesh(new THREE.SphereGeometry(EYE_R, 44, 32), M.eyeWhite);
-      eye.name = s > 0 ? 'eyeLeft' : 'eyeRight'; eye.scale.set(0.92, 1.12, 1); je.g.add(eye);
+      eye.name = s > 0 ? 'eyeLeft' : 'eyeRight'; eye.scale.set(0.55, 0.9, 1.05); je.g.add(eye);
 
       const p = new THREE.Group(); p.name = s > 0 ? 'pupilLeft' : 'pupilRight';
-      const mk = (r, mat, sc, pos, nm) => {
+      const mk = (r, mat, pos, nm, sy) => {
         const m = new THREE.Mesh(new THREE.SphereGeometry(r, 26, 20), mat);
-        m.name = p.name + nm; m.scale.set(sc, 1.05, 1); m.position.set(pos[0], pos[1], pos[2]); p.add(m);
+        m.name = p.name + nm; m.scale.set(0.3, sy || 1.08, 1); m.position.set(pos[0], pos[1], pos[2]); p.add(m);
       };
-      mk(0.215, M.iris, 0.42, [0, 0, 0], 'Iris');
-      mk(0.105, M.pupil, 0.42, [-0.035, 0, 0], 'Core');
-      mk(0.078, M.shine, 0.42, [-0.075, 0.1, 0.09 * s], 'ShineA');
-      mk(0.042, M.shine, 0.42, [-0.075, -0.1, -0.07 * s], 'ShineB');
-      p.position.set(-0.33, 0, 0); je.g.add(p); pupils.push(p);
+      mk(0.24, M.iris, [0, 0, 0], 'Iris');
+      mk(0.15, M.irisLow, [-0.035, -0.1, 0], 'IrisLow', 0.6);
+      mk(0.13, M.pupil, [-0.06, 0.01, 0], 'Core');
+      mk(0.06, M.shine, [-0.09, 0.09, 0.08], 'ShineA');
+      p.position.set(EYE_FRONT, 0, 0); je.g.add(p); pupils.push(p);
 
       const lidG = new THREE.Group(); lidG.name = 'eyelid' + (s > 0 ? 'L' : 'R');
-      const lid = new THREE.Mesh(new THREE.SphereGeometry(EYE_R + 0.035, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), M.eyelid);
-      lid.name = lidG.name + 'Shell'; lid.scale.set(0.94, 1.12, 1.02); lidG.add(lid);
-      je.g.add(lidG); lids.push(lidG);
+      lidG.scale.set(0.78, 0.87, 1.0);                       // etwas vor dem Augapfel, damit es die Pupille ueberdeckt
+      const g0 = lidGeo(0);
+      const lid = new THREE.Mesh(g0.cap, M.eyelid); lid.name = lidG.name + 'Cap'; lidG.add(lid);
+      const lash = new THREE.Mesh(g0.lash, M.brow); lash.name = lidG.name + 'Lash'; lidG.add(lash);
+      lid.userData.k = 0;
+      je.g.add(lidG); lids.push(lid); lashes.push(lash);
 
+      // Brauen als kraeftige, gerade Balken
       const browG = new THREE.Group(); browG.name = 'brow' + (s > 0 ? 'L' : 'R');
-      const brow = new THREE.Mesh(new THREE.BoxGeometry(0.17, 0.11, 0.66), M.brow);
-      brow.name = browG.name + 'Bar'; browG.add(brow);
-      browG.position.set(-0.26, 0.5, 0); je.g.add(browG); brows.push(browG);
-
-      const bl = new THREE.Mesh(new THREE.SphereGeometry(0.19, 24, 18), M.blush);
-      bl.name = s > 0 ? 'blushLeft' : 'blushRight';
-      bl.scale.set(0.2, 0.62, 1.15); bl.position.set(-0.06, -0.52, 0.72 * s); jFace.g.add(bl);
+      const brow = new THREE.Mesh(new THREE.CapsuleGeometry(0.058, 0.34, 6, 12), M.brow);
+      brow.name = browG.name + 'Bar'; brow.rotation.x = Math.PI / 2; browG.add(brow);
+      browG.position.set(-0.22, 0.52, 0); je.g.add(browG); brows.push(browG);
     }
-    const jMouth = joint('mouth', jFace, [-0.27, -0.86, 0], 'mulut', 1.5);
+    const jMouth = joint('mouth', jFace, [-0.1, -0.8, 0], 'mulut', 1.5);
     jMouth.dot.scale.setScalar(0.6);
-    const mouthOpen = new THREE.Mesh(new THREE.SphereGeometry(1, 28, 20), M.pupil);
-    mouthOpen.name = 'mouthOpen'; mouthOpen.scale.set(0.07, 0.02, 0.06); jMouth.g.add(mouthOpen);
+    // Mund sitzt leicht schief (Smirk); offen zeigt er die Zaehne statt Zunge
+    const mouthTilt = new THREE.Group(); mouthTilt.name = 'mouthTilt'; jMouth.g.add(mouthTilt);
+    const mShape = new THREE.Shape();
+    mShape.moveTo(-0.26, 0); mShape.lineTo(0.26, 0);
+    mShape.bezierCurveTo(0.26, -0.22, 0.14, -0.3, 0, -0.3);
+    mShape.bezierCurveTo(-0.14, -0.3, -0.26, -0.22, -0.26, 0);
+    const tShape = new THREE.Shape();
+    tShape.moveTo(-0.22, -0.01); tShape.lineTo(0.22, -0.01); tShape.lineTo(0.2, -0.085);
+    tShape.quadraticCurveTo(0, -0.1, -0.2, -0.085); tShape.lineTo(-0.22, -0.01);
+    const mouthOpen = new THREE.Group(); mouthOpen.name = 'mouthOpen'; mouthOpen.rotation.y = -Math.PI / 2;
+    const mIn = new THREE.Mesh(new THREE.ShapeGeometry(mShape, 16), M.mouthIn); mIn.name = 'mouthInside'; mouthOpen.add(mIn);
+    const th = new THREE.Mesh(new THREE.ShapeGeometry(tShape, 8), M.teeth); th.name = 'mouthTeeth'; th.position.z = 0.004; mouthOpen.add(th);
+    mouthOpen.position.y = 0.04; mouthTilt.add(mouthOpen);
     const smileGroup = new THREE.Group(); smileGroup.name = 'smile';
-    const smile = new THREE.Mesh(new THREE.TorusGeometry(0.34, 0.065, 20, 48, Math.PI), M.pupil);
-    smile.rotation.z = Math.PI; smileGroup.add(smile);
-    smileGroup.rotation.y = Math.PI / 2; jMouth.g.add(smileGroup);
+    const smile = new THREE.Mesh(new THREE.TorusGeometry(0.21, 0.05, 12, 32, Math.PI * 0.8), M.brow);
+    smile.name = 'smileArc'; smile.rotation.z = Math.PI * 1.1; smileGroup.add(smile);
+    smileGroup.rotation.y = Math.PI / 2; mouthTilt.add(smileGroup);
+
+    // CB-Funkantenne: duenn und lang, federt weich nach (sekundaere Bewegung)
+    const jAnt = joint('antenna', jCab, [0.55, 2.28, -0.78], 'antena', 3.2);
+    jAnt.dot.scale.setScalar(0.5);
+    const antStick = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.03, 1.25, 10), M.tire);
+    antStick.name = 'antennaStick'; antStick.position.y = 0.62; jAnt.g.add(antStick);
+    const antTip = new THREE.Mesh(new THREE.SphereGeometry(0.035, 12, 10), M.tire);
+    antTip.name = 'antennaTip'; antTip.position.y = 1.25; jAnt.g.add(antTip);
 
     /* ── front end, mirrors, stack ────────────────────────────────────── */
-    const jNose = joint('nose', jCab, [-1.09, -0.03, 0], 'bumper', 1);
-    slab(jNose, 'bumper', M.accent, 0.46, 0.5, 2.3, 0.16, [0, 0, 0]);
+    const jNose = joint('nose', jCab, [-1.12, -0.03, 0], 'bumper', 1);
+    slab(jNose, 'bumper', M.accent, 0.46, 0.5, 2.3, 0.2, [0, 0, 0], 0.1);
     for (const s of [1, -1]) {
-      const hl = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.1, 28), M.shellWhite);
+      const hl = new THREE.Mesh(new THREE.CapsuleGeometry(0.05, 0.28, 6, 12), M.led);    // LED-Leiste statt runder Kulleraugen-Lampen
       hl.name = s > 0 ? 'headlightLeft' : 'headlightRight';
-      hl.rotation.z = Math.PI / 2; hl.position.set(-0.24, 0, 0.82 * s); jNose.g.add(hl);
+      hl.rotation.x = Math.PI / 2; hl.position.set(-0.25, 0.06, 0.76 * s); jNose.g.add(hl);
     }
     const jMirror = [];
     for (const s of [1, -1]) {
@@ -157,7 +211,20 @@
     const jHitch = joint('hitch', jBody, [-1.0, 0.86, 0], 'sambungan', 1);
     box(jHitch, 'fifthWheel', M.chrome, 0.7, 0.18, 1.1, [0, 0, 0]);
     const jTrailer = joint('trailer', jHitch, [0, 0, 0], 'boks trailer', 1.1);
-    slab(jTrailer, 'trailerBody', M.shellWhite, 4.1, 2.3, 2.2, 0.22, [2.15, 1.09, 0]);
+    slab(jTrailer, 'trailerBody', M.shellWhite, 4.1, 2.3, 2.2, 0.34, [2.15, 1.09, 0], 0.14);
+    // DACHSER-Schriftzug auf beiden Seiten (Canvas-Textur, liest sich auf jeder Seite richtig herum)
+    const lc = document.createElement('canvas'); lc.width = 1024; lc.height = 200;
+    const lx = lc.getContext('2d');
+    lx.fillStyle = '#1A3682'; lx.textAlign = 'center'; lx.textBaseline = 'middle';
+    lx.font = '700 150px "Helvetica Neue", Helvetica, Arial, sans-serif'; lx.fillText('DACHSER', 512, 100, 960);
+    const logoTex = new THREE.CanvasTexture(lc); logoTex.colorSpace = THREE.SRGBColorSpace; logoTex.anisotropy = 4;
+    const logoMat = new THREE.MeshBasicMaterial({ name: 'trailerLogo', map: logoTex, transparent: true, depthWrite: false });
+    for (const s of [1, -1]) {
+      const lg = new THREE.Mesh(new THREE.PlaneGeometry(3.1, 0.6), logoMat);
+      lg.name = 'trailerLogo' + (s > 0 ? 'L' : 'R'); lg.position.set(2.15, 0.88, 1.112 * s);
+      if (s < 0) lg.rotation.y = Math.PI;
+      jTrailer.g.add(lg);
+    }
     slab(jTrailer, 'trailerStripeL', M.bodyBlue, 3.9, 0.36, 0.08, 0.1, [2.15, 1.6, 1.105]);
     slab(jTrailer, 'trailerStripeR', M.bodyBlue, 3.9, 0.36, 0.08, 0.1, [2.15, 1.6, -1.105]);
     slab(jTrailer, 'trailerRearDoor', M.bodyBlue, 0.1, 1.9, 2.0, 0.16, [4.2, 1.04, 0]);
@@ -204,7 +271,7 @@
 
     /* ── blinkers ─────────────────────────────────────────────────────── */
     const blinkerMat = [0, 1].map((i) => new THREE.MeshBasicMaterial({
-      name: i ? 'blinkerRight' : 'blinkerLeft', color: 0x9a7a28
+      name: i ? 'blinkerRight' : 'blinkerLeft', color: 0xd98f2b
     }));
     [1, -1].forEach((s, i) => {
       const f = new THREE.Mesh(new THREE.SphereGeometry(0.1, 20, 14), blinkerMat[i]);
@@ -220,7 +287,7 @@
     // Dengan aspect yang benar garisnya sama tebal horizontal & vertikal.
     const INK = new THREE.ShaderMaterial({
       name: 'inkOutline', side: THREE.BackSide,
-      uniforms: { thickness: { value: 0.0055 }, aspect: { value: 1 }, ink: { value: new THREE.Color(0x2a2118) } },
+      uniforms: { thickness: { value: 0.0055 }, aspect: { value: 1 }, ink: { value: new THREE.Color(0x1b2238) } },
       vertexShader: `uniform float thickness; uniform float aspect;
         void main(){ vec4 p=projectionMatrix*modelViewMatrix*vec4(position,1.0);
           vec3 n=normalize(normalMatrix*normal);
@@ -229,7 +296,7 @@
           gl_Position=p; }`,
       fragmentShader: `uniform vec3 ink; void main(){ gl_FragColor=vec4(ink,1.0); }`
     });
-    const SKIP_INK = /^dot_|Shine|blush|Lug|Spoke|Cap|Tread|smile|mouthOpen|blinker|Window/;
+    const SKIP_INK = /^dot_|Shine|Lug|Spoke|Cap|Tread|smile|mouth|blinker|Window|Logo|IrisLow|antenna|Stripe|headlight|eyelid/;
     truck.traverse((o) => {
       if (!o.isMesh || SKIP_INK.test(o.name) || o.name.endsWith('Ink')) return;
       const sh = new THREE.Mesh(o.geometry, INK); sh.name = o.name + 'Ink'; o.add(sh);
@@ -279,7 +346,7 @@
     const bell = (x, c, w) => Math.exp(-Math.pow((x - c) / w, 2));
 
     /* face expression targets */
-    const E = { lid: 0, brow: 0, tilt: 0, asym: 0, mouth: 0, smile: 0.12, pupil: 1 };
+    const E = { lid: 0, brow: 0, tilt: 0, asym: 0, mouth: 0, smile: 0.35, pupil: 1 };
     const cur = Object.assign({}, E);
     let spinRate = 0, emitRate = 0, gaze = null, blink = [0, 0];
     const dirV = new THREE.Vector3();
@@ -296,13 +363,13 @@
         add('trailer', { rz: 0.16 * Math.sin(u * 9 + 1) * env, ry: -0.12 * Math.sin(u * 6) * env });
         squash('trailer', 1 - 0.22 * b * env, 'x');
         add('face', { rz: 0.14 * Math.sin(u * 15) * env, y: 0.06 * env });
-        add('mouth', { sy: 1 + 2.4 * env, sx: 1 + 0.6 * env });
+        add('mouth', { sy: 1 + 0.2 * env, sz: 1 + 0.15 * env });
         add('stack', { rz: 0.3 * Math.sin(u * 16) * env });
         jMirror.forEach((m, i) => add(m.name, { rz: (i ? -1 : 1) * 0.9 * Math.sin(u * 14) * env }));
         ['wheelFL', 'wheelFR', 'wheelRLA', 'wheelRRA'].forEach((w, i) =>
           add(w, { y: 0.14 * Math.sin(u * 12 + i) * env }));
-        E.smile = 0.4 + 0.6 * env; E.mouth = env; E.lid = 0.62 * env; E.brow = 0.85 * env;
-        E.pupil = 1 - 0.2 * env;
+        E.smile = 0.4 + 0.6 * env; E.mouth = env; E.lid = 0.45 * env; E.brow = 0.6 * env;
+        add('antenna', { rz: 0.5 * Math.sin(u * 19) * env });
         emitRate = 0.35 * env;
         spinRate = 5 * env;
       } },
@@ -314,7 +381,7 @@
         add('trailer', { sx: 1 + 0.5 * pull });
         add('face', { sx: 1 + 0.5 * pull, rz: -0.1 * pull });
         add('nose', { sx: 1 + 0.6 * pull, x: -0.25 * pull });
-        add('mouth', { sy: 1 + 1.6 * pull });
+        add('mouth', { sy: 1 + 0.25 * pull });
         E.mouth = 0.9 * pull; E.lid = -0.3 * pull; E.brow = 0.9 * pull; E.smile = 0.2 + 0.5 * pull;
         gaze = dir3(-1, 0.05, 0);
         spinRate = 8 * pull;
@@ -330,7 +397,7 @@
         add('face', { y: 0.05 * h });
         ['wheelFL', 'wheelFR', 'wheelRLA', 'wheelRRA', 'wheelRLB', 'wheelRRB'].forEach((w) =>
           add(w, { y: -0.16 * h }));
-        E.lid = -0.25 * h; E.brow = 0.8 * h; E.mouth = 0.55 * h; E.smile = 0.5 + 0.4 * h;
+        E.lid = -0.1 * h; E.brow = 0.8 * h; E.mouth = 0.55 * h; E.smile = 0.5 + 0.4 * h;
         spinRate = 10 * h;
       } },
       ngebut: { label: 'Ngebut', dur: 3.6, fn(u) {
@@ -355,7 +422,7 @@
         add('body', { rz: -0.06 * rev + 0.2 * bell(u, 0.3, 0.07) - 0.06 * bell(u, 0.52, 0.09) });
         add('trailer', { rz: -0.24 * shock, ry: 0.1 * shock });
         add('face', { x: -0.12 * shock });
-        add('mouth', { sy: 1 + 1.2 * shock });
+        add('mouth', { sy: 1 + 0.2 * shock });
         jMirror.forEach((m, i) => add(m.name, { rz: (i ? -1 : 1) * 0.7 * shock }));
         E.lid = -0.32 * shock; E.brow = 1 * shock; E.mouth = 0.85 * shock;
         E.smile = -0.75 * shock; E.pupil = 1 - 0.35 * shock;
@@ -411,22 +478,34 @@
     const F = { spin: 0, emit: 0, blink: [0, 0], gaze: null };
     const hookApi = { add, squash, E, F, J };
     const tmp = new THREE.Vector3();
-    let blinkIn = 1.6 + Math.random() * 3, blinkT = 2;
+    let blinkIn = 1.6 + Math.random() * 3, blinkT = 2, talkUntil = 0;
 
     function update(dtReal, now, hook) {
-      const dt = dtReal * G.speed;
+      const dt = dtReal * G.speed, t = now / 1000;
 
       JL.forEach((j) => { j.t = ident(); });
       spinRate = 0; emitRate = 0; gaze = null; blink = [0, 0];
-      E.lid = 0; E.brow = 0; E.tilt = 0; E.asym = 0; E.mouth = 0; E.smile = 0.12; E.pupil = 1;
+      E.lid = 0; E.brow = 0; E.tilt = 0; E.asym = 0; E.mouth = 0; E.smile = 0.35; E.pupil = 1;
 
+      // Leerlauf: atmet (Squash), Kopf wiegt sich, Motor brummt leise - nie ganz still
       if (!anim.name && kf.t === null) {
-        add('body', { y: 0.012 * Math.sin(now / 900), ry: 0.008 * Math.sin(now / 1700) });
-        add('trailer', { rz: 0.006 * Math.sin(now / 1300) });
+        squash('body', 1 + 0.022 * Math.sin(t * 2.6));
+        add('body', { y: 0.02 * Math.sin(t * 2.6 + 0.6), ry: 0.01 * Math.sin(t * 0.6) });
+        add('cab', { rz: 0.025 * Math.sin(t * 1.3), rx: 0.005 * Math.sin(t * 43) });
+        add('face', { rz: 0.035 * Math.sin(t * 0.8), y: 0.015 * Math.sin(t * 2.6 + 1.2) });
+        add('trailer', { rz: 0.008 * Math.sin(t * 1.1), y: 0.006 * Math.sin(t * 29) });
+        E.smile = 0.35 + 0.08 * Math.sin(t * 0.7);
+      }
+      // Reden: Mund klappt passend zur Sprechblase auf und zu, Kopf nickt mit
+      if (now < talkUntil) {
+        const k = 0.5 + 0.5 * Math.sin(t * 19) * Math.sin(t * 7.1 + 1);
+        E.mouth = Math.max(E.mouth, 0.2 + 0.6 * k);
+        add('face', { rz: 0.03 * Math.sin(t * 8), y: 0.02 * k });
+        add('cab', { rz: 0.015 * Math.sin(t * 4) });
       }
       blinkIn -= dt;
-      if (blinkIn <= 0) { blinkT = 0; blinkIn = 2.2 + Math.random() * 4.5; }
-      if (blinkT < 1) { blinkT += dt / 0.16; E.lid = Math.max(E.lid, Math.sin(Math.PI * Math.min(blinkT, 1))); }
+      if (blinkIn <= 0) { blinkT = 0; blinkIn = Math.random() < 0.25 ? 0.24 : 2.2 + Math.random() * 4.5; }   // ab und zu doppelt
+      if (blinkT < 1) { blinkT += dt / 0.14; E.lid = Math.max(E.lid, Math.sin(Math.PI * Math.min(blinkT, 1))); }
 
       if (anim.name) {
         anim.t += dt;
@@ -450,6 +529,11 @@
         if (!gaze && F.gaze) gaze = F.gaze;
       }
       JL.forEach((j) => { for (const k in j.man) { if (k[0] === 's') j.t[k] *= j.man[k]; else j.t[k] += j.man[k]; } });
+      // Antenne: wiegt sich leicht und schwingt den Bewegungen von Kabine/Koerper hinterher
+      add('antenna', {
+        rz: 0.1 * Math.sin(t * 1.9) - 0.2 * (J.cab.v.rz + J.body.v.rz) - 0.12 * J.body.v.y,
+        rx: 0.07 * Math.sin(t * 1.4) - 0.16 * (J.cab.v.rx + J.body.v.rx)
+      });
 
       // spring integration (2 substeps for stability)
       for (let s = 0; s < 2; s++) {
@@ -472,8 +556,8 @@
         }
       });
 
-      blinkerMat[0].color.setHex(blink[0] ? 0xffd24a : 0x9a7a28);
-      blinkerMat[1].color.setHex(blink[1] ? 0xffd24a : 0x9a7a28);
+      blinkerMat[0].color.setHex(blink[0] ? 0xffd24a : 0xd98f2b);
+      blinkerMat[1].color.setHex(blink[1] ? 0xffd24a : 0xd98f2b);
       // += : truck menghadap -X, jadi putaran positif di sumbu Z = roda menggelinding maju
       spins.forEach((g) => { g.rotation.z += spinRate * dt; });
 
@@ -494,8 +578,8 @@
         p.mat.opacity = p.o * (1 - k) * Math.min(1, k * 7);
       });
 
-      const ek = 1 - Math.pow(0.0015, dt);
-      for (const key in E) cur[key] += (E[key] - cur[key]) * ek;
+      const ek = 1 - Math.pow(0.0015, dt), ekFast = 1 - Math.pow(0.00002, dt);
+      for (const key in E) cur[key] += (E[key] - cur[key]) * (key === 'mouth' || key === 'lid' ? ekFast : ek);
       eyeJ.forEach((je, i) => {
         let d;
         if (gaze) d = gaze.clone();
@@ -503,27 +587,32 @@
           d = je.g.worldToLocal(api.look.clone()).normalize();
           if (d.x > -0.4) { d.x = -0.4; d.normalize(); }
         } else d = new THREE.Vector3(-1, 0, 0);
-        tmp.copy(d).multiplyScalar(0.33);
+        tmp.set(EYE_FRONT, d.y * 0.2, d.z * 0.18);             // Pupille gleitet ueber die flache Augenfront
         pupils[i].position.lerp(tmp, 1 - Math.pow(0.001, dt));
         pupils[i].scale.setScalar(cur.pupil);
         const side = i === 0 ? 1 : -1;
-        lids[i].rotation.z = -0.5 + Math.max(-0.25, cur.lid) * 1.9;
-        brows[i].position.y = 0.5 + 0.11 * cur.brow;
-        brows[i].position.x = -0.26 - 0.03 * cur.brow;
-        brows[i].rotation.x = side * (0.55 * cur.tilt + 0.5 * (side > 0 ? cur.asym : -cur.asym));
+        const lk = Math.round(clamp01(cur.lid + LID0) * LID_STEPS);   // 0 = ganz offen, LID_STEPS = zu
+        if (lids[i].userData.k !== lk) {
+          const lg = lidGeo(lk); lids[i].geometry = lg.cap; lashes[i].geometry = lg.lash; lids[i].userData.k = lk;
+        }
+        brows[i].position.y = 0.52 + 0.1 * cur.brow;
+        brows[i].rotation.x = side * (0.5 * (cur.tilt - 0.42) + 0.45 * (side > 0 ? cur.asym : -cur.asym));
       });
-      const sm = cur.smile;
-      smileGroup.scale.set(1 + 0.45 * Math.abs(sm), (sm < 0 ? -1 : 1) * (0.9 + 0.6 * Math.abs(sm)), 1);
-      smileGroup.position.y = -0.05 * Math.max(0, sm) + 0.16 * Math.max(0, -sm);
-      mouthOpen.visible = cur.mouth > 0.03;
-      mouthOpen.scale.set(0.075, 0.03 + 0.25 * cur.mouth, 0.07 + 0.3 * cur.mouth);
-      mouthOpen.position.y = -0.02 - 0.16 * cur.mouth;
+      const sm = cur.smile, mo = Math.min(1.3, cur.mouth);
+      mouthTilt.rotation.x = 0.32 * (1 - Math.min(1, mo));         // schiefes Laecheln, beim Lachen gerade
+      mouthTilt.position.z = 0.08 * (1 - Math.min(1, mo));
+      smileGroup.visible = mo < 0.2;
+      smileGroup.scale.set(1 + 0.4 * Math.abs(sm), (sm < 0 ? -1 : 1) * (0.6 + 0.8 * Math.abs(sm)), 1);
+      smileGroup.position.y = 0.06 - 0.04 * Math.max(0, sm) + 0.12 * Math.max(0, -sm);
+      mouthOpen.visible = mo > 0.12;
+      mouthOpen.scale.set((0.7 + 0.4 * mo) * (sm < 0 ? 1 + 0.4 * sm : 1), 0.2 + 0.9 * mo, 1);
     }
 
     const api = {
       root: truck, smoke: smokeGroup, ink: INK,
       M, J, JL, PROPS, ident, CLIPS, G, E, anim, kf,
       add, squash, play, stop, update,
+      talk(ms) { talkUntil = performance.now() + ms; },   // Mund bewegt sich ms lang wie beim Sprechen
       look: null                                  // titik dunia yang dilirik mata (atau null)
     };
     return api;

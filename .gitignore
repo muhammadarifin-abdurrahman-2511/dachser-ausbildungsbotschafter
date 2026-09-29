@@ -2,3 +2,6 @@ Thumbs.db
 .DS_Store
 *.tmp
 _preview/
+# Playwright CLI output (may contain credentials) und lokal installierte Skills
+.playwright-cli/
+.claude/
