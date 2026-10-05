@@ -207,6 +207,12 @@
   :root[data-theme="dark"] .slide::before{opacity:.10;}
   :root[data-theme="light"] .slide::before{opacity:.06;}
   .slide > .slide-inner{position:relative;z-index:1;}
+  /* Unsichtbare Folien: Dauer-Animationen (Flugzeug, Paketreise-Szenen, Orbit...) pausieren,
+     sonst rechnet der Browser fuer 15 versteckte Folien jeden Frame mit. */
+  .slide:not(.is-active) *,.slide:not(.is-active) *::before,.slide:not(.is-active) *::after{animation-play-state:paused!important;}
+  /* Versteckte Folien gar nicht erst layouten/zeichnen: spart beim Start Sekunden auf schwachen Laptops.
+     Einmal angezeigt, merkt sich der Browser das Layout - der naechste Besuch ist gratis. */
+  .slide:not(.is-active):not(.is-leaving){content-visibility:hidden;}
 
   /* Intro-Overlay: Arifin-Monogramm × DACHSER */
   .intro{position:absolute;inset:0;z-index:200;background:var(--bg);
@@ -757,7 +763,7 @@
      kleinen Box - er springt, dehnt sich (molor = dreifache Laenge) und faehrt frei,
      ohne an einem unsichtbaren Rand abgeschnitten zu werden. Klicks gehen durch. */
   .mascot-layer{position:fixed;inset:0;z-index:40;pointer-events:none;transition:opacity .4s ease;}
-  .mascot-layer canvas{width:100%;height:100%;display:block;}
+  .mascot-layer canvas{position:absolute;left:0;top:0;display:block;will-change:transform;}
   .mascot-say{position:fixed;left:0;top:0;z-index:41;pointer-events:none;will-change:transform;}
   .mascot-bubble{position:absolute;left:50%;bottom:100%;width:max-content;max-width:min(230px,52vw);
     background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:14px;
@@ -1413,7 +1419,7 @@
             </div>
           </div>
           <div class="photo-slot" style="aspect-ratio:16/9;min-height:0;align-self:center;">
-            <img src="images/dachser-lkw-real.jpg" alt="DACHSER MAN eTGX Lkw" onerror="this.remove()">
+            <img decoding="async" src="images/dachser-lkw-real.jpg" alt="DACHSER MAN eTGX Lkw" onerror="this.remove()">
             <span class="corner-tab">Foto</span>
             <span class="cam">🚚</span>
             <span class="ps-label">DACHSER-Lkw</span>
@@ -1790,15 +1796,15 @@
         <p class="lede">Ein paar echte Eindrücke aus meinem Alltag. Fotos sagen oft mehr als viele Worte.</p>
         <div class="gallery">
           <div class="photo-slot">
-            <img src="images/gal-lager.jpg" alt="DACHSER Lagerhalle Neumünster" onerror="this.remove()">
+            <img decoding="async" src="images/gal-lager.jpg" alt="DACHSER Lagerhalle Neumünster" onerror="this.remove()">
             <span class="corner-tab">Foto 1</span><span class="cam">📷</span><span class="ps-label">Das Lager</span><span class="ps-hint">Regale, Hallen, Übersicht</span>
           </div>
           <div class="photo-slot">
-            <img src="images/gal-beladen.jpg" alt="Beladene Ladeeinheit im Trailer" onerror="this.remove()">
+            <img decoding="async" src="images/gal-beladen.jpg" alt="Beladene Ladeeinheit im Trailer" onerror="this.remove()">
             <span class="corner-tab">Foto 2</span><span class="cam">📦</span><span class="ps-label">Verladen</span><span class="ps-hint">gesicherte Ladeeinheit im Trailer</span>
           </div>
           <div class="photo-slot">
-            <img src="images/gal-team.jpg" alt="Im Team mit Ausbilder und Kollegen" style="object-position:50% 32%;" onerror="this.remove()">
+            <img decoding="async" src="images/gal-team.jpg" alt="Im Team mit Ausbilder und Kollegen" style="object-position:50% 32%;" onerror="this.remove()">
             <span class="corner-tab">Foto 3</span><span class="cam">🤝</span><span class="ps-label">Im Team</span><span class="ps-hint">mit Ausbilder und Kolleg:innen</span>
           </div>
         </div>
@@ -1850,7 +1856,7 @@
             <p class="takeaway">Egal, wo du herkommst: Mit Leuten, die dich unterstützen, ist viel möglich.</p>
           </div>
           <div class="photo-slot">
-            <img src="images/mein-weg.jpg" alt="Muhammad Arifin Abdurrahman" onerror="this.remove()">
+            <img decoding="async" src="images/mein-weg.jpg" alt="Muhammad Arifin Abdurrahman" onerror="this.remove()">
             <span class="corner-tab">Foto</span>
             <span class="cam">📷</span>
             <span class="ps-label">Foto von dir</span>
@@ -2120,7 +2126,7 @@
   function inAny(list, lon, lat){ for(var k = 0; k < list.length; k++) if(inPoly(lon, lat, list[k])) return true; return false; }
 
   // Gleichmaessig verteilte Punkte (Fibonacci-Kugel), nur die auf Land bleiben
-  var pts = [], N = 7000, GA = Math.PI * (3 - Math.sqrt(5));
+  var pts = [], N = 5600, GA = Math.PI * (3 - Math.sqrt(5));
   for(var i = 0; i < N; i++){
     var y = 1 - 2 * (i + 0.5) / N, th = i * GA;
     var lat = Math.asin(y) / D, lon = Math.atan2(Math.sin(th), Math.cos(th)) / D;
@@ -2168,12 +2174,14 @@
     ctx.fillText(label, P.x + 10 * dpr, P.y - 8 * dpr);
   }
 
+  var cvW = cv.clientWidth, cvH = cv.clientHeight;
+  window.addEventListener('resize', function(){ cvW = cv.clientWidth; cvH = cv.clientHeight; });
   var t0 = performance.now(), doneAt = 0, bins = [[],[],[],[],[],[],[]];
   function frame(now){
     if(intro.classList.contains('done')){ doneAt = doneAt || now; if(now - doneAt > 900) return; }
     if(!calm) requestAnimationFrame(frame);
-    var w = cv.clientWidth, h = cv.clientHeight;
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var w = cvW, h = cvH;
+    dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     if(w !== W || h !== H){ W = w; H = h; cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
     var t = calm ? 99 : (now - t0) / 1000;
     cx = W * dpr * 0.5; cy = H * dpr * 0.47;
@@ -2210,14 +2218,15 @@
     var pr = calm ? 1 : ease((t - 2.6) / 1.8);
     if(pr > 0){
       var n = Math.max(1, Math.round(pr * (route.length - 1)));
-      ctx.globalAlpha = fa; ctx.strokeStyle = '#F2C200'; ctx.lineWidth = 2.2 * dpr; ctx.lineCap = 'round';
-      ctx.shadowColor = 'rgba(242,194,0,.6)'; ctx.shadowBlur = 10 * dpr;
+      ctx.strokeStyle = '#F2C200'; ctx.lineCap = 'round';
       ctx.beginPath();
       for(var s = 0, pen = false; s <= n; s++){
         var q = route[s]; proj(q[0], q[1], q[2], q[3]);
         if(P.v){ if(pen) ctx.lineTo(P.x, P.y); else ctx.moveTo(P.x, P.y); pen = true; } else pen = false;
       }
-      ctx.stroke(); ctx.shadowBlur = 0;
+      // Leuchten als breite, blasse Linie darunter statt shadowBlur (der ist pro Frame sehr teuer)
+      ctx.globalAlpha = fa * 0.22; ctx.lineWidth = 9 * dpr; ctx.stroke();
+      ctx.globalAlpha = fa; ctx.lineWidth = 2.2 * dpr; ctx.stroke();
       if(!calm && t > 4.4){                              // Lichtpunkt fliegt immer wieder die Strecke ab
         var hI = (((t - 4.4) / 2.6) % 1) * (route.length - 1);
         ctx.fillStyle = '#FFE27A';
@@ -2421,7 +2430,14 @@
   });
   var dots = Array.prototype.slice.call(dotsEl.children);
 
+  var shown = -1;
   function render(){
+    // Die eben verlassene Folie darf noch ausblenden, danach schlaeft sie (content-visibility)
+    if(shown !== -1 && shown !== current){
+      var old = slides[shown]; old.classList.add('is-leaving');
+      setTimeout(function(){ old.classList.remove('is-leaving'); }, 1000);
+    }
+    shown = current;
     slides.forEach(function(s, i){
       s.classList.remove('is-active','is-before');
       if(i < current) s.classList.add('is-before');
@@ -3317,7 +3333,10 @@
 { "imports": { "three": "./three/three.module.min.js" } }
 </script>
 <script type="module">
-import * as THREE from 'three';
+/* Three.js + Rig kosten auf schwachen Laptops (Intel HD) ueber 3 s Rechenzeit und ein zweites
+   WebGL-Vollbild. Deshalb laedt der Maskot erst, wenn das Intro weg ist und der Cover-Auftritt
+   durch ist - er faehrt dann von rechts ins Bild. */
+let THREE;
 
 const canvas = document.getElementById('mascotCanvas');
 const sayBox = document.getElementById('mascotSay');
@@ -3343,9 +3362,15 @@ const SAY = {
 const QUIPS = ['Tuut tuut!', 'Ich hör zu!', 'Weiter geht\'s!', 'Ich guck nur kurz.'];
 
 let renderer;
-try { renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true }); } catch (e) {}
-if (renderer && window.createNika) start();
-else canvas.parentNode.style.display = 'none';       // kein WebGL -> kein Maskot, sonst alles normal
+async function boot() {
+  try { THREE = await import('three'); renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true }); } catch (e) {}
+  if (renderer && window.createNika) start();
+  else canvas.parentNode.style.display = 'none';     // kein WebGL -> kein Maskot, sonst alles normal
+}
+const idle = (fn) => ('requestIdleCallback' in window ? requestIdleCallback(fn, { timeout: 1500 }) : setTimeout(fn, 200));
+const introEl = document.getElementById('intro');
+if (introEl && !introEl.classList.contains('done')) document.addEventListener('deck:start', () => setTimeout(() => idle(boot), 1500), { once: true });
+else idle(boot);
 
 function start() {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
@@ -3378,13 +3403,18 @@ function start() {
   yawG.add(shadow);
 
   let vw = 0, vh = 0, S = 22;                        // S = Pixel pro Rig-Einheit
+  let winW = 0, winH = 0;                            // Groesse des mitwandernden Canvas
+  function sizeWindow() {
+    const big = Math.max(st.s, st.sTo) > 1.1 ? HERO : 1;   // nur beim Wechsel Cover <-> Rest neu anlegen
+    const w = Math.round(Math.min(vw, 26 * S * big)), h = Math.round(Math.min(vh, 16 * S * big));
+    if (w === winW && h === winH) return;
+    winW = w; winH = h;
+    renderer.setSize(w, h);
+    nika.ink.uniforms.aspect.value = w / h;
+    nika.ink.uniforms.thickness.value = 3.2 / h;     // ~1,6 px Konturlinie, egal wie gross er ist
+  }
   function resize() {
     vw = window.innerWidth; vh = window.innerHeight;
-    renderer.setSize(vw, vh, false);
-    Object.assign(camera, { left: 0, right: vw, top: 0, bottom: -vh });
-    camera.updateProjectionMatrix();
-    nika.ink.uniforms.aspect.value = vw / vh;
-    nika.ink.uniforms.thickness.value = 3.2 / vh;    // ~1,6 px Konturlinie, egal wie gross er ist
     S = Math.min(22, Math.max(14, vw * 0.016));
   }
   resize();
@@ -3595,20 +3625,29 @@ function start() {
   const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
   window.addEventListener('pointerdown', (e) => {
     if (intro && !intro.classList.contains('done')) return;
-    ndc.set(e.clientX / vw * 2 - 1, -(e.clientY / vh) * 2 + 1);
+    const r = canvas.getBoundingClientRect();
+    if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) return;
+    ndc.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
     ray.setFromCamera(ndc, camera);
     if (!st.hidden && ray.intersectObject(nika.root, true).length) { nika.play('ngakak'); say('Haha, das kitzelt!', 2200); }
   }, { passive: true });
 
-  place(heroSpot());                                 // Modul laedt nach dem ersten render() -> Folie 1
+  // Spaet geladen: aktuelle Folie uebernehmen und von rechts hereinfahren
+  st.slide = Math.max(0, [...document.querySelectorAll('.slide')].findIndex((el) => el.classList.contains('is-active')));
+  st.hero = st.slide === 0; st.s = st.sTo = st.hero ? HERO : 1;
   syncVisible();
+  const spot = st.hero ? heroSpot() : parkSpot();
+  place(calm ? spot : { x: vw + 4 * S * st.s });
+  if (!calm) { st.yaw = st.yawTo = YAW.left; goTo(spot); }
   st.wanderAt = performance.now() + 30000;
   st.mischiefAt = performance.now() + 25000;
 
-  let last = performance.now();
-  (function frame(now) {
+  let last = performance.now(), tick = 0;
+  function frame(now) {
     requestAnimationFrame(frame);
     if (document.hidden) { last = now; return; }     // Tab im Hintergrund: nichts rechnen
+    // Steht er nur da und atmet, reichen 30 fps - halbiert die Last fuer schwache Grafikchips
+    if (st.parked && !nika.anim.name && now > st.puffUntil && now > st.hopAt + 500 && (tick++ & 1)) return;
     const dt = Math.min(0.05, (now - last) / 1000); last = now;
     if (window.innerWidth !== vw || window.innerHeight !== vh) {
       resize();
@@ -3626,15 +3665,31 @@ function start() {
     shadow.scale.set(3.5 * (1 - 0.3 * lift), 1.5 * (1 - 0.3 * lift), 1);
     shadow.material.opacity = 0.22 * (1 - 0.6 * lift);
     if (bubble.classList.contains('show')) placeBubble();
+    sizeWindow();
+    const x0 = Math.round(st.x - winW / 2), y0 = Math.round(st.y - winH * 0.62);
+    camera.left = x0; camera.right = x0 + winW; camera.top = -y0; camera.bottom = -(y0 + winH);
+    camera.updateProjectionMatrix();
+    canvas.style.transform = 'translate3d(' + x0 + 'px,' + y0 + 'px,0)';
     renderer.render(scene, camera);
-  })(last);
+  }
+  // Shader im Hintergrund kompilieren - sonst friert der erste Frame auf schwachen Grafikchips ~0,5 s ein
+  (renderer.compileAsync ? renderer.compileAsync(scene, camera).catch(() => {}) : Promise.resolve())
+    .then(() => { last = performance.now(); requestAnimationFrame(frame); });
 }
 </script>
 
 <!-- DACHSER-Weltkarte (MapLibre GL; Bibliothek lokal, Kartendaten via Internet von CARTO) -->
 <script src="maplibre-gl.js"></script>
 <script>
+/* Karte startet erst nach dem Intro (Stil laden, Kacheln dekodieren und WebGL-Aufbau ruckeln
+   sonst die Eroeffnung). Sie blendet sich ohnehin erst ein, wenn die Kacheln da sind. */
 (function(){
+  var introEl = document.getElementById('intro');
+  function later(){ ('requestIdleCallback' in window) ? requestIdleCallback(initDeckMap, {timeout:1500}) : setTimeout(initDeckMap, 200); }
+  if(introEl && !introEl.classList.contains('done')) document.addEventListener('deck:start', function(){ setTimeout(later, 600); }, {once:true});
+  else later();
+})();
+function initDeckMap(){
   var wrap = document.getElementById('deckMap');
   var deck = document.getElementById('deck');
   if(!wrap || !document.getElementById('deckMapCanvas') || typeof maplibregl === 'undefined') return;
@@ -3679,12 +3734,14 @@ function start() {
   };
   function themeNow(){ return document.documentElement.getAttribute('data-theme')==='dark' ? 'dark' : 'light'; }
 
+  var cur0 = Math.max(0, [].findIndex.call(document.querySelectorAll('.slide'), function(el){ return el.classList.contains('is-active'); }));
+  var cfg0 = SLIDES[cur0] || SLIDES[0];
   var map;
   try{
     map = new maplibregl.Map({
       container:'deckMapCanvas',
       style: STYLES[themeNow()],
-      center: LOC.deu.c, zoom: SLIDES[0].zoom,
+      center: (LOC[cfg0.loc] || LOC.deu).c, zoom: cfg0.zoom,
       interactive: false,
       attributionControl: {compact:true},
       fadeDuration: 300
@@ -3732,9 +3789,9 @@ function start() {
       }
     }
   };
-  window.DachserMap.toSlide(0);
+  deck.classList.toggle('map-dim', !!cfg0.dim); curSlide = cur0;
   syncLabels();
-})();
+}
 </script>
 
 </body>
